@@ -2,8 +2,8 @@ import time
 import numpy as np
 import pyvirtualcam
 
-width = 640
-height = 480
+width = 1280
+height = 720
 channels = 4
 fps = 30
 
