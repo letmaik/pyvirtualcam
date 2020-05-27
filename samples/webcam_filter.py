@@ -70,7 +70,7 @@ try:
             out_frame_rgba[:,:,:3] = out_frame
             out_frame_rgba[:,:,3] = 255
 
-            pyvirtualcam.send(i, out_frame_rgba.reshape(height, width * channels))
+            pyvirtualcam.send(i, out_frame_rgba)
             i += 1
     finally:
         pyvirtualcam.stop()

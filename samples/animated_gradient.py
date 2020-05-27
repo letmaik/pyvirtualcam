@@ -36,6 +36,6 @@ for i in range(1000):
     white = np.array([255,255,255], np.uint8)
     for i_bit, bit in enumerate(bits):
         frame[0:bit_size, i_bit*bit_size:i_bit*bit_size+bit_size, :3] = red if bit == '1' else white
-    pyvirtualcam.send(i, frame.reshape(height, width * channels))
+    pyvirtualcam.send(i, frame)
     time.sleep(1/fps)
 pyvirtualcam.stop()
