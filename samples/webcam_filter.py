@@ -32,10 +32,9 @@ try:
     if not rval:
         raise RuntimeError('error fetching first frame')
     assert in_frame.shape == (height, width, 3)
-    channels = 4
-    delay = 0
 
     # Send filtered images to virtual cam
+    delay = 0
     pyvirtualcam.start(width, height, fps_out, delay)
     try:
         i = 0
@@ -66,7 +65,7 @@ try:
 
             # convert to RGBA
             out_frame = cv2.cvtColor(cartoon, cv2.COLOR_BGR2RGB)
-            out_frame_rgba = np.zeros((height, width, channels), np.uint8)
+            out_frame_rgba = np.zeros((height, width, 4), np.uint8)
             out_frame_rgba[:,:,:3] = out_frame
             out_frame_rgba[:,:,3] = 255
 
