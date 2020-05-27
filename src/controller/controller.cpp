@@ -17,7 +17,7 @@ bool output_running = false;
 bool virtual_output_start(int width, int height, double fps, int delay)
 {
     if (virtual_out) {
-        printf("already running\n");
+        fprintf(stderr, "virtual camera output already started\n");
         return false;
     }
 	virtual_out = (virtual_out_data*) malloc(sizeof(struct virtual_out_data));
@@ -36,14 +36,11 @@ bool virtual_output_start(int width, int height, double fps, int delay)
 	if (start) {
 		output_running = true;
 		shared_queue_set_delay(&out_data->video_queue, out_data->delay);
-		
-		printf("starting virtual-output on VirtualCam\n");
-
 	} else {
 		output_running = false;
 		shared_queue_write_close(&out_data->video_queue);
 
-		printf("starting virtual-output failed\n");
+		fprintf(stderr, "shared_queue_create() failed\n");
 	}
 
 	return start;
@@ -52,14 +49,11 @@ bool virtual_output_start(int width, int height, double fps, int delay)
 void virtual_output_stop()
 {
     if (!virtual_out) {
-		printf("not running\n");
         return;
 	}	
 	shared_queue_write_close(&virtual_out->video_queue);
     free(virtual_out);
 	output_running = false;
-
-	printf("virtual-output stop");
 }
 
 // data is in RGBA format (packed RGBA 8:8:8:8, 32bpp, RGBARGBA...)
