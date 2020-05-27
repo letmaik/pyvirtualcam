@@ -24,6 +24,7 @@ def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
     return result
 
 pyvirtualcam.start(width, height, fps, 10)
+print(f'virtual cam output started ({width}x{height} @ {fps}fps)')
 try:
     i = 0
     while True:
@@ -53,3 +54,4 @@ try:
         i += 1
 finally:
     pyvirtualcam.stop()
+    print('virtual cam output stopped')
