@@ -1,3 +1,5 @@
+# This script simply sends an animated gradient to the virtual camera.
+
 import time
 import numpy as np
 import pyvirtualcam
