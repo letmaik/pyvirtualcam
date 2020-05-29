@@ -132,7 +132,7 @@ exec { conda activate pyenv_minimal }
 New-Item -Force -ItemType directory tmp_for_test | out-null
 cd tmp_for_test
 
-python -m pip uninstall -y rawpy
+python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -c "import pyvirtualcam" }
 
