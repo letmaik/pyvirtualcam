@@ -1,55 +1,65 @@
+#include <stdio.h>
 #include "share_queue_write.h"
+#include "util.h"
 
 bool shared_queue_create(share_queue* q, int mode, int format,
 	int width, int height, uint64_t frame_time, int qlength)
 {
-	if (!q)
+	if (!q) {
+		fprintf(stderr, "q argument NULL\n");
 		return false;
+	}
 
-	if (!shared_queue_check(mode))
+	if (!shared_queue_check(mode)) {
+		fprintf(stderr, "shared_queue_check() failed\n");
 		return false;
+	}
 
 	int frame_size = 0;
-	int buffer_size = 0;
 	const char* name = get_mapping_name(mode);
 
 	if (mode < ModeAudio) {
 		frame_size = cal_video_buffer_size(format, width, height);
-		buffer_size = sizeof(queue_header) + (sizeof(frame_header) 
-			+ frame_size) * qlength;
-		q->hwnd = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, 
-			PAGE_READWRITE, 0, buffer_size, name);
 	} else {
 		frame_size = AUDIO_SIZE;
-		buffer_size = sizeof(queue_header) + (sizeof(frame_header) + 
-			frame_size) * qlength;
-		q->hwnd = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, 
-			PAGE_READWRITE, 0, buffer_size, name);
+	}
+	int buffer_size = sizeof(queue_header) + (sizeof(frame_header) + 
+		frame_size) * qlength;
+	q->hwnd = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, 
+		PAGE_READWRITE, 0, buffer_size, name);
+
+	if (!q->hwnd) {
+		PrintLastError();
+		fprintf(stderr, "CreateFileMappingA() failed\n");
+		return false;
 	}
 
-	if (q->hwnd) {
-		q->header = (queue_header*)MapViewOfFile(q->hwnd, FILE_MAP_ALL_ACCESS, 
-			0, 0, buffer_size);
+	q->header = (queue_header*)MapViewOfFile(q->hwnd, FILE_MAP_ALL_ACCESS, 
+		0, 0, buffer_size);
+
+	if (!q->header) {
+		PrintLastError();
+		fprintf(stderr, "MapViewOfFile() failed\n");
+		return false;
 	}
+
 	queue_header* q_head = q->header;
 
-	if (q_head) {
-		q_head->header_size = sizeof(queue_header);
-		q_head->element_header_size = sizeof(frame_header);
-		q_head->element_size = sizeof(frame_header) + frame_size;
-		q_head->format = format;
-		q_head->queue_length = qlength;
-		q_head->write_index = 0;
-		q_head->state = OutputStart;
-		q_head->frame_time = frame_time;
-		q_head->delay_frame = 5;
-		q_head->recommended_width = width;
-		q_head->recommended_height = height;
-		q->mode = mode;
-		q->index = 0;
-	}
+	q_head->header_size = sizeof(queue_header);
+	q_head->element_header_size = sizeof(frame_header);
+	q_head->element_size = sizeof(frame_header) + frame_size;
+	q_head->format = format;
+	q_head->queue_length = qlength;
+	q_head->write_index = 0;
+	q_head->state = OutputStart;
+	q_head->frame_time = frame_time;
+	q_head->delay_frame = 5;
+	q_head->recommended_width = width;
+	q_head->recommended_height = height;
+	q->mode = mode;
+	q->index = 0;
 
-	return (q->hwnd != NULL && q->header != NULL);
+	return true;
 }
 
 void shared_queue_write_close(share_queue* q)
@@ -168,6 +178,7 @@ bool shared_queue_check(int mode)
 	hwnd = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, name);
 
 	if (hwnd) {
+		fprintf(stderr, "%s handle exists already\n", name);
 		CloseHandle(hwnd);
 		return false;
 	} else
