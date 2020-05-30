@@ -130,6 +130,7 @@ setup(
     ext_modules=ext_modules,
     packages = find_packages(),
     setup_requires=['pybind11>=2.5.0'],
+    install_requires=['numpy'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )

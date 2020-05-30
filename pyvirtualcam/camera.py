@@ -3,6 +3,8 @@ import warnings
 import platform
 import time
 
+import numpy as np
+
 from pyvirtualcam.util import FPSCounter
 
 if platform.system() == 'Windows':
@@ -50,7 +52,7 @@ class CameraBase(ABC):
     def close(self) -> None: pass
 
     @abstractmethod
-    def send(self, frame) -> None:
+    def send(self, frame: np.ndarray) -> None:
         self._frames_sent += 1
         
         self._fps_counter.measure()
@@ -87,7 +89,7 @@ class _WindowsCamera(CameraBase):
         super().close()
         _native_windows.stop()
 
-    def send(self, frame) -> None:
+    def send(self, frame: np.ndarray) -> None:
         super().send(frame)
         _native_windows.send(frame)
 
