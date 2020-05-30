@@ -30,6 +30,22 @@ class CameraBase(ABC):
         self.close()
         return False
 
+    @property
+    def width(self) -> int:
+        return self._width
+    
+    @property
+    def height(self) -> int:
+        return self._height
+
+    @property
+    def fps(self) -> int:
+        return self._fps
+
+    @property
+    def frames_sent(self) -> int:
+        return self._frames_sent
+
     @abstractmethod
     def close(self) -> None: pass
 
