@@ -1,8 +1,9 @@
 # https://github.com/pybind/python_example/blob/master/setup.py
 
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext
+import platform
 import sys
+from setuptools import setup, Extension, find_packages
+from setuptools.command.build_ext import build_ext
 import setuptools
 
 class get_pybind_include(object):
@@ -15,25 +16,27 @@ class get_pybind_include(object):
         import pybind11
         return pybind11.get_include()
 
+ext_modules = []
 
-ext_modules = [
-    Extension(
-        'pyvirtualcam',
-        # Sort input source files to ensure bit-for-bit reproducible builds
-        # (https://github.com/pybind/python_example/pull/53)
-        sorted([
-            'src/main.cpp',
-            'src/controller/controller.cpp',
-            'src/queue/share_queue_write.cpp']),
-        include_dirs=[
-            # Path to pybind11 headers
-            get_pybind_include(),
-            'src'
-        ],
-        language='c++'
-    ),
-]
-
+if platform.system() == 'Windows':
+    ext_modules.append(
+        Extension('pyvirtualcam._native_windows',
+            # Sort input source files to ensure bit-for-bit reproducible builds
+            # (https://github.com/pybind/python_example/pull/53)
+            sorted([
+                'pyvirtualcam/native_windows/main.cpp',
+                'pyvirtualcam/native_windows/controller/controller.cpp',
+                'pyvirtualcam/native_windows/queue/share_queue_write.cpp']),
+            include_dirs=[
+                # Path to pybind11 headers
+                get_pybind_include(),
+                'pyvirtualcam/native_windows'
+            ],
+            language='c++'
+        )
+    )
+else:
+    raise NotImplementedError('unsupported OS')
 
 # cf http://bugs.python.org/issue26689
 def has_flag(compiler, flagname):
@@ -102,16 +105,30 @@ class BuildExt(build_ext):
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)
 
+# make __version__ available (https://stackoverflow.com/a/16084844)
+exec(open('pyvirtualcam/_version.py').read())
 
 setup(
     name='pyvirtualcam',
-    version='0.1.0',
+    version=__version__,
     author='Maik Riechert',
     author_email='maik.riechert@arcor.de',
     url='https://github.com/letmaik/pyvirtualcam',
     description='Send frames to a virtual camera',
-    long_description='',
+    long_description = open('README.md').read(),
+    long_description_content_type='text/markdown',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'OSI Approved :: GNU General Public License v2 (GPLv2)',
+        'Programming Language :: Python :: 3',
+        'Operating System :: Microsoft :: Windows',
+        'Topic :: Multimedia :: Graphics',
+        'Topic :: Software Development :: Libraries',
+    ],
     ext_modules=ext_modules,
+    packages = find_packages(),
     setup_requires=['pybind11>=2.5.0'],
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,

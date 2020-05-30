@@ -27,29 +27,15 @@ height = int(vc.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps_in = vc.get(cv2.CAP_PROP_FPS)
 print(f'webcam capture started ({width}x{height} @ {fps_in}fps)')
 
-fps_out = 20.
-spf_out = 1/fps_out
+fps_out = 20
 
 try:
     delay = 0 # low-latency, reduces internal queue size
-    pyvirtualcam.start(width, height, fps_out, delay)
-    print(f'virtual cam output started ({width}x{height} @ {fps_out}fps)')
-    try:
-        i = 0
-        t_last = 0
-        while True:
-            # Try to maintain target fps
-            t_now = time.time()
-            t_elapsed = t_now - t_last
-            if t_elapsed < spf_out:
-                if verbose:
-                    print(f'sleeping {spf_out - t_elapsed}s')
-                time.sleep(spf_out - t_elapsed)
-            else:
-                if verbose:
-                    print(f'not sleeping (elapsed={t_elapsed}s)')
-            t_last = t_now
 
+    with pyvirtualcam.Camera(width, height, fps_out, delay, print_fps=True) as cam:
+        print(f'virtual cam started ({width}x{height} @ {fps_out}fps)')
+
+        while True:
             # Read frame from webcam
             rval, in_frame = vc.read()
             if not rval:
@@ -74,11 +60,9 @@ try:
             out_frame_rgba[:,:,3] = 255
 
             # Send to virtual cam
-            pyvirtualcam.send(i, out_frame_rgba)
-            i += 1
-    finally:
-        pyvirtualcam.stop()
-        print('virtual cam output stopped')
+            cam.send(out_frame_rgba)
+
+            # Wait until it's time for the next frame
+            cam.sleep_until_next_frame()
 finally:
     vc.release()
-    print('webcam capture stopped')

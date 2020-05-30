@@ -10,7 +10,7 @@ void start(int width, int height, double fps, int delay) {
         throw std::runtime_error("error starting virtual camera output");
 }
 
-void send(int64_t timestamp, py::array_t<uint8_t, py::array::c_style> frame) {
+void send(py::array_t<uint8_t, py::array::c_style> frame) {
     py::buffer_info buf = frame.request();
     if (buf.ndim != 3)
         throw std::runtime_error("ndim must be 3 (h,w,c)");
@@ -22,11 +22,11 @@ void send(int64_t timestamp, py::array_t<uint8_t, py::array::c_style> frame) {
     uint8_t** data = (uint8_t**) malloc(sizeof(uint8_t*) * n_lines);
     for (size_t i=0; i < n_lines; i++)
         data[i] = (uint8_t*)buf.ptr + i*line_size;
-    virtual_video(timestamp, data);
+    virtual_video(data);
     free(data);
 }
 
-PYBIND11_MODULE(pyvirtualcam, m) {
+PYBIND11_MODULE(_native_windows, m) {
     m.def("start", &start, R"pbdoc(
         Start the virtual cam output.
     )pbdoc");

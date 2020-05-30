@@ -6,7 +6,7 @@ import pyvirtualcam
 
 width = 1280
 height = 720
-fps = 30
+fps = 20
 
 # https://note.nkmk.me/en/python-numpy-generate-gradation-image/
 def get_gradation_2d(start, stop, width, height, is_horizontal):
@@ -23,9 +23,8 @@ def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
 
     return result
 
-pyvirtualcam.start(width, height, fps, 10)
-print(f'virtual cam output started ({width}x{height} @ {fps}fps)')
-try:
+with pyvirtualcam.Camera(width, height, fps, print_fps=True) as cam:
+    print(f'virtual cam started ({width}x{height} @ {fps}fps)')
     i = 0
     while True:
         # Things we want to draw:
@@ -46,12 +45,9 @@ try:
             frame[:bit_size, i_bit*bit_size:i_bit*bit_size+bit_size, :3] = bit_color
 
         # Send to the virtual cam.
-        pyvirtualcam.send(i, frame)
+        cam.send(frame)
 
-        # Wait until it's time to prepare the next frame.
-        time.sleep(1/fps)
+        # Wait until it's time to draw the next frame.
+        cam.sleep_until_next_frame()
 
         i += 1
-finally:
-    pyvirtualcam.stop()
-    print('virtual cam output stopped')

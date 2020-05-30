@@ -4,5 +4,5 @@
 
 bool virtual_output_start(int width, int height, double fps, int delay);
 void virtual_output_stop();
-void virtual_video(int64_t timestamp, uint8_t **data);
+void virtual_video(uint8_t **data);
 bool virtual_output_is_running();
