@@ -2,8 +2,10 @@ from abc import ABC, abstractmethod
 import warnings
 import platform
 import time
+from PIL import Image
 
 import numpy as np
+from numpy import asarray
 
 from pyvirtualcam.util import FPSCounter
 
@@ -69,7 +71,15 @@ class CameraBase(ABC):
                 f'current fps ({self._fps_counter.avg_fps:.1f}) much lower '
                 f'than camera fps ({self._fps:.1f}), '
                 f'consider lowering the camera fps')
-
+    
+    @abstractmethod
+    def sendJpg(file):
+        jpgData = asarray(Image.open(file))
+        zeros = np.zeros((height(), cam(), 4), np.uint8)
+        zeros[:,:,:3] = jpgData
+        return zeros
+        
+        
     @property
     def current_fps(self) -> float:
         return self._fps_counter.avg_fps
