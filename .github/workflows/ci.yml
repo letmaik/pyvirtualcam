@@ -7,7 +7,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # FIXME should be include:, but individual entries are not supported yet, so work-around
         config:
 
         # Use 2016 image as 2019 does not have VC++ 14.0 compiler.
@@ -27,6 +26,11 @@ jobs:
           python-version: '3.8'
           python-arch: '64'
           numpy-version: '1.17'
+        - os-image: windows-2016
+          os-name: windows
+          python-version: '3.9'
+          python-arch: '64'
+          numpy-version: '1.19'
 
     runs-on: ${{ matrix.config.os-image }}
 
