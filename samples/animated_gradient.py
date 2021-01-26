@@ -17,7 +17,7 @@ def get_gradation_2d(start, stop, width, height, is_horizontal):
 
 
 def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
-    result = np.zeros((height, width, len(start_list)), dtype=np.float)
+    result = np.zeros((height, width, len(start_list)), np.float)
 
     for i, (start, stop, is_horizontal) in enumerate(zip(start_list, stop_list, is_horizontal_list)):
         result[:, :, i] = get_gradation_2d(start, stop, width, height, is_horizontal)
@@ -31,7 +31,10 @@ with pyvirtualcam.Camera(width_, height_, fps_, print_fps=True) as cam:
     while True:
         # Things we want to draw:
         # 1. A color gradient.
-        gradient = get_gradation_3d(width_, height_, (0, 0, 192), ((j * 2) % 255, 255, 64), (True, False, False))
+        gradient = get_gradation_3d(WIDTH, HEIGHT,
+                                    start_list=(0, 0, 192),
+                                    stop_list=((frame_counter * 2) % 255, 255, 64),
+                                    is_horizontal_list=(True, False, False))
         # 2. A binary-encoded frame counter.
         bits = f'{j:012b}'
         bit_size = 10

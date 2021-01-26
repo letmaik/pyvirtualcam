@@ -44,10 +44,11 @@ try:
             # (https://pysource.com/2018/10/11/how-to-create-a-cartoon-effect-opencv-with-python/)
             # 1) Edges
             gray = cv2.cvtColor(in_frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.medianBlur(gray, 5)
-            edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
+            gray = cv2.medianBlur(gray, ksize=5)
+            edges = cv2.adaptiveThreshold(gray, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
+                                          thresholdType=cv2.THRESH_BINARY, blockSize=9, C=9)
             # 2) Color
-            color = cv2.bilateralFilter(in_frame, 9, 300, 300)
+            color = cv2.bilateralFilter(in_frame, d=9, sigmaColor=300, sigmaSpace=300)
             # 3) Cartoon
             cartoon = cv2.bitwise_and(color, color, mask=edges)
             assert cartoon.shape == (height, width, 3)
