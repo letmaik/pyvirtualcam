@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-import warnings
 import platform
 import time
+import warnings
+from abc import ABC, abstractmethod
 
 import numpy as np
 
