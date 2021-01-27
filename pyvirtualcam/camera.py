@@ -22,10 +22,12 @@ class CameraBase(ABC):
         self._delay = delay
         self._print_fps = print_fps
 
-        self._fps_counter = FPSCounter()
+        self._fps_counter = FPSCounter(fps)
         self._fps_warning_printed = False
         self._frames_sent = 0
-
+        self._last_frame_t = None
+        self._extra_time_per_frame = 0
+    
     def __enter__(self):
         return self
 
@@ -56,7 +58,7 @@ class CameraBase(ABC):
     @abstractmethod
     def send(self, frame: np.ndarray) -> None:
         self._frames_sent += 1
-
+        self._last_frame_t = time.perf_counter()
         self._fps_counter.measure()
 
         if self._print_fps and self._frames_sent % self._fps == 0:
@@ -77,9 +79,17 @@ class CameraBase(ABC):
         return self._fps_counter.avg_fps
 
     def sleep_until_next_frame(self) -> None:
-        if self._fps_counter.avg_fps > self._fps:
-            t_sleep = 1 / self._fps - 1 / self._fps_counter.avg_fps
-            time.sleep(t_sleep)
+        next_frame_t = self._last_frame_t + 1 / self._fps
+        current_t = time.perf_counter()
+        if current_t < next_frame_t:
+            if self._fps_counter.avg_fps < self._fps:
+                self._extra_time_per_frame += 0.0001
+            else:
+                self._extra_time_per_frame -= 0.0001
+                self._extra_time_per_frame = max(0, self._extra_time_per_frame)
+            t_sleep = next_frame_t - current_t - self._extra_time_per_frame
+            if t_sleep > 0:
+                time.sleep(t_sleep)
 
 
 class _WindowsCamera(CameraBase):
