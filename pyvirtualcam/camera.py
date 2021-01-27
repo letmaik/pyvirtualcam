@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-import warnings
 import platform
 import time
+import warnings
+from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -12,6 +12,7 @@ if platform.system() == 'Windows':
 else:
     raise NotImplementedError('unsupported OS')
 
+
 class CameraBase(ABC):
     @abstractmethod
     def __init__(self, width: int, height: int, fps: float, delay: int, print_fps: bool) -> None:
@@ -20,11 +21,11 @@ class CameraBase(ABC):
         self._fps = fps
         self._delay = delay
         self._print_fps = print_fps
-        
+
         self._fps_counter = FPSCounter()
         self._fps_warning_printed = False
         self._frames_sent = 0
-    
+
     def __enter__(self):
         return self
 
@@ -35,13 +36,13 @@ class CameraBase(ABC):
     @property
     def width(self) -> int:
         return self._width
-    
+
     @property
     def height(self) -> int:
         return self._height
 
     @property
-    def fps(self) -> int:
+    def fps(self) -> float:
         return self._fps
 
     @property
@@ -49,12 +50,13 @@ class CameraBase(ABC):
         return self._frames_sent
 
     @abstractmethod
-    def close(self) -> None: pass
+    def close(self) -> None:
+        pass
 
     @abstractmethod
     def send(self, frame: np.ndarray) -> None:
         self._frames_sent += 1
-        
+
         self._fps_counter.measure()
 
         if self._print_fps and self._frames_sent % self._fps == 0:
@@ -63,7 +65,7 @@ class CameraBase(ABC):
         # The first few frames may lead to a lower fps, so we only print the
         # warning after the rate has stabilized a bit.
         if not self._fps_warning_printed and self._frames_sent > 100 and \
-               self._fps_counter.avg_fps / self._fps < 0.5:
+                self._fps_counter.avg_fps / self._fps < 0.5:
             self._fps_warning_printed = True
             warnings.warn(
                 f'current fps ({self._fps_counter.avg_fps:.1f}) much lower '
@@ -76,7 +78,7 @@ class CameraBase(ABC):
 
     def sleep_until_next_frame(self) -> None:
         if self._fps_counter.avg_fps > self._fps:
-            t_sleep = 1/self._fps - 1/self._fps_counter.avg_fps
+            t_sleep = 1 / self._fps - 1 / self._fps_counter.avg_fps
             time.sleep(t_sleep)
 
 
