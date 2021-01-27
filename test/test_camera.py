@@ -31,4 +31,4 @@ def test_sleep_until_next_frame():
             cam.sleep_until_next_frame()
         
         actual_fps = cam.current_fps
-        assert abs(target_fps - actual_fps) < 0.1
+        assert abs(target_fps - actual_fps) < 0.5
