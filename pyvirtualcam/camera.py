@@ -24,6 +24,7 @@ class CameraBase(ABC):
 
         self._fps_counter = FPSCounter(fps)
         self._fps_warning_printed = False
+        self._fps_last_printed = time.perf_counter()
         self._frames_sent = 0
         self._last_frame_t = None
         self._extra_time_per_frame = 0
@@ -61,7 +62,8 @@ class CameraBase(ABC):
         self._last_frame_t = time.perf_counter()
         self._fps_counter.measure()
 
-        if self._print_fps and self._frames_sent % self._fps == 0:
+        if self._print_fps and self._last_frame_t - self._fps_last_printed > 1:
+            self._fps_last_printed = self._last_frame_t
             print(f'{self._fps_counter.avg_fps:.1f} fps')
 
         # The first few frames may lead to a lower fps, so we only print the
@@ -82,11 +84,9 @@ class CameraBase(ABC):
         next_frame_t = self._last_frame_t + 1 / self._fps
         current_t = time.perf_counter()
         if current_t < next_frame_t:
-            if self._fps_counter.avg_fps < self._fps:
-                self._extra_time_per_frame += 0.0001
-            else:
-                self._extra_time_per_frame -= 0.0001
-                self._extra_time_per_frame = max(0, self._extra_time_per_frame)
+            factor = (self._fps - self._fps_counter.avg_fps) / self._fps_counter.avg_fps
+            self._extra_time_per_frame += 0.01 * factor
+            self._extra_time_per_frame = max(0, self._extra_time_per_frame)
             t_sleep = next_frame_t - current_t - self._extra_time_per_frame
             if t_sleep > 0:
                 time.sleep(t_sleep)
