@@ -3,10 +3,6 @@
 import numpy as np
 import pyvirtualcam
 
-WIDTH = 1280
-HEIGHT = 720
-FPS = 20
-
 
 # https://note.nkmk.me/en/python-numpy-generate-gradation-image/
 def get_gradation_2d(start, stop, width, height, is_horizontal):
@@ -25,13 +21,13 @@ def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
     return result
 
 
-with pyvirtualcam.Camera(WIDTH, HEIGHT, FPS, print_fps=True) as cam:
-    print(f'Virtual cam started ({WIDTH}x{HEIGHT} @ {FPS}fps)')
+with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
+    print(f'Virtual cam started ({cam.width}x{cam.height} @ {cam.fps}fps)')
     frame_counter = 0
     while True:
         # Things we want to draw:
         # 1. A color gradient.
-        gradient = get_gradation_3d(WIDTH, HEIGHT,
+        gradient = get_gradation_3d(cam.width, cam.height,
                                     start_list=(0, 0, 192),
                                     stop_list=((frame_counter * 2) % 255, 255, 64),
                                     is_horizontal_list=(True, False, False))
@@ -42,7 +38,7 @@ with pyvirtualcam.Camera(WIDTH, HEIGHT, FPS, print_fps=True) as cam:
         white = np.array([255, 255, 255], np.uint8)
 
         # Create a new frame.
-        frame = np.zeros((HEIGHT, WIDTH, 4), np.uint8)
+        frame = np.zeros((cam.height, cam.width, 4), np.uint8)
         frame[:, :, :3] = gradient
         frame[:, :, 3] = 255
         for i_bit, bit in enumerate(bits):
