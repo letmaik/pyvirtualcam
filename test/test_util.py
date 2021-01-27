@@ -15,4 +15,4 @@ def test_fps_counter():
 
     measured_avg_fps = counter.avg_fps
     diff = abs(measured_avg_fps - target_fps)
-    assert diff < 0.01, measured_avg_fps
+    assert diff < 0.1, measured_avg_fps
