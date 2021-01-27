@@ -4,3 +4,7 @@ build
 dist
 *.pyd
 *.pyc
+*.zip
+*.exe
+obs-virtual-cam
+external/

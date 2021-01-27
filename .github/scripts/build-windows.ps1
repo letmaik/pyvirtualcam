@@ -98,7 +98,7 @@ Init-VS
 Get-ChildItem env:
 
 $env:CONDA_ROOT = $pwd.Path + "\external\miniconda_$env:PYTHON_ARCH"
-& .\.github\scripts\install-miniconda.ps1
+& $PSScriptRoot\install-miniconda.ps1
 
 & $env:CONDA_ROOT\shell\condabin\conda-hook.ps1
 
@@ -137,22 +137,24 @@ ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -c "import pyvirtualcam" }
 
 # Necessary to avoid bug when switching to test env.
-#exec { conda deactivate }
+exec { conda deactivate }
+
+& ..\.github\scripts\install-obs-virtual-cam.ps1
 
 # Unit tests
-#exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy scikit-image --force }
-#exec { conda activate pyenv_test }
-#
-## Check that we have the expected version and architecture for Python
-#exec { python --version }
-#exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
-#exec { python -c "import sys; print(sys.prefix)" }
-#
-## output what's installed
-#exec { python -m pip freeze }
-#
-#python -m pip uninstall -y rawpy
-#ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
-#exec { python -m pip install -r ..\dev-requirements.txt }
-#exec { nosetests --verbosity=3 --nocapture ../test }
-#cd ..
+exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy --force }
+exec { conda activate pyenv_test }
+
+# Check that we have the expected version and architecture for Python
+exec { python --version }
+exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
+exec { python -c "import sys; print(sys.prefix)" }
+
+# output what's installed
+exec { python -m pip freeze }
+
+python -m pip uninstall -y pyvirtualcam
+ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install -r ..\dev-requirements.txt }
+exec { pytest -v -s ../test }
+cd ..
