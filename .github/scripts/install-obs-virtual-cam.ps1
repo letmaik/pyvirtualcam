@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$OBS_VIRTUAL_CAM_URL = 'https://github.com/Fenrirthviti/obs-virtual-cam/releases/download/2.0.5/OBS-Virtualcam-2.0.5-Windows.zip'
+$OBS_VIRTUAL_CAM_URL = 'https://github.com/CatxFish/obs-virtual-cam/releases/download/2.0.4/OBS-VirtualCam2.0.4.zip'
 
 . $PSScriptRoot\download-file.ps1
 
@@ -20,6 +20,9 @@ function InstallObsVirtualCam () {
     Expand-Archive -LiteralPath $filepath -DestinationPath $install_dir -Force
     
     $args = "/n /i:1 /s $pwd\$install_dir\bin\32bit\obs-virtualsource.dll"
+    Write-Host "regsvr32" $args
+    Start-Process -FilePath "regsvr32" -ArgumentList $args -Wait -Passthru -Verb "runAs"
+    $args = "/n /i:1 /s $pwd\$install_dir\bin\64bit\obs-virtualsource.dll"
     Write-Host "regsvr32" $args
     Start-Process -FilePath "regsvr32" -ArgumentList $args -Wait -Passthru -Verb "runAs"
 }
