@@ -20,6 +20,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
 ## Installation
 
 This package is Windows-only for now. Binary wheels are provided on PyPI.
+Check out [pyfakewebcam](https://github.com/jremmons/pyfakewebcam) for something that works on Linux.
 
 ```sh
 pip install pyvirtualcam
@@ -42,4 +43,4 @@ The most useful contributions would be to add support for macOS or Linux.
 
 Similar to Windows, it may be possible in macOS to piggyback on https://github.com/johnboiles/obs-mac-virtualcam.
 
-For Linux, it seems like https://github.com/umlaeute/v4l2loopback is the right dependency. Code from https://github.com/CatxFish/obs-v4l2sink may be useful as inspiration on how to send frames to the loopback device.
+For Linux, it seems like https://github.com/umlaeute/v4l2loopback is the right dependency. Code from https://github.com/CatxFish/obs-v4l2sink may be useful as inspiration on how to send frames to the loopback device. Also, there is https://github.com/jremmons/pyfakewebcam which may be a good candidate.

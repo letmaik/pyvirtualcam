@@ -35,7 +35,7 @@ static uint64_t get_timestamp_ns()
 
 bool virtual_output_start(int width, int height, double fps, int delay)
 {
-    if (virtual_out) {
+    if (output_running) {
         fprintf(stderr, "virtual camera output already started\n");
         return false;
     }
@@ -57,6 +57,7 @@ bool virtual_output_start(int width, int height, double fps, int delay)
 	} else {
 		output_running = false;
 		shared_queue_write_close(&out_data->video_queue);
+		free(virtual_out);
 
 		fprintf(stderr, "shared_queue_create() failed\n");
 	}
@@ -66,7 +67,7 @@ bool virtual_output_start(int width, int height, double fps, int delay)
 
 void virtual_output_stop()
 {
-    if (!virtual_out) {
+    if (!output_running) {
         return;
 	}	
 	shared_queue_write_close(&virtual_out->video_queue);
