@@ -75,7 +75,7 @@ class CameraBase(ABC):
                 f'current fps ({self._fps_counter.avg_fps:.1f}) much lower '
                 f'than camera fps ({self._fps:.1f}), '
                 f'consider lowering the camera fps')
-
+        
     @property
     def current_fps(self) -> float:
         return self._fps_counter.avg_fps
