@@ -2,6 +2,7 @@
 
 import platform
 import sys
+from distutils.unixccompiler import UnixCCompiler
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import setuptools
@@ -33,6 +34,34 @@ if platform.system() == 'Windows':
                 'pyvirtualcam/native_windows'
             ],
             language='c++'
+        )
+    )
+elif platform.system() == 'Darwin':
+    ext_modules.append(
+        Extension('pyvirtualcam._native_macos',
+            # Sort input source files to ensure bit-for-bit reproducible builds
+            # (https://github.com/pybind/python_example/pull/53)
+            sorted([
+                'pyvirtualcam/native_macos/main.mm',
+                'pyvirtualcam/native_macos/OBSDALMachServer.mm']),
+            include_dirs=[
+                # Path to pybind11 headers
+                get_pybind_include(),
+                'pyvirtualcam/native_macos'
+            ],
+            extra_link_args=[
+                "-framework", "AVFoundation",
+                "-framework", "AppKit",
+                "-framework", "Cocoa",
+                "-framework", "CoreFoundation",
+                "-framework", "CoreMedia",
+                "-framework", "CoreVideo",
+                "-framework", "Cocoa",
+                "-framework", "CoreMediaIO",
+                "-framework", "IOSurface",
+                "-framework", "IOKit"
+            ],
+            language='objc'
         )
     )
 else:
@@ -85,8 +114,11 @@ class BuildExt(build_ext):
         'unix': [],
     }
 
+    UnixCCompiler.src_extensions.append(".mm")
+    UnixCCompiler.language_map[".mm"] = "objc"
+
     if sys.platform == 'darwin':
-        darwin_opts = ['-stdlib=libc++', '-mmacosx-version-min=10.7']
+        darwin_opts = ['-stdlib=libc++', '-std=gnu++14']
         c_opts['unix'] += darwin_opts
         l_opts['unix'] += darwin_opts
 
@@ -95,14 +127,15 @@ class BuildExt(build_ext):
         opts = self.c_opts.get(ct, [])
         link_opts = self.l_opts.get(ct, [])
         if ct == 'unix':
-            opts.append(cpp_flag(self.compiler))
-            if has_flag(self.compiler, '-fvisibility=hidden'):
-                opts.append('-fvisibility=hidden')
+            if sys.platform != 'darwin':
+                opts.append(cpp_flag(self.compiler))
+            #if has_flag(self.compiler, '-fvisibility=hidden'):
+            #    opts.append('-fvisibility=hidden')
 
         for ext in self.extensions:
             ext.define_macros = [('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
-            ext.extra_compile_args = opts
-            ext.extra_link_args = link_opts
+            ext.extra_compile_args += opts
+            ext.extra_link_args += link_opts
         build_ext.build_extensions(self)
 
 # make __version__ available (https://stackoverflow.com/a/16084844)
@@ -124,6 +157,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Programming Language :: Python :: 3',
         'Operating System :: Microsoft :: Windows',
+        'Operating System :: MacOS',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Software Development :: Libraries',
     ],

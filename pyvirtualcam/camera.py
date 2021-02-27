@@ -8,7 +8,9 @@ import numpy as np
 from pyvirtualcam.util import FPSCounter
 
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows
+    from pyvirtualcam import _native_windows as _native
+elif platform.system() == 'Darwin':
+    from pyvirtualcam import _native_macos as _native
 else:
     raise NotImplementedError('unsupported OS')
 
@@ -92,19 +94,19 @@ class CameraBase(ABC):
                 time.sleep(t_sleep)
 
 
-class _WindowsCamera(CameraBase):
+class _NativeCamera(CameraBase):
     def __init__(self, width: int, height: int, fps: float, delay=10, print_fps=False) -> None:
         super().__init__(width, height, fps, delay, print_fps)
-        _native_windows.start(width, height, fps, delay)
+        _native.start(width, height, fps, delay)
 
     def close(self) -> None:
         super().close()
-        _native_windows.stop()
+        _native.stop()
 
     def send(self, frame: np.ndarray) -> None:
         super().send(frame)
-        _native_windows.send(frame)
+        _native.send(frame)
 
 
-if platform.system() == 'Windows':
-    Camera = _WindowsCamera
+if platform.system() in ['Windows', 'Darwin']:
+    Camera = _NativeCamera
