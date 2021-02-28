@@ -9,6 +9,31 @@ jobs:
       matrix:
         config:
 
+        # Ideally 10.6 (same as offical Python installer) but there
+        # are issues targeting that with newer XCode versions.
+        # As likely nobody is using 10.6 anymore, targeting 10.9 is acceptable.
+        # See https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981.
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.6'
+          numpy-version: '1.11.*'
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.7'
+          numpy-version: '1.14.*'
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.8'
+          numpy-version: '1.17.*'
+        - os-image: macos-latest
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.9'
+          numpy-version: '1.19.*'
+
         # Use 2016 image as 2019 does not have VC++ 14.0 compiler.
         # https://github.community/t5/GitHub-Actions/Microsoft-Visual-C-14-0-compiler-not-available-on-Windows-2019/m-p/32871 
         - os-image: windows-2016
@@ -46,6 +71,14 @@ jobs:
       env:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         PYTHON_ARCH: ${{ matrix.config.python-arch }}
+        NUMPY_VERSION: ${{ matrix.config.numpy-version }}
+
+    - name: Build wheels (macOS)
+      if: matrix.config.os-name == 'mac'
+      run: .github/scripts/build-macos.sh
+      env:
+        MACOS_MIN_VERSION: ${{ matrix.config.macos-min-version }}
+        PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Store wheels as artifacts
