@@ -50,16 +50,7 @@ elif platform.system() == 'Darwin':
                 'pyvirtualcam/native_macos'
             ],
             extra_link_args=[
-                "-framework", "AVFoundation",
-                "-framework", "AppKit",
-                "-framework", "Cocoa",
-                "-framework", "CoreFoundation",
-                "-framework", "CoreMedia",
-                "-framework", "CoreVideo",
-                "-framework", "Cocoa",
-                "-framework", "CoreMediaIO",
-                "-framework", "IOSurface",
-                "-framework", "IOKit"
+                "-framework", "Foundation",
             ],
             language='objc'
         )
