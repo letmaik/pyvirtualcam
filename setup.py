@@ -18,6 +18,7 @@ class get_pybind_include(object):
         return pybind11.get_include()
 
 ext_modules = []
+platform_install_requires = []
 
 if platform.system() == 'Windows':
     ext_modules.append(
@@ -64,6 +65,8 @@ elif platform.system() == 'Darwin':
             language='objc'
         )
     )
+elif platform.system() == 'Linux':
+    platform_install_requires.append("pyfakewebcam")
 else:
     raise NotImplementedError('unsupported OS')
 
@@ -158,13 +161,14 @@ setup(
         'Programming Language :: Python :: 3',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS',
+        'Operating System :: POSIX :: Linux',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Software Development :: Libraries',
     ],
     ext_modules=ext_modules,
     packages = find_packages(),
     setup_requires=['pybind11>=2.5.0'],
-    install_requires=['numpy'],
+    install_requires=['numpy'] + platform_install_requires,
     cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )

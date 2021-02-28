@@ -11,6 +11,9 @@ if platform.system() == 'Windows':
     from pyvirtualcam import _native_windows as _native
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos as _native
+elif platform.system() in ['Linux']:
+    import os
+    import pyfakewebcam
 else:
     raise NotImplementedError('unsupported OS')
 
@@ -108,5 +111,40 @@ class _NativeCamera(CameraBase):
         _native.send(frame)
 
 
+class _PyFakeWebcamCamera(CameraBase):
+    def __init__(self, width: int, height: int, fps: float, delay=10, print_fps=False) -> None:
+        super().__init__(width, height, fps, delay, print_fps)
+        self._pyfakewebcam = None
+        index = 0
+        while index < 100:
+            video_device = f'/dev/video{index}'
+            if os.path.exists(video_device):
+                try:
+                    self._pyfakewebcam = pyfakewebcam.FakeWebcam(video_device, width, height)
+                    return
+                except OSError as err:
+                    if err.errno == 22: # Invalid argument
+                        # Usually happens if a camera exists, but it's not a v4l2loopback device
+                        pass
+                    else:
+                        assert(False)
+                except:
+                    assert(False)
+            index += 1
+
+    def close(self) -> None:
+        super().close()
+        self._pyfakewebcam = None
+
+    def send(self, frame: np.ndarray) -> None:
+        super().send(frame)
+        assert(self._pyfakewebcam != None)
+        rgb_frame = frame[:,:,:3]
+        self._pyfakewebcam.schedule_frame(rgb_frame)
+
+
+
 if platform.system() in ['Windows', 'Darwin']:
     Camera = _NativeCamera
+elif platform.system() in ['Linux']:
+    Camera = _PyFakeWebcamCamera
