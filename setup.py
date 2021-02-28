@@ -119,8 +119,8 @@ class BuildExt(build_ext):
         link_opts = self.l_opts.get(ct, [])
         if ct == 'unix':
             opts.append(cpp_flag(self.compiler))
-            #if has_flag(self.compiler, '-fvisibility=hidden'):
-            #    opts.append('-fvisibility=hidden')
+            if has_flag(self.compiler, '-fvisibility=hidden'):
+                opts.append('-fvisibility=hidden')
 
         for ext in self.extensions:
             ext.define_macros = [('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
