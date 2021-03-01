@@ -17,13 +17,7 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     if (buf.shape[2] != 4)
         throw std::runtime_error("frame must have 4 channels (rgba)");
     
-    size_t n_lines = buf.shape[0];
-    size_t line_size = buf.shape[1] * buf.shape[2];
-    uint8_t** data = (uint8_t**) malloc(sizeof(uint8_t*) * n_lines);
-    for (size_t i=0; i < n_lines; i++)
-        data[i] = (uint8_t*)buf.ptr + i*line_size;
-    virtual_video(data);
-    free(data);
+    virtual_video((uint8_t*)buf.ptr);
 }
 
 PYBIND11_MODULE(_native_windows, m) {

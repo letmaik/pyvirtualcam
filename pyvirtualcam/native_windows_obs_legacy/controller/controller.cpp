@@ -76,13 +76,15 @@ void virtual_output_stop()
 }
 
 // data is in RGBA format (packed RGBA 8:8:8:8, 32bpp, RGBARGBA...)
-// TODO RGB24 would be better but not supported in obs-virtual-cam
-void virtual_video(uint8_t **data)
+void virtual_video(uint8_t *rgba)
 {
 	if (!output_running)
 		return;
 
+	// single plane
     uint32_t linesize[1] = {virtual_out->width * 4};
+	uint8_t* data[1] = {rgba};
+
 	uint64_t timestamp = get_timestamp_ns();
 
 	virtual_out_data *out_data = (virtual_out_data*)virtual_out;
