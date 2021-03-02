@@ -34,33 +34,26 @@ try:
     with pyvirtualcam.Camera(width, height, fps_out, delay, print_fps=True) as cam:
         print(f'Virtual cam started ({width}x{height} @ {fps_out}fps)')
 
+        # Shake two channels horizontally each frame
+        channels = [[0, 1], [0, 2], [1, 2]]
+
         while True:
             # Read frame from webcam
             ret, in_frame = vc.read()
             if not ret:
                 raise RuntimeError('Error fetching frame')
 
-            # Apply cartoon filter
-            # (https://pysource.com/2018/10/11/how-to-create-a-cartoon-effect-opencv-with-python/)
-            # 1) Edges
-            gray = cv2.cvtColor(in_frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.medianBlur(gray, ksize=5)
-            edges = cv2.adaptiveThreshold(gray, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
-                                          thresholdType=cv2.THRESH_BINARY, blockSize=9, C=9)
-            # 2) Color
-            color = cv2.bilateralFilter(in_frame, d=9, sigmaColor=300, sigmaSpace=300)
-            # 3) Cartoon
-            cartoon = cv2.bitwise_and(color, color, mask=edges)
-            assert cartoon.shape == (height, width, 3)
+            # Shake
+            dx = 15 - cam.frames_sent % 5
+            c1, c2 = channels[cam.frames_sent % 3]
+            in_frame[:,:-dx,c1] = in_frame[:,dx:,c1]
+            in_frame[:,dx:,c2] = in_frame[:,:-dx,c2]
 
-            # convert to RGBA
-            out_frame = cv2.cvtColor(cartoon, cv2.COLOR_BGR2RGB)
-            out_frame_rgba = np.zeros((height, width, 4), np.uint8)
-            out_frame_rgba[:, :, :3] = out_frame
-            out_frame_rgba[:, :, 3] = 255
+            # Convert to RGBA
+            out_frame = cv2.cvtColor(in_frame, cv2.COLOR_BGR2RGBA)
 
             # Send to virtual cam
-            cam.send(out_frame_rgba)
+            cam.send(out_frame)
 
             # Wait until it's time for the next frame
             cam.sleep_until_next_frame()
