@@ -90,7 +90,7 @@ void virtual_video(uint8_t *rgba)
 
 	// Compute Y plane
 	for (uint32_t i=0; i < cx * cy; i++) {
-		YfromRGB(&y[i], rgba[i * 4], rgba[i * 4 + 1], rgba[i * 4 + 1]);
+		YfromRGB(&y[i], rgba[i * 4 + 0], rgba[i * 4 + 1], rgba[i * 4 + 2]);
 	}
 	// Compute UV plane
 	for (uint32_t y=0; y < cy; y = y + 2) {
@@ -102,7 +102,7 @@ void virtual_video(uint8_t *rgba)
             uint8_t g = (rgba1[0+1] + rgba1[4+1] + rgba2[0+1] + rgba2[4+1]) / 4;
             uint8_t b = (rgba1[0+2] + rgba1[4+2] + rgba2[0+2] + rgba2[4+2]) / 4;
 
-			uint8_t* u = &uv[y * cx / 4 + x / 2];
+			uint8_t* u = &uv[y / 2 * cx + x];
 			uint8_t* v = u + 1;
 			UVfromRGB(u, v, r, g, b);
 		}
