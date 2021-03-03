@@ -12,13 +12,11 @@ def get_gradation_2d(start, stop, width, height, is_horizontal):
         return np.tile(np.linspace(start, stop, height), (width, 1)).T
 
 
-def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
-    result = np.zeros((height, width, len(start_list)), np.float)
-
+def get_gradation_3d(out, start_list, stop_list, is_horizontal_list):
+    height = out.shape[0]
+    width = out.shape[1]
     for i, (start, stop, is_horizontal) in enumerate(zip(start_list, stop_list, is_horizontal_list)):
-        result[:, :, i] = get_gradation_2d(start, stop, width, height, is_horizontal)
-
-    return result
+        out[:, :, i] = get_gradation_2d(start, stop, width, height, is_horizontal)
 
 speed = 2
 red = np.array([255, 0, 0], np.uint8)
@@ -38,10 +36,10 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
         last_stop = stop
         if reverse:
             stop = 255 - stop
-        frame[:, :, :3] = get_gradation_3d(cam.width, cam.height,
-                                           start_list=(0, 0, 192),
-                                           stop_list=(stop, 255 - stop / 2, stop),
-                                           is_horizontal_list=(True, False, False))
+        get_gradation_3d(out=frame,
+                         start_list=(0, 0, 192),
+                         stop_list=(stop, 255 - stop / 2, stop),
+                         is_horizontal_list=(True, False, False))
 
         # Draw a binary-encoded frame counter.
         bits = f'{cam.frames_sent:012b}'
