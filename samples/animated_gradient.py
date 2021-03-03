@@ -20,27 +20,32 @@ def get_gradation_3d(width, height, start_list, stop_list, is_horizontal_list):
 
     return result
 
+speed = 2
+red = np.array([255, 0, 0], np.uint8)
+white = np.array([255, 255, 255], np.uint8)
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
     print(f'Virtual cam started ({cam.width}x{cam.height} @ {cam.fps}fps)')
-    frame_counter = 0
+    reverse = False
+    last_stop = 0
+    frame = np.zeros((cam.height, cam.width, 4), np.uint8)
+    frame[:, :, 3] = 255
     while True:
-        # Things we want to draw:
-        # 1. A color gradient.
-        gradient = get_gradation_3d(cam.width, cam.height,
-                                    start_list=(0, 0, 192),
-                                    stop_list=((frame_counter * 2) % 255, 255, 64),
-                                    is_horizontal_list=(True, False, False))
-        # 2. A binary-encoded frame counter.
-        bits = f'{frame_counter:012b}'
-        bit_size = 10
-        red = np.array([255, 0, 0], np.uint8)
-        white = np.array([255, 255, 255], np.uint8)
+        # Draw a color gradient.
+        stop = (cam.frames_sent * speed) % 255
+        if stop < last_stop:
+            reverse = not reverse
+        last_stop = stop
+        if reverse:
+            stop = 255 - stop
+        frame[:, :, :3] = get_gradation_3d(cam.width, cam.height,
+                                           start_list=(0, 0, 192),
+                                           stop_list=(stop, 255 - stop / 2, stop),
+                                           is_horizontal_list=(True, False, False))
 
-        # Create a new frame.
-        frame = np.zeros((cam.height, cam.width, 4), np.uint8)
-        frame[:, :, :3] = gradient
-        frame[:, :, 3] = 255
+        # Draw a binary-encoded frame counter.
+        bits = f'{cam.frames_sent:012b}'
+        bit_size = 10
         for i_bit, bit in enumerate(bits):
             bit_color = red if bit == '1' else white
             frame[:bit_size, i_bit * bit_size:i_bit * bit_size + bit_size, :3] = bit_color
@@ -50,5 +55,3 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
 
         # Wait until it's time to draw the next frame.
         cam.sleep_until_next_frame()
-
-        frame_counter += 1
