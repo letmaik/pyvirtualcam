@@ -24,6 +24,15 @@ def test_parallel():
                 frame = np.zeros((cam.height, cam.width, 4), np.uint8) # RGBA
                 cam.send(frame)
 
+def test_invalid_frame_shape():
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
+        with pytest.raises(ValueError):
+            cam.send(np.zeros((640, 480, 4), np.uint8))
+        with pytest.raises(ValueError):
+            cam.send(np.zeros((1280, 720, 3), np.uint8))
+        with pytest.raises(ValueError):
+            cam.send(np.zeros((1280, 720), np.uint8))
+
 @pytest.mark.skipif(
     os.environ.get('CI') and sys.platform == 'darwin',
     reason='disabled due to high fluctuations in CI, manually verified on MacBook Pro')

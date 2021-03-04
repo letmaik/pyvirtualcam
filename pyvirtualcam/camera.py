@@ -20,6 +20,7 @@ class CameraBase(ABC):
     def __init__(self, width: int, height: int, fps: float, delay: int, print_fps: bool) -> None:
         self._width = width
         self._height = height
+        self._frame_shape = (height, width, 4)
         self._fps = fps
         self._delay = delay
         self._print_fps = print_fps
@@ -60,6 +61,9 @@ class CameraBase(ABC):
 
     @abstractmethod
     def send(self, frame: np.ndarray) -> None:
+        if frame.shape != self._frame_shape:
+            raise ValueError(f"invalid frame shape: {frame.shape} != {self._frame_shape}")
+
         self._frames_sent += 1
         self._last_frame_t = time.perf_counter()
         self._fps_counter.measure()
