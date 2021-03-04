@@ -105,10 +105,6 @@ void start(int width, int height, double fps, int delay) {
 
 void send(py::array_t<uint8_t, py::array::c_style> frame) {
     py::buffer_info buf = frame.request();
-    if (buf.ndim != 3)
-        throw std::runtime_error("ndim must be 3 (h,w,c)");
-    if (buf.shape[2] != 4)
-        throw std::runtime_error("frame must have 4 channels (rgba)");
 
     // We must handle port messages, and somehow our RunLoop isn't normally active
     NSRunLoop *runLoop;
