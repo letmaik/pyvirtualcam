@@ -28,9 +28,7 @@ print(f'Webcam capture started ({width}x{height} @ {fps_in}fps)')
 fps_out = 20
 
 try:
-    delay = 0  # low-latency, reduces internal queue size
-
-    with pyvirtualcam.Camera(width, height, fps_out, delay, print_fps=True) as cam:
+    with pyvirtualcam.Camera(width, height, fps_out, print_fps=True) as cam:
         print(f'Virtual cam started ({width}x{height} @ {fps_out}fps)')
 
         # Shake two channels horizontally each frame.
