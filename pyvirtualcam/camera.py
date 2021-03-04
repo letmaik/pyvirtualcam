@@ -8,8 +8,7 @@ import numpy as np
 from pyvirtualcam.util import FPSCounter
 
 if platform.system() == 'Windows':
-    #from pyvirtualcam import _native_windows_obs_legacy as _native
-    from pyvirtualcam import _native_windows_obs as _native
+    from pyvirtualcam import _native_windows as _native
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos as _native
 else:

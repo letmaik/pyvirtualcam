@@ -21,34 +21,17 @@ ext_modules = []
 
 if platform.system() == 'Windows':
     ext_modules.append(
-        Extension('pyvirtualcam._native_windows_obs_legacy',
+        Extension('pyvirtualcam._native_windows',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_windows_obs_legacy/main.cpp',
-                'pyvirtualcam/native_windows_obs_legacy/controller/controller.cpp',
-                'pyvirtualcam/native_windows_obs_legacy/queue/share_queue_write.cpp']),
+                'pyvirtualcam/native_windows/main.cpp',
+                'pyvirtualcam/native_windows/controller/controller.c',
+                'pyvirtualcam/native_windows/queue/shared-memory-queue.c']),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_windows_obs_legacy'
-            ],
-            language='c++'
-        )
-    )
-
-    ext_modules.append(
-        Extension('pyvirtualcam._native_windows_obs',
-            # Sort input source files to ensure bit-for-bit reproducible builds
-            # (https://github.com/pybind/python_example/pull/53)
-            sorted([
-                'pyvirtualcam/native_windows_obs/main.cpp',
-                'pyvirtualcam/native_windows_obs/controller/controller.c',
-                'pyvirtualcam/native_windows_obs/queue/shared-memory-queue.c']),
-            include_dirs=[
-                # Path to pybind11 headers
-                get_pybind_include(),
-                'pyvirtualcam/native_windows_obs'
+                'pyvirtualcam/native_windows'
             ],
             language='c++'
         )

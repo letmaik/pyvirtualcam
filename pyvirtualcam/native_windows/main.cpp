@@ -6,7 +6,8 @@
 namespace py = pybind11;
 
 void start(int width, int height, double fps, int delay) {
-    if (!virtual_output_start(width, height, fps, delay))
+    (void)delay;
+    if (!virtual_output_start(width, height, fps))
         throw std::runtime_error("error starting virtual camera output");
 }
 
@@ -20,7 +21,7 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     virtual_video((uint8_t*)buf.ptr);
 }
 
-PYBIND11_MODULE(_native_windows_obs_legacy, m) {
+PYBIND11_MODULE(_native_windows, m) {
     m.def("start", &start, R"pbdoc(
         Start the virtual cam output.
     )pbdoc");
