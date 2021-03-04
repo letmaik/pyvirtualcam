@@ -1,3 +1,5 @@
+# This script plays back a video file on the virtual camera.
+
 import argparse
 import pyvirtualcam
 import cv2
