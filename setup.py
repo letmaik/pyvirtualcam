@@ -26,8 +26,8 @@ if platform.system() == 'Windows':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_windows/main.cpp',
-                'pyvirtualcam/native_windows/controller/controller.cpp',
-                'pyvirtualcam/native_windows/queue/share_queue_write.cpp']),
+                'pyvirtualcam/native_windows/controller/controller.c',
+                'pyvirtualcam/native_windows/queue/shared-memory-queue.c']),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
