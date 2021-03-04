@@ -17,6 +17,8 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         cam.sleep_until_next_frame()
 ```
 
+For more examples, check out the [`samples/`](samples) folder.
+
 ## Installation
 
 This package works on Windows, macOS, and Linux. Install it from PyPI with:
