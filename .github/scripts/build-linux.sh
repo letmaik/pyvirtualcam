@@ -36,17 +36,6 @@ retry ${PYBIN}/pip wheel . -w wheelhouse
 # Bundle external shared libraries into wheel
 auditwheel repair wheelhouse/pyvirtualcam*.whl -w wheelhouse
 
-# Install v4l2loopback kernel module
-git clone https://github.com/umlaeute/v4l2loopback.git -b v0.12.5 --depth 1
-pushd v4l2loopback
-make
-sudo make install
-sudo depmod -a
-popd
-
-# Create a virtual camera device for the tests
-sudo modprobe v4l2loopback devices=1
-
 # Install package and test
 ${PYBIN}/pip install pyvirtualcam --no-index -f wheelhouse
 
