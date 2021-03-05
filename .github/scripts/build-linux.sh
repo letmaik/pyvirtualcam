@@ -42,7 +42,11 @@ ${PYBIN}/pip install pyvirtualcam --no-index -f wheelhouse
 retry ${PYBIN}/pip install -r dev-requirements.txt
 
 pushd $HOME
-${PYBIN}/pytest -v -s /io/test
+# NOTE: TESTING DISABLED!
+# The v4l2loopback kernel module cannot be installed
+# as the GitHub Actions Linux kernel does not come with
+# the videodev module.
+#${PYBIN}/pytest -v -s /io/test
 popd
 
 # Move wheel to dist/ folder for easier deployment
