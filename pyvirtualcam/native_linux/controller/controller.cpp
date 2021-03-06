@@ -35,6 +35,12 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
         sprintf(device_name, "/dev/video%d", i);
         camera_fd = open(device_name, O_WRONLY | O_SYNC);
         if (camera_fd == -1) {
+            if (errno == EACCES) {
+                fprintf(stderr, "Could not access %s due to missing permissions.\n", device_name);
+                fprintf(stderr, "Did you add your user to the 'video' group?\n");
+                fprintf(stderr, "Run 'usermod -a -G video myusername' and log out and in again.\n");
+                return false;
+            }
             continue;
         }
 
