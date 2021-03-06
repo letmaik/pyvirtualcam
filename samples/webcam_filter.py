@@ -29,7 +29,7 @@ fps_out = 20
 
 try:
     with pyvirtualcam.Camera(width, height, fps_out, print_fps=True) as cam:
-        print(f'Virtual cam started ({width}x{height} @ {fps_out}fps)')
+        print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
 
         # Shake two channels horizontally each frame.
         channels = [[0, 1], [0, 2], [1, 2]]

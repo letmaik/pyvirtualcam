@@ -23,7 +23,7 @@ red = np.array([255, 0, 0], np.uint8)
 white = np.array([255, 255, 255], np.uint8)
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
-    print(f'Virtual cam started ({cam.width}x{cam.height} @ {cam.fps}fps)')
+    print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
     reverse = False
     last_stop = 0
     frame = np.zeros((cam.height, cam.width, 3), np.uint8)
