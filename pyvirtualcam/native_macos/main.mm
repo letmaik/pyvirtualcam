@@ -25,6 +25,7 @@
 #include "Defines.h"
 #include <mach/mach_time.h>
 #include <cstdint>
+#include <string>
 
 namespace py = pybind11;
 
@@ -159,10 +160,19 @@ void stop() {
     virtual_output_stop();
 }
 
+std::string virtual_output_device()
+{
+    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
+    return "OBS Virtual Camera";
+}
 
 PYBIND11_MODULE(_native_macos, m) {
     m.def("start", &start, R"pbdoc(
         Start the virtual cam output.
+    )pbdoc");
+
+    m.def("device", &virtual_output_device, R"pbdoc(
+        Return the camera device name.
     )pbdoc");
 
     m.def("stop", &stop, R"pbdoc(

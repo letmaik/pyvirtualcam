@@ -1,5 +1,5 @@
 import os
-import sys
+import platform
 import pytest
 import numpy as np
 import pyvirtualcam
@@ -27,7 +27,9 @@ def test_parallel():
 def test_invalid_frame_shape():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         with pytest.raises(ValueError):
-            cam.send(np.zeros((640, 480, 3), np.uint8))
+            cam.send(np.zeros((cam.width, cam.height, 3), np.uint8))
+        with pytest.raises(ValueError):
+            cam.send(np.zeros((480, 640, 3), np.uint8))
         with pytest.raises(ValueError):
             cam.send(np.zeros((cam.height, cam.width, 1), np.uint8))
         with pytest.raises(ValueError):
@@ -38,7 +40,7 @@ def test_deprecated_rgba_frame_format():
         cam.send(np.zeros((cam.height, cam.width, 4), np.uint8))
 
 @pytest.mark.skipif(
-    os.environ.get('CI') and sys.platform == 'darwin',
+    os.environ.get('CI') and platform.system() == 'Darwin',
     reason='disabled due to high fluctuations in CI, manually verified on MacBook Pro')
 def test_sleep_until_next_frame():
     target_fps = 20
@@ -50,3 +52,10 @@ def test_sleep_until_next_frame():
         
         actual_fps = cam.current_fps
         assert abs(target_fps - actual_fps) < 0.5
+
+def test_device_name():
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
+        if platform.system() in ['Darwin', 'Windows']:
+            assert cam.device == 'OBS Virtual Camera'
+        elif platform.system() == 'Linux':
+            assert cam.device.startswith('/dev/video')

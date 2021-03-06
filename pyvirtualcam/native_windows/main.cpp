@@ -20,6 +20,10 @@ PYBIND11_MODULE(_native_windows, m) {
         Start the virtual cam output.
     )pbdoc");
 
+    m.def("device", &virtual_output_device, R"pbdoc(
+        Return the camera device name.
+    )pbdoc");
+
     m.def("stop", &virtual_output_stop, R"pbdoc(
         Stop the virtual cam output.
     )pbdoc");

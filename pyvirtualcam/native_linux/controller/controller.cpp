@@ -9,6 +9,7 @@
 #include "controller.h"
 
 static int camera_fd = 0;
+static std::string camera_device;
 static bool output_running = false;
 static uint32_t frame_width = 0;
 static uint32_t frame_height = 0;
@@ -88,9 +89,15 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 
     frame_width = width;
     frame_height = height;
+    camera_device = std::string(device_name);
     output_running = true;
 
     return true;
+}
+
+std::string virtual_output_device()
+{
+    return camera_device;
 }
 
 void virtual_output_stop()

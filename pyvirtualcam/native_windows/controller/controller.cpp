@@ -35,6 +35,12 @@ static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
     *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
+std::string virtual_output_device()
+{
+    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/win-dshow/virtualcam-module/virtualcam-module.cpp#L196
+    return "OBS Virtual Camera";
+}
+
 bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {

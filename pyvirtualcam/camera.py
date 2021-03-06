@@ -19,6 +19,9 @@ class NativeCameraBackend:
     def __init__(self, width: int, height: int, fps: float) -> None:
         _native.start(width, height, fps)
 
+    def device(self) -> str:
+        return _native.device()
+
     def close(self) -> None:
         _native.stop()
 
@@ -50,6 +53,10 @@ class Camera:
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
         self.close()
         return False
+
+    @property
+    def device(self) -> str:
+        return self._backend.device()
 
     @property
     def width(self) -> int:
