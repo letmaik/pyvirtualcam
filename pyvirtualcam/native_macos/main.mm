@@ -25,14 +25,15 @@
 #include "Defines.h"
 #include <mach/mach_time.h>
 #include <cstdint>
+#include <string>
 
 namespace py = pybind11;
 
 
 static OBSDALMachServer *sMachServer = nil;
 
-static int cam_output_width;
-static int cam_output_height;
+static uint32_t cam_output_width;
+static uint32_t cam_output_height;
 static uint32_t cam_fps_num;
 static uint32_t cam_fps_den;
 
@@ -45,7 +46,7 @@ static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
     *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
-static bool virtual_output_start(int width, int height, double fps, int delay) {
+static bool virtual_output_start(uint32_t width, uint32_t height, double fps) {
     if (sMachServer != nil) {
         fprintf(stderr, "virtual camera output already started\n");
         return false;
@@ -74,7 +75,7 @@ static void virtual_output_stop() {
     sMachServer = nil;
 }
 
-static void virtual_output_raw_video(void *data, int linesize, uint64_t timestamp) {
+static void virtual_output_raw_video(void *data, uint32_t linesize, uint64_t timestamp) {
     if (sMachServer == nil) {
         return;
     }
@@ -98,13 +99,16 @@ static void virtual_output_raw_video(void *data, int linesize, uint64_t timestam
 }
 
 
-void start(int width, int height, double fps, int delay) {
-    if (!virtual_output_start(width, height, fps, delay))
+void start(uint32_t width, uint32_t height, double fps) {
+    if (!virtual_output_start(width, height, fps))
         throw std::runtime_error("error starting virtual camera output");
 }
 
 void send(py::array_t<uint8_t, py::array::c_style> frame) {
-    py::buffer_info buf = frame.request();
+    py::buffer_info buf_info = frame.request();
+    const uint8_t* buf = (uint8_t*)buf_info.ptr;
+    uint32_t frame_height = buf_info.shape[0];
+    uint32_t frame_width = buf_info.shape[1];
 
     // We must handle port messages, and somehow our RunLoop isn't normally active
     NSRunLoop *runLoop;
@@ -114,19 +118,19 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     
     uint64_t timestamp = mach_absolute_time();
 
-    uint8_t* data = (uint8_t*) malloc(buf.shape[1] * buf.shape[0] * 2);
+    uint8_t* data = (uint8_t*) malloc(frame_width * frame_height * 2);
 
-    // Convert RGBA to UYVY
-    for(int y = 0; y < buf.shape[0]; y++) {
-        for(int x = 0; x < buf.shape[1] / 2; x++) {
-            uint8_t* uyvy = &data[((y * buf.shape[1] + x * 2) * 2)];
-            const uint8_t* rgba = ((const uint8_t*)buf.ptr) + ((y * buf.shape[1] + x * 2) * 4);
+    // Convert RGB to UYVY
+    for(uint32_t y = 0; y < frame_height; y++) {
+        for(uint32_t x = 0; x < frame_width / 2; x++) {
+            uint8_t* uyvy = &data[((y * frame_width + x * 2) * 2)];
+            const uint8_t* rgb = buf + ((y * frame_width + x * 2) * 3);
 
             // Downsample
             uint8_t mixRGB[3];
-            mixRGB[0] = (rgba[0+0] + rgba[4+0]) / 2;
-            mixRGB[1] = (rgba[0+1] + rgba[4+1]) / 2;
-            mixRGB[2] = (rgba[0+2] + rgba[4+2]) / 2;
+            mixRGB[0] = (rgb[0+0] + rgb[3+0]) / 2;
+            mixRGB[1] = (rgb[0+1] + rgb[3+1]) / 2;
+            mixRGB[2] = (rgb[0+2] + rgb[3+2]) / 2;
 
             // Get U and V
             uint8_t u;
@@ -137,18 +141,18 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
             uint8_t y;
 
             // Pixel 1
-            YfromRGB(&y, rgba[0+0], rgba[0+1], rgba[0+2]);
+            YfromRGB(&y, rgb[0+0], rgb[0+1], rgb[0+2]);
             uyvy[0] = u;
             uyvy[1] = y;
 
             // Pixel 2
-            YfromRGB(&y, rgba[4+0], rgba[4+1], rgba[4+2]);
+            YfromRGB(&y, rgb[3+0], rgb[3+1], rgb[3+2]);
             uyvy[2] = v;
             uyvy[3] = y;
         }
     }
 
-    virtual_output_raw_video(data, buf.shape[1] * 2, timestamp);
+    virtual_output_raw_video(data, frame_width * 2, timestamp);
     free(data);
 }
 
@@ -156,10 +160,19 @@ void stop() {
     virtual_output_stop();
 }
 
+std::string virtual_output_device()
+{
+    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
+    return "OBS Virtual Camera";
+}
 
 PYBIND11_MODULE(_native_macos, m) {
     m.def("start", &start, R"pbdoc(
         Start the virtual cam output.
+    )pbdoc");
+
+    m.def("device", &virtual_output_device, R"pbdoc(
+        Return the camera device name.
     )pbdoc");
 
     m.def("stop", &stop, R"pbdoc(

@@ -23,11 +23,10 @@ red = np.array([255, 0, 0], np.uint8)
 white = np.array([255, 255, 255], np.uint8)
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
-    print(f'Virtual cam started ({cam.width}x{cam.height} @ {cam.fps}fps)')
+    print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
     reverse = False
     last_stop = 0
-    frame = np.zeros((cam.height, cam.width, 4), np.uint8)
-    frame[:, :, 3] = 255
+    frame = np.zeros((cam.height, cam.width, 3), np.uint8)
     while True:
         # Draw a color gradient.
         stop = (cam.frames_sent * speed) % 255
@@ -46,7 +45,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20, print_fps=True) as cam:
         bit_size = 10
         for i_bit, bit in enumerate(bits):
             bit_color = red if bit == '1' else white
-            frame[:bit_size, i_bit * bit_size:i_bit * bit_size + bit_size, :3] = bit_color
+            frame[:bit_size, i_bit * bit_size:i_bit * bit_size + bit_size, :] = bit_color
 
         # Send to the virtual cam.
         cam.send(frame)

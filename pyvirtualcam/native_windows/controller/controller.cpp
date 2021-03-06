@@ -35,7 +35,13 @@ static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
     *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
-bool virtual_output_start(int width, int height, double fps)
+std::string virtual_output_device()
+{
+    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/win-dshow/virtualcam-module/virtualcam-module.cpp#L196
+    return "OBS Virtual Camera";
+}
+
+bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {
         fprintf(stderr, "virtual camera output already started\n");
@@ -67,9 +73,9 @@ void virtual_output_stop()
     output_running = false;
 }
 
-// data is in RGBA format (packed RGBA, 32bpp, RGBARGBA...)
+// data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects NV12 (semi-planar YUV, 12bpp)
-void virtual_video(uint8_t *rgba)
+void virtual_video(uint8_t *rgb)
 {
     if (!output_running)
         return;
@@ -78,7 +84,7 @@ void virtual_video(uint8_t *rgba)
     uint64_t interval;
     video_queue_get_info(vq, &cx, &cy, &interval);
 
-    uint8_t* nv12 = malloc((cx + cx / 2) * cy );
+    uint8_t* nv12 = (uint8_t*)malloc((cx + cx / 2) * cy );
     if (!nv12) {
         fprintf(stderr, "out of memory\n");
         return;
@@ -90,17 +96,17 @@ void virtual_video(uint8_t *rgba)
 
     // Compute Y plane
     for (uint32_t i=0; i < cx * cy; i++) {
-        YfromRGB(&y[i], rgba[i * 4 + 0], rgba[i * 4 + 1], rgba[i * 4 + 2]);
+        YfromRGB(&y[i], rgb[i * 3 + 0], rgb[i * 3 + 1], rgb[i * 3 + 2]);
     }
     // Compute UV plane
     for (uint32_t y=0; y < cy; y = y + 2) {
         for (uint32_t x=0; x < cx; x = x + 2) {
             // Downsample by 2
-            uint8_t* rgba1 = rgba + ((y * cx + x) * 4);
-            uint8_t* rgba2 = rgba + (((y + 1) * cx + x) * 4);
-            uint8_t r = (rgba1[0+0] + rgba1[4+0] + rgba2[0+0] + rgba2[4+0]) / 4;
-            uint8_t g = (rgba1[0+1] + rgba1[4+1] + rgba2[0+1] + rgba2[4+1]) / 4;
-            uint8_t b = (rgba1[0+2] + rgba1[4+2] + rgba2[0+2] + rgba2[4+2]) / 4;
+            uint8_t* rgb1 = rgb + ((y * cx + x) * 3);
+            uint8_t* rgb2 = rgb + (((y + 1) * cx + x) * 3);
+            uint8_t r = (rgb1[0+0] + rgb1[3+0] + rgb2[0+0] + rgb2[3+0]) / 4;
+            uint8_t g = (rgb1[0+1] + rgb1[3+1] + rgb2[0+1] + rgb2[3+1]) / 4;
+            uint8_t b = (rgb1[0+2] + rgb1[3+2] + rgb2[0+2] + rgb2[3+2]) / 4;
 
             uint8_t* u = &uv[y / 2 * cx + x];
             uint8_t* v = u + 1;
