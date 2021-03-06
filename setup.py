@@ -50,16 +50,7 @@ elif platform.system() == 'Darwin':
                 'pyvirtualcam/native_macos'
             ],
             extra_link_args=[
-                "-framework", "AVFoundation",
-                "-framework", "AppKit",
-                "-framework", "Cocoa",
-                "-framework", "CoreFoundation",
-                "-framework", "CoreMedia",
-                "-framework", "CoreVideo",
-                "-framework", "Cocoa",
-                "-framework", "CoreMediaIO",
-                "-framework", "IOSurface",
-                "-framework", "IOKit"
+                "-framework", "Foundation",
             ],
             language='objc'
         )
@@ -134,7 +125,7 @@ class BuildExt(build_ext):
     UnixCCompiler.language_map[".mm"] = "objc"
 
     if sys.platform == 'darwin':
-        darwin_opts = ['-stdlib=libc++', '-std=gnu++14']
+        darwin_opts = ['-stdlib=libc++']
         c_opts['unix'] += darwin_opts
         l_opts['unix'] += darwin_opts
 
@@ -143,10 +134,9 @@ class BuildExt(build_ext):
         opts = self.c_opts.get(ct, [])
         link_opts = self.l_opts.get(ct, [])
         if ct == 'unix':
-            if sys.platform != 'darwin':
-                opts.append(cpp_flag(self.compiler))
-            #if has_flag(self.compiler, '-fvisibility=hidden'):
-            #    opts.append('-fvisibility=hidden')
+            opts.append(cpp_flag(self.compiler))
+            if has_flag(self.compiler, '-fvisibility=hidden'):
+                opts.append('-fvisibility=hidden')
 
         for ext in self.extensions:
             ext.define_macros = [('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
