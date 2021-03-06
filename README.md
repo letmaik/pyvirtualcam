@@ -9,10 +9,10 @@ import pyvirtualcam
 import numpy as np
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
-    frame = np.zeros((cam.height, cam.width, 4), np.uint8)  # RGBA
-    frame[:, :, 3] = 255
+    print(f'Using virtual camera: {cam.device}')
+    frame = np.zeros((cam.height, cam.width, 3), np.uint8)  # RGB
     while True:
-        frame[:, :, :3] = cam.frames_sent % 255  # grayscale animation
+        frame[:] = cam.frames_sent % 255  # grayscale animation
         cam.send(frame)
         cam.sleep_until_next_frame()
 ```
@@ -53,4 +53,4 @@ sudo modprobe v4l2loopback devices=1
 For further information, see the [v4l2loopback documentation](https://github.com/umlaeute/v4l2loopback).
 
 pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
-The chosen camera is printed to the terminal.
+The camera device name can be accessed with `cam.device`.
