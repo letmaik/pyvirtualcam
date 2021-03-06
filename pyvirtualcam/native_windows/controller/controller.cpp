@@ -54,7 +54,6 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
     if (RegOpenKeyExW(HKEY_CLASSES_ROOT, guid, 0, KEY_READ, &key) != ERROR_SUCCESS) {
         fprintf(stderr, "WARNING: OBS Virtual Camera device not found!\n");
         fprintf(stderr, "Did you install OBS?\n");
-        return false;
 	}
 
     bool start = false;
