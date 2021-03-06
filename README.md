@@ -39,20 +39,11 @@ To use the OBS virtual camera, simply install OBS.
 
 Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
 
-### Linux: v4l2loopback via pyfakewebcam
+### Linux: v4l2loopback
 
-pyvirtualcam uses [pyfakewebcam](https://github.com/jremmons/pyfakewebcam) on Linux to send frames to [v4l2loopback](https://github.com/umlaeute/v4l2loopback) virtual cameras.
+pyvirtualcam uses [v4l2loopback](https://github.com/umlaeute/v4l2loopback) virtual cameras on Linux.
 
-For optimal performance, install the optional `opencv-python` dependency (see also pyfakewebcam's [README](https://github.com/jremmons/pyfakewebcam)):
-
-```sh
-# via PyPI
-pip install opencv-python
-# via Linux package manager
-# apt install python-opencv
-```
-
-To create a v4l2loopback virtual camera, run the following:
+To create a v4l2loopback virtual camera on Ubuntu, run the following:
 
 ```sh
 sudo apt install v4l2loopback-dkms
@@ -61,5 +52,5 @@ sudo modprobe v4l2loopback devices=1
 
 For further information, see the [v4l2loopback documentation](https://github.com/umlaeute/v4l2loopback).
 
-pyvirtualcam uses the first available virtual camera it finds.
-If you have more than one you can manually select a virtual camera by setting the `PYVIRTUALCAM_DEVICE=/dev/video1` environment variable.
+pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
+The chosen camera is printed to the terminal.
