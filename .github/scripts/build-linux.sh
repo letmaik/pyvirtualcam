@@ -43,9 +43,16 @@ retry ${PYBIN}/pip install -r dev-requirements.txt
 
 pushd $HOME
 # NOTE: TESTING DISABLED!
-# The v4l2loopback kernel module cannot be installed
-# as the GitHub Actions Linux kernel does not come with
-# the videodev module.
+# The v4l2loopback kernel module cannot be installed as it depends
+# on v4l2 (videodev) kernel support.
+# videodev can either be built into the kernel directly or supported
+# as loadable module.
+# Azure only offers videodev in linux-modules-extra-azure starting from Ubuntu 20.10.
+# See https://packages.ubuntu.com/search?suite=groovy&arch=any&mode=exactfilename&searchon=contents&keywords=videodev.ko
+# However, GitHub Actions only uses LTS releases of Ubuntu and they
+# are currently at 20.04 LTS. The next LTS will be 22.04 LTS
+# which will come out in 2022.
+# The latest GitHub Actions Ubuntu distro (20.04 LTS) 
 #${PYBIN}/pytest -v -s /io/test
 popd
 
