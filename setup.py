@@ -33,6 +33,9 @@ if platform.system() == 'Windows':
                 get_pybind_include(),
                 'pyvirtualcam/native_windows'
             ],
+            extra_link_args=[
+                "/DEFAULTLIB:advapi32.lib",
+            ],
             language='c++'
         )
     )
