@@ -2,15 +2,7 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-bool virtual_output_start(int width, int height, double fps);
+bool virtual_output_start(uint32_t width, uint32_t height, double fps);
 void virtual_output_stop();
-void virtual_video(uint8_t *rgba);
+void virtual_video(uint8_t *rgb);
 bool virtual_output_is_running();
-
-#ifdef __cplusplus
-}
-#endif

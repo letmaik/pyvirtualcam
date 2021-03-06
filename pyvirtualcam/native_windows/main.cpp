@@ -5,8 +5,7 @@
 
 namespace py = pybind11;
 
-void start(int width, int height, double fps, int delay) {
-    (void)delay;
+void start(uint32_t width, uint32_t height, double fps) {
     if (!virtual_output_start(width, height, fps))
         throw std::runtime_error("error starting virtual camera output");
 }

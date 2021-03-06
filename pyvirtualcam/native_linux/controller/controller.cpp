@@ -104,7 +104,7 @@ void virtual_output_stop()
     output_running = false;
 }
 
-// data is in RGBA format (packed RGBA, 32bpp, RGBARGBA...)
+// data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects UYVY (packed YUV, 12bpp)
 void virtual_video(uint8_t *buf)
 {
@@ -118,17 +118,17 @@ void virtual_video(uint8_t *buf)
         return;
     }
 
-    // Convert RGBA to UYVY
+    // Convert RGB to UYVY
     for(uint32_t y = 0; y < frame_height; y++) {
         for(uint32_t x = 0; x < frame_width / 2; x++) {
             uint8_t* uyvy = &data[((y * frame_width + x * 2) * 2)];
-            const uint8_t* rgba = buf + ((y * frame_width + x * 2) * 4);
+            const uint8_t* rgb = buf + ((y * frame_width + x * 2) * 3);
 
             // Downsample
             uint8_t mixRGB[3];
-            mixRGB[0] = (rgba[0+0] + rgba[4+0]) / 2;
-            mixRGB[1] = (rgba[0+1] + rgba[4+1]) / 2;
-            mixRGB[2] = (rgba[0+2] + rgba[4+2]) / 2;
+            mixRGB[0] = (rgb[0+0] + rgb[3+0]) / 2;
+            mixRGB[1] = (rgb[0+1] + rgb[3+1]) / 2;
+            mixRGB[2] = (rgb[0+2] + rgb[3+2]) / 2;
 
             // Get U and V
             uint8_t u;
@@ -139,12 +139,12 @@ void virtual_video(uint8_t *buf)
             uint8_t y;
 
             // Pixel 1
-            YfromRGB(&y, rgba[0+0], rgba[0+1], rgba[0+2]);
+            YfromRGB(&y, rgb[0+0], rgb[0+1], rgb[0+2]);
             uyvy[0] = u;
             uyvy[1] = y;
 
             // Pixel 2
-            YfromRGB(&y, rgba[4+0], rgba[4+1], rgba[4+2]);
+            YfromRGB(&y, rgb[3+0], rgb[3+1], rgb[3+2]);
             uyvy[2] = v;
             uyvy[3] = y;
         }
