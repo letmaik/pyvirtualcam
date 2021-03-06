@@ -85,8 +85,6 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
         return false;
     }
 
-    fprintf(stdout, "virtual camera device: %s\n", device_name);
-
     frame_width = width;
     frame_height = height;
     camera_device = std::string(device_name);
