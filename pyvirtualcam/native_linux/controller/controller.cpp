@@ -60,7 +60,9 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
         break;
     }
     if (!found) {
-        fprintf(stderr, "no v4l2 loopback device found at /dev/video[0-99]\n");
+        fprintf(stderr, "No v4l2 loopback device found at /dev/video[0-99].\n");
+        fprintf(stderr, "Did you run 'modprobe v4l2loopback'?\n");
+        fprintf(stderr, "See also pyvirtualcam's documentation.\n");
         return false;
     }
 
