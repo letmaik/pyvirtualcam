@@ -64,6 +64,22 @@ elif platform.system() == 'Darwin':
             language='objc'
         )
     )
+elif platform.system() == 'Linux':
+    ext_modules.append(
+        Extension('pyvirtualcam._native_linux',
+            # Sort input source files to ensure bit-for-bit reproducible builds
+            # (https://github.com/pybind/python_example/pull/53)
+            sorted([
+                'pyvirtualcam/native_linux/main.cpp',
+                'pyvirtualcam/native_linux/controller/controller.cpp']),
+            include_dirs=[
+                # Path to pybind11 headers
+                get_pybind_include(),
+                'pyvirtualcam/native_linux'
+            ],
+            language='c++'
+        )
+    )
 else:
     raise NotImplementedError('unsupported OS')
 
@@ -158,7 +174,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS',
-        'Topic :: Multimedia :: Graphics',
+        'Operating System :: POSIX :: Linux',
+        'Topic :: Multimedia :: Video',
         'Topic :: Software Development :: Libraries',
     ],
     ext_modules=ext_modules,

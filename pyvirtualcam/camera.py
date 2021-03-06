@@ -11,6 +11,8 @@ if platform.system() == 'Windows':
     from pyvirtualcam import _native_windows as _native
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos as _native
+elif platform.system() == 'Linux':
+    from pyvirtualcam import _native_linux as _native
 else:
     raise NotImplementedError('unsupported OS')
 
@@ -112,5 +114,5 @@ class _NativeCamera(CameraBase):
         _native.send(frame)
 
 
-if platform.system() in ['Windows', 'Darwin']:
+if platform.system() in ['Windows', 'Darwin', 'Linux']:
     Camera = _NativeCamera
