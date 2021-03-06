@@ -52,6 +52,14 @@ static bool virtual_output_start(uint32_t width, uint32_t height, double fps) {
         return false;
     }
 
+    NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
+    NSFileManager *file_manager = [NSFileManager defaultManager];
+    BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
+    if (!dal_plugin_installed) {
+        fprintf(stderr, "WARNING: OBS Virtual Camera is not installed in your system!\n");
+        fprintf(stderr, "Use the Virtual Camera function in OBS to trigger installation.\n");
+    }
+
     cam_output_width = width;
     cam_output_height = height;
     cam_fps_num = fps * 1000;
