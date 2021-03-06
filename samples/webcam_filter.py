@@ -46,8 +46,8 @@ try:
             frame[:,:-dx,c1] = frame[:,dx:,c1]
             frame[:,dx:,c2] = frame[:,:-dx,c2]
 
-            # Convert to RGBA.
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+            # Convert to RGB.
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Send to virtual cam.
             cam.send(frame)

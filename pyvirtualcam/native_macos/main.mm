@@ -106,6 +106,8 @@ void start(uint32_t width, uint32_t height, double fps) {
 void send(py::array_t<uint8_t, py::array::c_style> frame) {
     py::buffer_info buf_info = frame.request();
     const uint8_t* buf = (uint8_t*)buf_info.ptr;
+    uint32_t frame_height = frame.shape[0];
+    uint32_t frame_width = frame.shape[1];
 
     // We must handle port messages, and somehow our RunLoop isn't normally active
     NSRunLoop *runLoop;
@@ -115,10 +117,7 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     
     uint64_t timestamp = mach_absolute_time();
 
-    uint8_t* data = (uint8_t*) malloc(buf.shape[1] * buf.shape[0] * 2);
-
-    uint32_t frame_height = buf.shape[0];
-    uint32_t frame_width = buf.shape[1];
+    uint8_t* data = (uint8_t*) malloc(frame_width * frame_height * 2);
 
     // Convert RGB to UYVY
     for(uint32_t y = 0; y < frame_height; y++) {
@@ -152,7 +151,7 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
         }
     }
 
-    virtual_output_raw_video(data, buf.shape[1] * 2, timestamp);
+    virtual_output_raw_video(data, frame_width * 2, timestamp);
     free(data);
 }
 

@@ -29,8 +29,8 @@ with pyvirtualcam.Camera(width=width, height=height, fps=fps) as cam:
         if not ret:
             raise RuntimeError('Error fetching frame')
         
-        # Convert to RGBA.
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        # Convert to RGB.
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # Send to virtual cam.
         cam.send(frame)

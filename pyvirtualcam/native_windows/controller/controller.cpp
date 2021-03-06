@@ -78,7 +78,7 @@ void virtual_video(uint8_t *rgb)
     uint64_t interval;
     video_queue_get_info(vq, &cx, &cy, &interval);
 
-    uint8_t* nv12 = malloc((cx + cx / 2) * cy );
+    uint8_t* nv12 = (uint8_t*)malloc((cx + cx / 2) * cy );
     if (!nv12) {
         fprintf(stderr, "out of memory\n");
         return;
