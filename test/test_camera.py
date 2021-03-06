@@ -29,13 +29,13 @@ def test_invalid_frame_shape():
         with pytest.raises(ValueError):
             cam.send(np.zeros((640, 480, 3), np.uint8))
         with pytest.raises(ValueError):
-            cam.send(np.zeros((1280, 720, 1), np.uint8))
+            cam.send(np.zeros((cam.height, cam.width, 1), np.uint8))
         with pytest.raises(ValueError):
-            cam.send(np.zeros((1280, 720), np.uint8))
+            cam.send(np.zeros((cam.height, cam.width), np.uint8))
 
 def test_deprecated_rgba_frame_format():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
-        cam.send(np.zeros((1280, 720, 4), np.uint8))
+        cam.send(np.zeros((cam.height, cam.width, 4), np.uint8))
 
 @pytest.mark.skipif(
     os.environ.get('CI') and sys.platform == 'darwin',

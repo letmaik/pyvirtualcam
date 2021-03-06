@@ -72,7 +72,7 @@ class Camera:
 
     def send(self, frame: np.ndarray) -> None:
         if frame.ndim != 3 or frame.shape[0] != self._height or frame.shape[1] != self._width:
-            raise ValueError("mismatching frame dimensions: {frame.shape} != ({self._height}, {self._width}, 3)")
+            raise ValueError(f"mismatching frame dimensions: {frame.shape} != ({self._height}, {self._width}, 3)")
         if frame.shape[2] == 4:
             warnings.warn('RGBA frames are deprecated, use RGB instead', DeprecationWarning)
             frame = frame[:,:,:3]

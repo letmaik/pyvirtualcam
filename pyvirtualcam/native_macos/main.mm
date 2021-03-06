@@ -74,7 +74,7 @@ static void virtual_output_stop() {
     sMachServer = nil;
 }
 
-static void virtual_output_raw_video(void *data, int linesize, uint64_t timestamp) {
+static void virtual_output_raw_video(void *data, uint32_t linesize, uint64_t timestamp) {
     if (sMachServer == nil) {
         return;
     }
@@ -106,8 +106,8 @@ void start(uint32_t width, uint32_t height, double fps) {
 void send(py::array_t<uint8_t, py::array::c_style> frame) {
     py::buffer_info buf_info = frame.request();
     const uint8_t* buf = (uint8_t*)buf_info.ptr;
-    uint32_t frame_height = frame.shape[0];
-    uint32_t frame_width = frame.shape[1];
+    uint32_t frame_height = buf_info.shape[0];
+    uint32_t frame_width = buf_info.shape[1];
 
     // We must handle port messages, and somehow our RunLoop isn't normally active
     NSRunLoop *runLoop;
