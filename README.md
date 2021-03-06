@@ -8,11 +8,11 @@ NOTE: This package is a work-in-progress. No support is provided, use at own ris
 import pyvirtualcam
 import numpy as np
 
-with pyvirtualcam.Camera(width=1280, height=720, fps=30) as cam:
+with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
+    frame = np.zeros((cam.height, cam.width, 4), np.uint8)  # RGBA
+    frame[:, :, 3] = 255
     while True:
-        frame = np.zeros((cam.height, cam.width, 4), np.uint8) # RGBA
-        frame[:,:,:3] = cam.frames_sent % 255 # grayscale animation
-        frame[:,:,3] = 255
+        frame[:, :, :3] = cam.frames_sent % 255  # grayscale animation
         cam.send(frame)
         cam.sleep_until_next_frame()
 ```

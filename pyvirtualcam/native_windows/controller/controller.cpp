@@ -1,15 +1,9 @@
 #include <stdio.h>
-#include "queue/share_queue.h"
-#include "queue/share_queue_write.h"
+#include <Windows.h>
+#include "queue/shared-memory-queue.h"
 #include "controller.h"
 
-struct virtual_out_data {
-	share_queue video_queue;
-	int width = 0;
-	int height = 0;
-};
-
-static struct virtual_out_data *virtual_out;
+static video_queue_t *vq;
 static bool output_running = false;
 
 static bool have_clockfreq = false;
@@ -17,80 +11,120 @@ static LARGE_INTEGER clock_freq;
 
 static uint64_t get_timestamp_ns()
 {
-	LARGE_INTEGER current_time;
-	double time_val;
+    LARGE_INTEGER current_time;
+    double time_val;
 
-	if (!have_clockfreq) {
-		QueryPerformanceFrequency(&clock_freq);
-		have_clockfreq = true;
-	}
+    if (!have_clockfreq) {
+        QueryPerformanceFrequency(&clock_freq);
+        have_clockfreq = true;
+    }
 
-	QueryPerformanceCounter(&current_time);
-	time_val = (double)current_time.QuadPart;
-	time_val *= 1000000000.0;
-	time_val /= (double)clock_freq.QuadPart;
+    QueryPerformanceCounter(&current_time);
+    time_val = (double)current_time.QuadPart;
+    time_val *= 1000000000.0;
+    time_val /= (double)clock_freq.QuadPart;
 
-	return (uint64_t)time_val;
+    return (uint64_t)time_val;
 }
 
-bool virtual_output_start(int width, int height, double fps, int delay)
+static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
+    *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
+}
+static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
+    *u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
+    *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
+}
+
+std::string virtual_output_device()
+{
+    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/win-dshow/virtualcam-module/virtualcam-module.cpp#L196
+    return "OBS Virtual Camera";
+}
+
+bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {
         fprintf(stderr, "virtual camera output already started\n");
         return false;
     }
-	virtual_out = (virtual_out_data*) malloc(sizeof(struct virtual_out_data));
 
-	bool start = false;
-	virtual_out_data* out_data = (virtual_out_data*)virtual_out;
-	out_data->width = width;
-	out_data->height = height;
-	uint64_t interval = static_cast<int64_t>(1000000000 / fps);
+    bool start = false;
+    uint64_t interval = (uint64_t)(10000000.0 / fps);
 
-	start = shared_queue_create(&out_data->video_queue,
-		ModeVideo, AV_PIX_FMT_RGBA, out_data->width, out_data->height,
-		interval, delay + 10);
+    vq = video_queue_create(width, height, interval);
 
-	if (start) {
-		output_running = true;
-		shared_queue_set_delay(&out_data->video_queue, delay);
-	} else {
-		output_running = false;
-		shared_queue_write_close(&out_data->video_queue);
-		free(virtual_out);
+    if (vq) {
+        output_running = true;
+    } else {
+        output_running = false;
+        fprintf(stderr, "video_queue_create() failed\n");
+        return false;
+    }
 
-		fprintf(stderr, "shared_queue_create() failed\n");
-	}
-
-	return start;
+    return true;
 }
 
 void virtual_output_stop()
 {
     if (!output_running) {
         return;
-	}	
-	shared_queue_write_close(&virtual_out->video_queue);
-    free(virtual_out);
-	output_running = false;
+    }	
+    video_queue_close(vq);
+    output_running = false;
 }
 
-// data is in RGBA format (packed RGBA 8:8:8:8, 32bpp, RGBARGBA...)
-// TODO RGB24 would be better but not supported in obs-virtual-cam
-void virtual_video(uint8_t **data)
+// data is in RGB format (packed RGB, 24bpp, RGBRGB...)
+// queue expects NV12 (semi-planar YUV, 12bpp)
+void virtual_video(uint8_t *rgb)
 {
-	if (!output_running)
-		return;
+    if (!output_running)
+        return;
 
-    uint32_t linesize[1] = {virtual_out->width * 4};
-	uint64_t timestamp = get_timestamp_ns();
+    uint32_t cx, cy;
+    uint64_t interval;
+    video_queue_get_info(vq, &cx, &cy, &interval);
 
-	virtual_out_data *out_data = (virtual_out_data*)virtual_out;
-    shared_queue_push_video(&out_data->video_queue, linesize, 
-        out_data->width, out_data->height, data, timestamp);
+    uint8_t* nv12 = (uint8_t*)malloc((cx + cx / 2) * cy );
+    if (!nv12) {
+        fprintf(stderr, "out of memory\n");
+        return;
+    }
+
+    // NV12 has two planes
+    uint8_t* y = nv12;
+    uint8_t* uv = nv12 + cx * cy;
+
+    // Compute Y plane
+    for (uint32_t i=0; i < cx * cy; i++) {
+        YfromRGB(&y[i], rgb[i * 3 + 0], rgb[i * 3 + 1], rgb[i * 3 + 2]);
+    }
+    // Compute UV plane
+    for (uint32_t y=0; y < cy; y = y + 2) {
+        for (uint32_t x=0; x < cx; x = x + 2) {
+            // Downsample by 2
+            uint8_t* rgb1 = rgb + ((y * cx + x) * 3);
+            uint8_t* rgb2 = rgb + (((y + 1) * cx + x) * 3);
+            uint8_t r = (rgb1[0+0] + rgb1[3+0] + rgb2[0+0] + rgb2[3+0]) / 4;
+            uint8_t g = (rgb1[0+1] + rgb1[3+1] + rgb2[0+1] + rgb2[3+1]) / 4;
+            uint8_t b = (rgb1[0+2] + rgb1[3+2] + rgb2[0+2] + rgb2[3+2]) / 4;
+
+            uint8_t* u = &uv[y / 2 * cx + x];
+            uint8_t* v = u + 1;
+            UVfromRGB(u, v, r, g, b);
+        }
+    }
+
+    // One entry per plane
+    uint32_t linesize[2] = { cx, cx / 2 };
+    uint8_t* data[2] = { y, uv };
+
+    uint64_t timestamp = get_timestamp_ns();
+
+    video_queue_write(vq, data, linesize, timestamp);
+    free(nv12);
 }
 
 bool virtual_output_is_running()
 {
-	return output_running;
+    return output_running;
 }
