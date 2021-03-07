@@ -1,13 +1,17 @@
 # This scripts uses OpenCV to capture webcam output, applies a filter,
 # and sends it to the virtual camera.
 
+import argparse
 import cv2
 import pyvirtualcam
 
-verbose = False
+parser = argparse.ArgumentParser()
+parser.add_argument("--camera", type=int, default=0, help="ID of webcam device (default: 0)")
+parser.add_argument("--fps", action="store_true", help="output fps every second")
+args = parser.parse_args()
 
 # Set up webcam capture.
-vc = cv2.VideoCapture(0)  # 0 = default camera
+vc = cv2.VideoCapture(args.camera)
 
 if not vc.isOpened():
     raise RuntimeError('Could not open video source')
@@ -28,7 +32,7 @@ print(f'Webcam capture started ({width}x{height} @ {fps_in}fps)')
 fps_out = 20
 
 try:
-    with pyvirtualcam.Camera(width, height, fps_out, print_fps=True) as cam:
+    with pyvirtualcam.Camera(width, height, fps_out, print_fps=args.fps) as cam:
         print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
 
         # Shake two channels horizontally each frame.
