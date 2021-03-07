@@ -1,6 +1,6 @@
 # pyvirtualcam
 
-NOTE: This package is a work-in-progress. No support is provided, use at own risk.
+pyvirtualcam sends frames to a virtual camera from Python.
 
 ## Usage
 
@@ -9,38 +9,60 @@ import pyvirtualcam
 import numpy as np
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
-    frame = np.zeros((cam.height, cam.width, 4), np.uint8)  # RGBA
-    frame[:, :, 3] = 255
+    print(f'Using virtual camera: {cam.device}')
+    frame = np.zeros((cam.height, cam.width, 3), np.uint8)  # RGB
     while True:
-        frame[:, :, :3] = cam.frames_sent % 255  # grayscale animation
+        frame[:] = cam.frames_sent % 255  # grayscale animation
         cam.send(frame)
         cam.sleep_until_next_frame()
 ```
 
+For more examples, check out the [`samples/`](samples) folder.
+
 ## Installation
 
-This package is Windows-only for now. Binary wheels are provided on PyPI.
-Check out [pyfakewebcam](https://github.com/jremmons/pyfakewebcam) for something that works on Linux.
+This package works on Windows, macOS, and Linux. Install it from PyPI with:
 
 ```sh
 pip install pyvirtualcam
 ```
 
-The package uses [obs-virtual-cam](https://github.com/Fenrirthviti/obs-virtual-cam/releases) which has to be installed separately. Note that the obs-virtual-cam installer assumes an OBS Studio installation and will fail otherwise. You can also download the obs-virtual-cam zip package from https://github.com/CatxFish/obs-virtual-cam/releases without installing OBS Studio. After unzipping, from an admin command prompt, run:
-```
-regsvr32 /n /i:1 "obs-virtualcam\bin\32bit\obs-virtualsource.dll"
-regsvr32 /n /i:1 "obs-virtualcam\bin\64bit\obs-virtualsource.dll"
-```
-To uninstall, run:
-```
-regsvr32 /u "obs-virtualcam\bin\32bit\obs-virtualsource.dll"
-regsvr32 /u "obs-virtualcam\bin\64bit\obs-virtualsource.dll"
+pyvirtualcam relies on existing virtual cameras which have to be installed first. See the next section for details.
+
+## Supported virtual cameras
+
+### Windows: OBS
+
+[OBS](https://obsproject.com/) includes a built-in virtual camera for Windows (since 26.0).
+
+To use the OBS virtual camera, simply [install OBS](https://obsproject.com/).
+
+Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
+
+### macOS: OBS
+
+[OBS](https://obsproject.com/) includes a built-in virtual camera for macOS (since 26.1).
+
+To use the OBS virtual camera, follow these one-time setup steps:
+- [Install OBS](https://obsproject.com/).
+- Start OBS.
+- Click "Start Virtual Camera" (bottom right), then "Stop Virtual Camera".
+- Close OBS.
+
+Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
+
+### Linux: v4l2loopback
+
+pyvirtualcam uses [v4l2loopback](https://github.com/umlaeute/v4l2loopback) virtual cameras on Linux.
+
+To create a v4l2loopback virtual camera on Ubuntu, run the following:
+
+```sh
+sudo apt install v4l2loopback-dkms
+sudo modprobe v4l2loopback devices=1
 ```
 
-## Contributions
+For further information, see the [v4l2loopback documentation](https://github.com/umlaeute/v4l2loopback).
 
-The most useful contributions would be to add support for macOS or Linux.
-
-Similar to Windows, it may be possible in macOS to piggyback on https://github.com/johnboiles/obs-mac-virtualcam.
-
-For Linux, it seems like https://github.com/umlaeute/v4l2loopback is the right dependency. Code from https://github.com/CatxFish/obs-v4l2sink may be useful as inspiration on how to send frames to the loopback device. Also, there is https://github.com/jremmons/pyfakewebcam which may be a good candidate.
+pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
+The camera device name can be accessed with `cam.device`.
