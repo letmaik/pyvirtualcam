@@ -1,7 +1,6 @@
 import platform
 import time
 import warnings
-from abc import ABC, abstractmethod
 
 import numpy as np
 
@@ -11,17 +10,31 @@ if platform.system() == 'Windows':
     from pyvirtualcam import _native_windows as _native
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos as _native
+elif platform.system() == 'Linux':
+    from pyvirtualcam import _native_linux as _native
 else:
     raise NotImplementedError('unsupported OS')
 
+class NativeCameraBackend:
+    def __init__(self, width: int, height: int, fps: float) -> None:
+        _native.start(width, height, fps)
 
-class CameraBase(ABC):
-    @abstractmethod
-    def __init__(self, width: int, height: int, fps: float, delay: int, print_fps: bool) -> None:
+    def device(self) -> str:
+        return _native.device()
+
+    def close(self) -> None:
+        _native.stop()
+
+    def send(self, frame: np.ndarray) -> None:
+        _native.send(frame)
+
+class Camera:
+    def __init__(self, width: int, height: int, fps: float, delay=None,
+                 print_fps=False, backend=NativeCameraBackend, **kw) -> None:
+        self._backend = backend(width=width, height=height, fps=fps, **kw)
         self._width = width
         self._height = height
         self._fps = fps
-        self._delay = delay
         self._print_fps = print_fps
 
         self._fps_counter = FPSCounter(fps)
@@ -30,6 +43,9 @@ class CameraBase(ABC):
         self._frames_sent = 0
         self._last_frame_t = None
         self._extra_time_per_frame = 0
+
+        if delay is not None:
+            warnings.warn("'delay' argument is deprecated and has no effect", DeprecationWarning)
     
     def __enter__(self):
         return self
@@ -37,6 +53,10 @@ class CameraBase(ABC):
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
         self.close()
         return False
+
+    @property
+    def device(self) -> str:
+        return self._backend.device()
 
     @property
     def width(self) -> int:
@@ -54,12 +74,18 @@ class CameraBase(ABC):
     def frames_sent(self) -> int:
         return self._frames_sent
 
-    @abstractmethod
     def close(self) -> None:
-        pass
+        self._backend.close()
 
-    @abstractmethod
     def send(self, frame: np.ndarray) -> None:
+        if frame.ndim != 3 or frame.shape[0] != self._height or frame.shape[1] != self._width:
+            raise ValueError(f"mismatching frame dimensions: {frame.shape} != ({self._height}, {self._width}, 3)")
+        if frame.shape[2] == 4:
+            warnings.warn('RGBA frames are deprecated, use RGB instead', DeprecationWarning)
+            frame = frame[:,:,:3]
+        elif frame.shape[2] != 3:
+            raise ValueError(f"invalid number of color channels, must be RGB or (deprecated) RGBA")
+
         self._frames_sent += 1
         self._last_frame_t = time.perf_counter()
         self._fps_counter.measure()
@@ -78,6 +104,8 @@ class CameraBase(ABC):
                 f'than camera fps ({self._fps:.1f}), '
                 f'consider lowering the camera fps')
         
+        self._backend.send(frame)
+        
     @property
     def current_fps(self) -> float:
         return self._fps_counter.avg_fps
@@ -92,21 +120,3 @@ class CameraBase(ABC):
             t_sleep = next_frame_t - current_t - self._extra_time_per_frame
             if t_sleep > 0:
                 time.sleep(t_sleep)
-
-
-class _NativeCamera(CameraBase):
-    def __init__(self, width: int, height: int, fps: float, delay=10, print_fps=False) -> None:
-        super().__init__(width, height, fps, delay, print_fps)
-        _native.start(width, height, fps, delay)
-
-    def close(self) -> None:
-        super().close()
-        _native.stop()
-
-    def send(self, frame: np.ndarray) -> None:
-        super().send(frame)
-        _native.send(frame)
-
-
-if platform.system() in ['Windows', 'Darwin']:
-    Camera = _NativeCamera

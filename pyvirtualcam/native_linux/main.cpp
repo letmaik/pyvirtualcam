@@ -15,7 +15,7 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     virtual_video((uint8_t*)buf.ptr);
 }
 
-PYBIND11_MODULE(_native_windows, m) {
+PYBIND11_MODULE(_native_linux, m) {
     m.def("start", &start, R"pbdoc(
         Start the virtual cam output.
     )pbdoc");

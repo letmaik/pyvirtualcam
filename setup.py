@@ -27,11 +27,14 @@ if platform.system() == 'Windows':
             sorted([
                 'pyvirtualcam/native_windows/main.cpp',
                 'pyvirtualcam/native_windows/controller/controller.cpp',
-                'pyvirtualcam/native_windows/queue/share_queue_write.cpp']),
+                'pyvirtualcam/native_windows/queue/shared-memory-queue.c']),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
                 'pyvirtualcam/native_windows'
+            ],
+            extra_link_args=[
+                "/DEFAULTLIB:advapi32.lib",
             ],
             language='c++'
         )
@@ -50,18 +53,25 @@ elif platform.system() == 'Darwin':
                 'pyvirtualcam/native_macos'
             ],
             extra_link_args=[
-                "-framework", "AVFoundation",
-                "-framework", "AppKit",
-                "-framework", "Cocoa",
-                "-framework", "CoreFoundation",
-                "-framework", "CoreMedia",
-                "-framework", "CoreVideo",
-                "-framework", "Cocoa",
-                "-framework", "CoreMediaIO",
-                "-framework", "IOSurface",
-                "-framework", "IOKit"
+                "-framework", "Foundation",
             ],
             language='objc'
+        )
+    )
+elif platform.system() == 'Linux':
+    ext_modules.append(
+        Extension('pyvirtualcam._native_linux',
+            # Sort input source files to ensure bit-for-bit reproducible builds
+            # (https://github.com/pybind/python_example/pull/53)
+            sorted([
+                'pyvirtualcam/native_linux/main.cpp',
+                'pyvirtualcam/native_linux/controller/controller.cpp']),
+            include_dirs=[
+                # Path to pybind11 headers
+                get_pybind_include(),
+                'pyvirtualcam/native_linux'
+            ],
+            language='c++'
         )
     )
 else:
@@ -118,7 +128,7 @@ class BuildExt(build_ext):
     UnixCCompiler.language_map[".mm"] = "objc"
 
     if sys.platform == 'darwin':
-        darwin_opts = ['-stdlib=libc++', '-std=gnu++14']
+        darwin_opts = ['-stdlib=libc++']
         c_opts['unix'] += darwin_opts
         l_opts['unix'] += darwin_opts
 
@@ -127,10 +137,9 @@ class BuildExt(build_ext):
         opts = self.c_opts.get(ct, [])
         link_opts = self.l_opts.get(ct, [])
         if ct == 'unix':
-            if sys.platform != 'darwin':
-                opts.append(cpp_flag(self.compiler))
-            #if has_flag(self.compiler, '-fvisibility=hidden'):
-            #    opts.append('-fvisibility=hidden')
+            opts.append(cpp_flag(self.compiler))
+            if has_flag(self.compiler, '-fvisibility=hidden'):
+                opts.append('-fvisibility=hidden')
 
         for ext in self.extensions:
             ext.define_macros = [('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
@@ -158,7 +167,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS',
-        'Topic :: Multimedia :: Graphics',
+        'Operating System :: POSIX :: Linux',
+        'Topic :: Multimedia :: Video',
         'Topic :: Software Development :: Libraries',
     ],
     ext_modules=ext_modules,
