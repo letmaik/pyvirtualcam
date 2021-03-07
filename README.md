@@ -31,11 +31,23 @@ pyvirtualcam relies on existing virtual cameras which have to be installed first
 
 ## Supported virtual cameras
 
-### Windows & macOS: OBS
+### Windows: OBS
 
-[OBS](https://obsproject.com/) includes a built-in virtual camera for Windows (since 26.0) and macOS (since 26.1).
+[OBS](https://obsproject.com/) includes a built-in virtual camera for Windows (since 26.0).
 
-To use the OBS virtual camera, simply install OBS.
+To use the OBS virtual camera, simply [install OBS](https://obsproject.com/).
+
+Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
+
+### macOS: OBS
+
+[OBS](https://obsproject.com/) includes a built-in virtual camera for macOS (since 26.1).
+
+To use the OBS virtual camera, follow these one-time setup steps:
+- [Install OBS](https://obsproject.com/).
+- Start OBS.
+- Click "Start Virtual Camera" (bottom right), then "Stop Virtual Camera".
+- Close OBS.
 
 Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
 
