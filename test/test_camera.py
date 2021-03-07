@@ -49,7 +49,7 @@ def test_deprecated_rgba_frame_format():
 def test_sleep_until_next_frame():
     target_fps = 20
     with pyvirtualcam.Camera(width=1280, height=720, fps=target_fps) as cam:
-        frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGBA
+        frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
         for _ in range(100):
             cam.send(frame)
             cam.sleep_until_next_frame()
