@@ -1,5 +1,6 @@
 import os
 import platform
+import warnings
 import pytest
 import numpy as np
 import pyvirtualcam
@@ -37,7 +38,10 @@ def test_invalid_frame_shape():
 
 def test_deprecated_rgba_frame_format():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
-        cam.send(np.zeros((cam.height, cam.width, 4), np.uint8))
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            with pytest.raises(DeprecationWarning):
+                cam.send(np.zeros((cam.height, cam.width, 4), np.uint8))
 
 @pytest.mark.skipif(
     os.environ.get('CI') and platform.system() == 'Darwin',
