@@ -118,11 +118,11 @@ void send(py::array_t<uint8_t, py::array::c_style> frame) {
     uint32_t frame_height = buf_info.shape[0];
     uint32_t frame_width = buf_info.shape[1];
 
-    // We must handle port messages, and somehow our RunLoop isn't normally active
-    NSRunLoop *runLoop;
-    NSDate *timeout = [NSDate dateWithTimeIntervalSinceNow:0.001];
-    runLoop = [NSRunLoop currentRunLoop];
-    [runLoop runUntilDate:timeout];
+    // We must handle port messages, and somehow our RunLoop isn't normally active.
+    // Handle exactly one message. If no message is queued, return without blocking.
+    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    NSDate *now = [NSDate date];
+    [runLoop runMode:NSDefaultRunLoopMode beforeDate:now];
     
     uint64_t timestamp = mach_absolute_time();
 
