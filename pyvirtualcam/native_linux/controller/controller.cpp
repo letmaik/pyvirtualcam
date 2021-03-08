@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -29,11 +30,11 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
         return false;
     }
 
-    char device_name[13];
+    char device_name[14];
     bool found = false;
 
     for (size_t i = 0; i < 100; i++) {
-        sprintf(device_name, "/dev/video%d", i);
+        sprintf(device_name, "/dev/video%zu", i);
         camera_fd = open(device_name, O_WRONLY | O_SYNC);
         if (camera_fd == -1) {
             if (errno == EACCES) {
@@ -119,11 +120,9 @@ void virtual_video(uint8_t *buf)
         return;
 
     size_t data_size = frame_height * frame_width * 2;
-    uint8_t* data = (uint8_t*) malloc(data_size);
-    if (!data) {
-        fprintf(stderr, "out of memory\n");
-        return;
-    }
+    
+    std::vector<uint8_t> out_frame(data_size);
+    uint8_t* data = out_frame.data();   
 
     // Convert RGB to UYVY
     for(uint32_t y = 0; y < frame_height; y++) {
@@ -157,12 +156,8 @@ void virtual_video(uint8_t *buf)
         }
     }
 
-    write(camera_fd, data, data_size);
-
-    free(data);
-}
-
-bool virtual_output_is_running()
-{
-    return output_running;
+    ssize_t n = write(camera_fd, data, data_size);
+    if (n == -1) {
+        fprintf(stderr, "error writing frame");
+    }
 }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <Windows.h>
+#include <vector>
 #include "queue/shared-memory-queue.h"
 #include "controller.h"
 
@@ -92,11 +93,8 @@ void virtual_video(uint8_t *rgb)
     uint64_t interval;
     video_queue_get_info(vq, &cx, &cy, &interval);
 
-    uint8_t* nv12 = (uint8_t*)malloc((cx + cx / 2) * cy );
-    if (!nv12) {
-        fprintf(stderr, "out of memory\n");
-        return;
-    }
+    std::vector<uint8_t> out_frame((cx + cx / 2) * cy);
+    uint8_t* nv12 = out_frame.data();   
 
     // NV12 has two planes
     uint8_t* y = nv12;
@@ -129,10 +127,4 @@ void virtual_video(uint8_t *rgb)
     uint64_t timestamp = get_timestamp_ns();
 
     video_queue_write(vq, data, linesize, timestamp);
-    free(nv12);
-}
-
-bool virtual_output_is_running()
-{
-    return output_running;
 }

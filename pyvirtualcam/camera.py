@@ -6,32 +6,27 @@ import numpy as np
 
 from pyvirtualcam.util import FPSCounter
 
+_BACKENDS = []
+
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows as _native
+    from pyvirtualcam import _native_windows
+    _BACKENDS += [_native_windows.OBSCamera]
 elif platform.system() == 'Darwin':
-    from pyvirtualcam import _native_macos as _native
+    from pyvirtualcam import _native_macos
+    _BACKENDS += [_native_macos.OBSCamera]
 elif platform.system() == 'Linux':
-    from pyvirtualcam import _native_linux as _native
+    from pyvirtualcam import _native_linux
+    _BACKENDS += [_native_linux.V4L2LoopbackCamera]
 else:
     raise NotImplementedError('unsupported OS')
 
-class NativeCameraBackend:
-    def __init__(self, width: int, height: int, fps: float) -> None:
-        _native.start(width, height, fps)
-
-    def device(self) -> str:
-        return _native.device()
-
-    def close(self) -> None:
-        _native.stop()
-
-    def send(self, frame: np.ndarray) -> None:
-        _native.send(frame)
-
 class Camera:
     def __init__(self, width: int, height: int, fps: float, delay=None,
-                 print_fps=False, backend=NativeCameraBackend, **kw) -> None:
+                 print_fps=False, backend=None, **kw) -> None:
+        if backend is None:
+            backend = _BACKENDS[0]
         self._backend = backend(width=width, height=height, fps=fps, **kw)
+
         self._width = width
         self._height = height
         self._fps = fps
