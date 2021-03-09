@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <cstdint>
 #include <string>
+#include <vector>
 #include <mach/mach_time.h>
 #include "server/OBSDALMachServer.h"
 #include "server/Defines.h"
