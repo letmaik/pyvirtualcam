@@ -52,8 +52,10 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps)
     LPCWSTR guid = L"CLSID\\{A3FCE0F5-3493-419F-958A-ABA1250EC20B}";
     HKEY key = nullptr;
     if (RegOpenKeyExW(HKEY_CLASSES_ROOT, guid, 0, KEY_READ, &key) != ERROR_SUCCESS) {
-        fprintf(stderr, "WARNING: OBS Virtual Camera device not found!\n");
-        fprintf(stderr, "Did you install OBS?\n");
+        throw std::runtime_error(
+            "OBS Virtual Camera device not found! "
+            "Did you install OBS?"
+        );
 	}
 
     bool start = false;

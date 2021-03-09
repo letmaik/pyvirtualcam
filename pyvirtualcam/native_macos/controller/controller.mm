@@ -52,8 +52,10 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     NSFileManager *file_manager = [NSFileManager defaultManager];
     BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
     if (!dal_plugin_installed) {
-        fprintf(stderr, "WARNING: OBS Virtual Camera is not installed in your system!\n");
-        fprintf(stderr, "Use the Virtual Camera function in OBS to trigger installation.\n");
+        throw std::runtime_error(
+            "OBS Virtual Camera is not installed in your system. "
+            "Use the Virtual Camera function in OBS to trigger installation."
+            );
     }
 
     cam_output_width = width;
