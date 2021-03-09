@@ -1,3 +1,4 @@
+from typing import Optional
 import platform
 import time
 import warnings
@@ -6,27 +7,37 @@ import numpy as np
 
 from pyvirtualcam.util import FPSCounter
 
-_BACKENDS = []
+BACKENDS = {}
 
 if platform.system() == 'Windows':
     from pyvirtualcam import _native_windows
-    _BACKENDS += [_native_windows.OBSCamera]
+    BACKENDS['obs'] = _native_windows.OBSCamera
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos
-    _BACKENDS += [_native_macos.OBSCamera]
+    BACKENDS['obs'] = _native_macos.OBSCamera
 elif platform.system() == 'Linux':
     from pyvirtualcam import _native_linux
-    _BACKENDS += [_native_linux.V4L2LoopbackCamera]
-else:
-    raise NotImplementedError('unsupported OS')
+    BACKENDS['v4l2loopback'] = _native_linux.V4L2LoopbackCamera
 
 class Camera:
     def __init__(self, width: int, height: int, fps: float, delay=None,
-                 print_fps=False, backend=None, **kw) -> None:
-        if backend is None:
-            backend = _BACKENDS[0]
+                 print_fps=False, backend: Optional[str]=None, **kw) -> None:
+        if backend:
+            backends = [(backend, BACKENDS[backend])]
+        else:
+            backends = list(BACKENDS.items())
         self._backend = None # for __del__ in case backend raises exception
-        self._backend = backend(width=width, height=height, fps=fps, **kw)
+        errors = []
+        for name, clazz in backends:
+            try:
+                self._backend = clazz(width=width, height=height, fps=fps, **kw)
+            except Exception as e:
+                errors.append(f"'{name}' backend: {e}")
+            else:
+                self._backend_name = name
+                break
+        if self._backend is None:
+            raise RuntimeError('\n'.join(errors))
 
         self._width = width
         self._height = height
@@ -53,6 +64,10 @@ class Camera:
     def __del__(self):
         if self._backend is not None:
             self.close()
+
+    @property
+    def backend(self) -> str:
+        return self._backend_name
 
     @property
     def device(self) -> str:

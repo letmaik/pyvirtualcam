@@ -42,7 +42,7 @@ std::string virtual_output_device()
     return "OBS Virtual Camera";
 }
 
-bool virtual_output_start(uint32_t width, uint32_t height, double fps)
+void virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {
         throw std::logic_error("virtual camera output already started");
