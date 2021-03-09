@@ -41,13 +41,16 @@ class Camera:
 
         if delay is not None:
             warnings.warn("'delay' argument is deprecated and has no effect", DeprecationWarning)
-    
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
         self.close()
         return False
+    
+    def __del__(self):
+        self.close()
 
     @property
     def device(self) -> str:
