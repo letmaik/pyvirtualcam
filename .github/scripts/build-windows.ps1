@@ -154,10 +154,7 @@ exec { python -m pip freeze }
 # Pretend we actually installed OBS and the virtual camera.
 # This is all that's needed to make our backend happy.
 if ($env:CI -eq "true") {
-    Push-Location
-    Set-Location HKLM:
-    New-Item -Path .\Software\Classes\CLSID -Name "{A3FCE0F5-3493-419F-958A-ABA1250EC20B}"
-    Pop-Location
+    New-Item -Path HKLM:\Software\Classes\CLSID -Name "{A3FCE0F5-3493-419F-958A-ABA1250EC20B}"
 }
 
 python -m pip uninstall -y pyvirtualcam
