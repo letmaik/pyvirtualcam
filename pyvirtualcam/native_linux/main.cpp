@@ -5,24 +5,26 @@
 
 namespace py = pybind11;
 
-struct V4L2LoopbackCamera {
-    // TODO avoid picking same camera twice
-    V4L2LoopbackCamera(uint32_t width, uint32_t height, double fps) {
-        if (!virtual_output_start(width, height, fps))
-            throw std::runtime_error("error starting virtual camera output");
+class V4L2LoopbackCamera {
+  private:
+    Context context;
+
+  public:
+    V4L2LoopbackCamera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
+        virtual_output_start(context, width, height);
     }
 
     void close() {
-        virtual_output_stop();
+        virtual_output_stop(context);
     }
 
     std::string device() {
-        return virtual_output_device();
+        return virtual_output_device(context);
     }
 
     void send(py::array_t<uint8_t, py::array::c_style> frame) {
         py::buffer_info buf = frame.request();    
-        virtual_output_video(static_cast<uint8_t*>(buf.ptr));
+        virtual_output_send(context, static_cast<uint8_t*>(buf.ptr));
     }
 };
 

@@ -14,7 +14,10 @@ def test_consecutive():
         frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
         cam.send(frame)
 
-def test_parallel():
+@pytest.mark.skipif(
+    platform.system() == 'Linux',
+    reason='v4l2loopback (Linux) allows multiple cameras')
+def test_multiple_cameras_not_supported():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
         cam.send(frame)
@@ -24,6 +27,18 @@ def test_parallel():
             with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
                 frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
                 cam.send(frame)
+
+@pytest.mark.skipif(
+    platform.system() != 'Linux',
+    reason='multiple cameras only supported with v4l2loopback (Linux)')
+def test_multiple_cameras_are_supported():
+    cam1 = pyvirtualcam.Camera(width=1280, height=720, fps=20)
+    frame = np.zeros((cam1.height, cam1.width, 3), np.uint8) # RGB
+    cam1.send(frame)
+
+    cam2 = pyvirtualcam.Camera(width=640, height=480, fps=20)
+    frame = np.zeros((cam2.height, cam2.width, 3), np.uint8) # RGB
+    cam2.send(frame)
 
 def test_invalid_frame_shape():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:

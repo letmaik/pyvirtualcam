@@ -80,7 +80,7 @@ void virtual_output_stop() {
     sMachServer = nil;
 }
 
-void virtual_output_video(uint8_t* buf) {
+void virtual_output_send(uint8_t* buf) {
     if (sMachServer == nil) {
         return;
     }
