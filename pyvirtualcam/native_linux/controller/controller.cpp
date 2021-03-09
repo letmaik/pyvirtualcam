@@ -13,12 +13,12 @@
 
 #include "controller.h"
 
-static void YfromRGB(uint8_t& y, uint8_t r, uint8_t g, uint8_t b) {
-    y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
+static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
+    *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
 }
-static void UVfromRGB(uint8_t& u, uint8_t& v, uint8_t r, uint8_t g, uint8_t b) {
-    u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
-    v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
+static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
+    *u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
+    *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
 // v4l2loopback allows opening a device multiple times.
@@ -151,18 +151,18 @@ void virtual_output_send(Context& ctx, uint8_t *buf)
             // Get U and V
             uint8_t u;
             uint8_t v;
-            UVfromRGB(u, v, mixRGB[0], mixRGB[1], mixRGB[2]);
+            UVfromRGB(&u, &v, mixRGB[0], mixRGB[1], mixRGB[2]);
 
             // Variable for Y
             uint8_t y;
 
             // Pixel 1
-            YfromRGB(y, rgb[0+0], rgb[0+1], rgb[0+2]);
+            YfromRGB(&y, rgb[0+0], rgb[0+1], rgb[0+2]);
             uyvy[0] = u;
             uyvy[1] = y;
 
             // Pixel 2
-            YfromRGB(y, rgb[3+0], rgb[3+1], rgb[3+2]);
+            YfromRGB(&y, rgb[3+0], rgb[3+1], rgb[3+2]);
             uyvy[2] = v;
             uyvy[3] = y;
         }

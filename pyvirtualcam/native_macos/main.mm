@@ -9,8 +9,7 @@ namespace py = pybind11;
 
 struct OBSCamera {
     OBSCamera(uint32_t width, uint32_t height, double fps) {
-        if (!virtual_output_start(width, height, fps))
-            throw std::runtime_error("error starting virtual camera output");
+        virtual_output_start(width, height, fps);
     }
 
     void close() {

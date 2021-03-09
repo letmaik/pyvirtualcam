@@ -43,10 +43,9 @@ static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
     *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
-bool virtual_output_start(uint32_t width, uint32_t height, double fps) {
+void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     if (sMachServer != nil) {
-        fprintf(stderr, "virtual camera output already started\n");
-        return false;
+        throw std::logic_error("virtual camera output already started");
     }
 
     NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
@@ -66,8 +65,6 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps) {
     sMachServer = [[OBSDALMachServer alloc] init];
 
     [sMachServer run];
-
-    return true;
 }
 
 void virtual_output_stop() {

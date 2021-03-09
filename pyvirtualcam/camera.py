@@ -25,6 +25,7 @@ class Camera:
                  print_fps=False, backend=None, **kw) -> None:
         if backend is None:
             backend = _BACKENDS[0]
+        self._backend = None # for __del__ in case backend raises exception
         self._backend = backend(width=width, height=height, fps=fps, **kw)
 
         self._width = width
@@ -50,7 +51,8 @@ class Camera:
         return False
     
     def __del__(self):
-        self.close()
+        if self._backend is not None:
+            self.close()
 
     @property
     def device(self) -> str:

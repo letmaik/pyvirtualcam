@@ -45,8 +45,7 @@ std::string virtual_output_device()
 bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {
-        fprintf(stderr, "virtual camera output already started\n");
-        return false;
+        throw std::logic_error("virtual camera output already started");
     }
 
     // https://github.com/obsproject/obs-studio/blob/9da6fc67/.github/workflows/main.yml#L484
@@ -62,15 +61,11 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 
     vq = video_queue_create(width, height, interval);
 
-    if (vq) {
-        output_running = true;
-    } else {
-        output_running = false;
-        fprintf(stderr, "video_queue_create() failed\n");
-        return false;
+    if (!vq) {
+        throw std::logic_error("virtual camera output could not be started");
     }
 
-    return true;
+    output_running = true;
 }
 
 void virtual_output_stop()
