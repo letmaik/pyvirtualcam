@@ -114,7 +114,7 @@ void virtual_output_stop()
 
 // data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects UYVY (packed YUV, 12bpp)
-void virtual_video(uint8_t *buf)
+void virtual_output_video(uint8_t *buf)
 {
     if (!output_running)
         return;

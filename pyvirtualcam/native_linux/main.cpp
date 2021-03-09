@@ -22,7 +22,7 @@ struct V4L2LoopbackCamera {
 
     void send(py::array_t<uint8_t, py::array::c_style> frame) {
         py::buffer_info buf = frame.request();    
-        virtual_video(static_cast<uint8_t*>(buf.ptr));
+        virtual_output_video(static_cast<uint8_t*>(buf.ptr));
     }
 };
 
