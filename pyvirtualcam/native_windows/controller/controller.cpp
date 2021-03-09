@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <Windows.h>
+#include <vector>
 #include "queue/shared-memory-queue.h"
 #include "controller.h"
 
@@ -41,19 +42,20 @@ std::string virtual_output_device()
     return "OBS Virtual Camera";
 }
 
-bool virtual_output_start(uint32_t width, uint32_t height, double fps)
+void virtual_output_start(uint32_t width, uint32_t height, double fps)
 {
     if (output_running) {
-        fprintf(stderr, "virtual camera output already started\n");
-        return false;
+        throw std::logic_error("virtual camera output already started");
     }
 
     // https://github.com/obsproject/obs-studio/blob/9da6fc67/.github/workflows/main.yml#L484
     LPCWSTR guid = L"CLSID\\{A3FCE0F5-3493-419F-958A-ABA1250EC20B}";
     HKEY key = nullptr;
     if (RegOpenKeyExW(HKEY_CLASSES_ROOT, guid, 0, KEY_READ, &key) != ERROR_SUCCESS) {
-        fprintf(stderr, "WARNING: OBS Virtual Camera device not found!\n");
-        fprintf(stderr, "Did you install OBS?\n");
+        throw std::runtime_error(
+            "OBS Virtual Camera device not found! "
+            "Did you install OBS?"
+        );
 	}
 
     bool start = false;
@@ -61,15 +63,11 @@ bool virtual_output_start(uint32_t width, uint32_t height, double fps)
 
     vq = video_queue_create(width, height, interval);
 
-    if (vq) {
-        output_running = true;
-    } else {
-        output_running = false;
-        fprintf(stderr, "video_queue_create() failed\n");
-        return false;
+    if (!vq) {
+        throw std::logic_error("virtual camera output could not be started");
     }
 
-    return true;
+    output_running = true;
 }
 
 void virtual_output_stop()
@@ -83,7 +81,7 @@ void virtual_output_stop()
 
 // data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects NV12 (semi-planar YUV, 12bpp)
-void virtual_video(uint8_t *rgb)
+void virtual_output_send(uint8_t *rgb)
 {
     if (!output_running)
         return;
@@ -92,11 +90,8 @@ void virtual_video(uint8_t *rgb)
     uint64_t interval;
     video_queue_get_info(vq, &cx, &cy, &interval);
 
-    uint8_t* nv12 = (uint8_t*)malloc((cx + cx / 2) * cy );
-    if (!nv12) {
-        fprintf(stderr, "out of memory\n");
-        return;
-    }
+    std::vector<uint8_t> out_frame((cx + cx / 2) * cy);
+    uint8_t* nv12 = out_frame.data();   
 
     // NV12 has two planes
     uint8_t* y = nv12;
@@ -129,10 +124,4 @@ void virtual_video(uint8_t *rgb)
     uint64_t timestamp = get_timestamp_ns();
 
     video_queue_write(vq, data, linesize, timestamp);
-    free(nv12);
-}
-
-bool virtual_output_is_running()
-{
-    return output_running;
 }

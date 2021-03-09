@@ -89,6 +89,12 @@ set -x
 # Install pyvirtualcam
 pip install dist/*.whl
 
+# Pretend we actually installed OBS and the virtual camera.
+# This is all that's needed to make our backend happy.
+if [[ "$CI" == "true" ]]; then
+    sudo mkdir -p /Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin
+fi
+
 # Test installed pyvirtualcam
 retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed

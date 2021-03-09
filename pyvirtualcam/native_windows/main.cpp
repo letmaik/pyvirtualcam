@@ -5,30 +5,30 @@
 
 namespace py = pybind11;
 
-void start(uint32_t width, uint32_t height, double fps) {
-    if (!virtual_output_start(width, height, fps))
-        throw std::runtime_error("error starting virtual camera output");
-}
+struct OBSCamera {
+    OBSCamera(uint32_t width, uint32_t height, double fps) {
+        virtual_output_start(width, height, fps);
+    }
 
-void send(py::array_t<uint8_t, py::array::c_style> frame) {
-    py::buffer_info buf = frame.request();    
-    virtual_video((uint8_t*)buf.ptr);
-}
+    void close() {
+        virtual_output_stop();
+    }
+
+    std::string device() {
+        return virtual_output_device();
+    }
+
+    void send(py::array_t<uint8_t, py::array::c_style> frame) {
+        py::buffer_info buf = frame.request();    
+        virtual_output_send(static_cast<uint8_t*>(buf.ptr));
+    }
+};
 
 PYBIND11_MODULE(_native_windows, m) {
-    m.def("start", &start, R"pbdoc(
-        Start the virtual cam output.
-    )pbdoc");
-
-    m.def("device", &virtual_output_device, R"pbdoc(
-        Return the camera device name.
-    )pbdoc");
-
-    m.def("stop", &virtual_output_stop, R"pbdoc(
-        Stop the virtual cam output.
-    )pbdoc");
-
-    m.def("send", &send, R"pbdoc(
-        Send frame to the virtual cam.
-    )pbdoc");
+    py::class_<OBSCamera>(m, "OBSCamera")
+        .def(py::init<uint32_t, uint32_t, double>(),
+             py::arg("width"), py::arg("height"), py::arg("fps"))
+        .def("close", &OBSCamera::close)    
+        .def("send", &OBSCamera::send)
+        .def("device", &OBSCamera::device);
 }

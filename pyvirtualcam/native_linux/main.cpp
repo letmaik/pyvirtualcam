@@ -5,30 +5,34 @@
 
 namespace py = pybind11;
 
-void start(uint32_t width, uint32_t height, double fps) {
-    if (!virtual_output_start(width, height, fps))
-        throw std::runtime_error("error starting virtual camera output");
-}
+class V4L2LoopbackCamera {
+  private:
+    Context context;
 
-void send(py::array_t<uint8_t, py::array::c_style> frame) {
-    py::buffer_info buf = frame.request();    
-    virtual_video((uint8_t*)buf.ptr);
-}
+  public:
+    V4L2LoopbackCamera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
+        virtual_output_start(context, width, height);
+    }
+
+    void close() {
+        virtual_output_stop(context);
+    }
+
+    std::string device() {
+        return virtual_output_device(context);
+    }
+
+    void send(py::array_t<uint8_t, py::array::c_style> frame) {
+        py::buffer_info buf = frame.request();    
+        virtual_output_send(context, static_cast<uint8_t*>(buf.ptr));
+    }
+};
 
 PYBIND11_MODULE(_native_linux, m) {
-    m.def("start", &start, R"pbdoc(
-        Start the virtual cam output.
-    )pbdoc");
-
-    m.def("device", &virtual_output_device, R"pbdoc(
-        Return the camera device name.
-    )pbdoc");
-
-    m.def("stop", &virtual_output_stop, R"pbdoc(
-        Stop the virtual cam output.
-    )pbdoc");
-
-    m.def("send", &send, R"pbdoc(
-        Send frame to the virtual cam.
-    )pbdoc");
+    py::class_<V4L2LoopbackCamera>(m, "V4L2LoopbackCamera")
+        .def(py::init<uint32_t, uint32_t, double>(),
+             py::arg("width"), py::arg("height"), py::arg("fps"))
+        .def("close", &V4L2LoopbackCamera::close)
+        .def("send", &V4L2LoopbackCamera::send)
+        .def("device", &V4L2LoopbackCamera::device);
 }

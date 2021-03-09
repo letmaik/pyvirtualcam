@@ -1,3 +1,4 @@
+from typing import Optional
 import platform
 import time
 import warnings
@@ -6,32 +7,38 @@ import numpy as np
 
 from pyvirtualcam.util import FPSCounter
 
+BACKENDS = {}
+
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows as _native
+    from pyvirtualcam import _native_windows
+    BACKENDS['obs'] = _native_windows.OBSCamera
 elif platform.system() == 'Darwin':
-    from pyvirtualcam import _native_macos as _native
+    from pyvirtualcam import _native_macos
+    BACKENDS['obs'] = _native_macos.OBSCamera
 elif platform.system() == 'Linux':
-    from pyvirtualcam import _native_linux as _native
-else:
-    raise NotImplementedError('unsupported OS')
-
-class NativeCameraBackend:
-    def __init__(self, width: int, height: int, fps: float) -> None:
-        _native.start(width, height, fps)
-
-    def device(self) -> str:
-        return _native.device()
-
-    def close(self) -> None:
-        _native.stop()
-
-    def send(self, frame: np.ndarray) -> None:
-        _native.send(frame)
+    from pyvirtualcam import _native_linux
+    BACKENDS['v4l2loopback'] = _native_linux.V4L2LoopbackCamera
 
 class Camera:
     def __init__(self, width: int, height: int, fps: float, delay=None,
-                 print_fps=False, backend=NativeCameraBackend, **kw) -> None:
-        self._backend = backend(width=width, height=height, fps=fps, **kw)
+                 print_fps=False, backend: Optional[str]=None, **kw) -> None:
+        if backend:
+            backends = [(backend, BACKENDS[backend])]
+        else:
+            backends = list(BACKENDS.items())
+        self._backend = None # for __del__ in case backend raises exception
+        errors = []
+        for name, clazz in backends:
+            try:
+                self._backend = clazz(width=width, height=height, fps=fps, **kw)
+            except Exception as e:
+                errors.append(f"'{name}' backend: {e}")
+            else:
+                self._backend_name = name
+                break
+        if self._backend is None:
+            raise RuntimeError('\n'.join(errors))
+
         self._width = width
         self._height = height
         self._fps = fps
@@ -46,13 +53,21 @@ class Camera:
 
         if delay is not None:
             warnings.warn("'delay' argument is deprecated and has no effect", DeprecationWarning)
-    
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool:
         self.close()
         return False
+    
+    def __del__(self):
+        if self._backend is not None:
+            self.close()
+
+    @property
+    def backend(self) -> str:
+        return self._backend_name
 
     @property
     def device(self) -> str:

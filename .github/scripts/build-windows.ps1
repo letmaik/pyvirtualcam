@@ -151,6 +151,12 @@ exec { python -c "import sys; print(sys.prefix)" }
 # output what's installed
 exec { python -m pip freeze }
 
+# Pretend we actually installed OBS and the virtual camera.
+# This is all that's needed to make our backend happy.
+if ($env:CI -eq "true") {
+    New-Item -Path HKLM:\Software\Classes\CLSID -Name "{A3FCE0F5-3493-419F-958A-ABA1250EC20B}"
+}
+
 python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r ..\dev-requirements.txt }

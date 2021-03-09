@@ -46,7 +46,8 @@ elif platform.system() == 'Darwin':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_macos/main.mm',
-                'pyvirtualcam/native_macos/OBSDALMachServer.mm']),
+                'pyvirtualcam/native_macos/controller/controller.mm',
+                'pyvirtualcam/native_macos/server/OBSDALMachServer.mm']),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
