@@ -155,7 +155,7 @@ exec { python -m pip freeze }
 # This is all that's needed to make our backend happy.
 if ($env:CI -eq "true") {
     Push-Location
-    Set-Location HKCU:
+    Set-Location HKLM:
     New-Item -Path .\Software\Classes\CLSID -Name "{A3FCE0F5-3493-419F-958A-ABA1250EC20B}"
     Pop-Location
 }
