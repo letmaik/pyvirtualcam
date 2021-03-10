@@ -5,16 +5,16 @@
 
 namespace py = pybind11;
 
-class V4L2LoopbackCamera {
+class Camera {
   private:
     Context* context;
 
   public:
-    V4L2LoopbackCamera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
+    Camera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
         context = virtual_output_start(width, height);
     }
 
-    ~V4L2LoopbackCamera() {
+    ~Camera() {
         virtual_output_free(context);
     }
 
@@ -32,11 +32,11 @@ class V4L2LoopbackCamera {
     }
 };
 
-PYBIND11_MODULE(_native_linux, m) {
-    py::class_<V4L2LoopbackCamera>(m, "V4L2LoopbackCamera")
+PYBIND11_MODULE(_native_linux_v4l2loopback, m) {
+    py::class_<Camera>(m, "Camera")
         .def(py::init<uint32_t, uint32_t, double>(),
              py::arg("width"), py::arg("height"), py::arg("fps"))
-        .def("close", &V4L2LoopbackCamera::close)
-        .def("send", &V4L2LoopbackCamera::send)
-        .def("device", &V4L2LoopbackCamera::device);
+        .def("close", &Camera::close)
+        .def("send", &Camera::send)
+        .def("device", &Camera::device);
 }

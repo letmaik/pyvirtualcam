@@ -21,19 +21,19 @@ ext_modules = []
 
 if platform.system() == 'Windows':
     ext_modules.append(
-        Extension('pyvirtualcam._native_windows',
+        Extension('pyvirtualcam._native_windows_obs',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_windows/main.cpp',
-                'pyvirtualcam/native_windows/controller/controller.cpp',
-                'pyvirtualcam/native_windows/queue/shared-memory-queue.c',
+                'pyvirtualcam/native_windows_obs/main.cpp',
+                'pyvirtualcam/native_windows_obs/controller/controller.cpp',
+                'pyvirtualcam/native_windows_obs/queue/shared-memory-queue.c',
                 'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_windows'
+                'pyvirtualcam/native_windows_obs'
             ],
             extra_link_args=[
                 "/DEFAULTLIB:advapi32.lib",
@@ -43,19 +43,19 @@ if platform.system() == 'Windows':
     )
 elif platform.system() == 'Darwin':
     ext_modules.append(
-        Extension('pyvirtualcam._native_macos',
+        Extension('pyvirtualcam._native_macos_obs',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_macos/main.mm',
-                'pyvirtualcam/native_macos/controller/controller.mm',
-                'pyvirtualcam/native_macos/server/OBSDALMachServer.mm',
+                'pyvirtualcam/native_macos_obs/main.mm',
+                'pyvirtualcam/native_macos_obs/controller/controller.mm',
+                'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
                 'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_macos'
+                'pyvirtualcam/native_macos_obs'
             ],
             extra_link_args=[
                 "-framework", "Foundation",
@@ -65,18 +65,18 @@ elif platform.system() == 'Darwin':
     )
 elif platform.system() == 'Linux':
     ext_modules.append(
-        Extension('pyvirtualcam._native_linux',
+        Extension('pyvirtualcam._native_linux_obs',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_linux/main.cpp',
-                'pyvirtualcam/native_linux/controller/controller.cpp',
+                'pyvirtualcam/native_linux_obs/main.cpp',
+                'pyvirtualcam/native_linux_obs/controller/controller.cpp',
                 'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_linux'
+                'pyvirtualcam/native_linux_obs'
             ],
             language='c++'
         )

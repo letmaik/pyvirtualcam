@@ -1,14 +1,12 @@
 #include <stdexcept>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <cstdint>
-#include <string>
 #include "controller/controller.h"
 
 namespace py = pybind11;
 
-struct OBSCamera {
-    OBSCamera(uint32_t width, uint32_t height, double fps) {
+struct Camera {
+    Camera(uint32_t width, uint32_t height, double fps) {
         virtual_output_start(width, height, fps);
     }
 
@@ -16,7 +14,7 @@ struct OBSCamera {
         virtual_output_stop();
     }
 
-    std::string device() {
+    const char* device() {
         return virtual_output_device();
     }
 
@@ -26,11 +24,11 @@ struct OBSCamera {
     }
 };
 
-PYBIND11_MODULE(_native_macos, m) {
-    py::class_<OBSCamera>(m, "OBSCamera")
+PYBIND11_MODULE(_native_windows_obs, m) {
+    py::class_<Camera>(m, "Camera")
         .def(py::init<uint32_t, uint32_t, double>(),
              py::arg("width"), py::arg("height"), py::arg("fps"))
-        .def("close", &OBSCamera::close)
-        .def("send", &OBSCamera::send)
-        .def("device", &OBSCamera::device);
+        .def("close", &Camera::close)    
+        .def("send", &Camera::send)
+        .def("device", &Camera::device);
 }

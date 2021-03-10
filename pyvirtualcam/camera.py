@@ -10,14 +10,14 @@ from pyvirtualcam.util import FPSCounter
 BACKENDS = {}
 
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows
-    BACKENDS['obs'] = _native_windows.OBSCamera
+    from pyvirtualcam import _native_windows_obs
+    BACKENDS['obs'] = _native_windows_obs.Camera
 elif platform.system() == 'Darwin':
-    from pyvirtualcam import _native_macos
-    BACKENDS['obs'] = _native_macos.OBSCamera
+    from pyvirtualcam import _native_macos_obs
+    BACKENDS['obs'] = _native_macos_obs.Camera
 elif platform.system() == 'Linux':
-    from pyvirtualcam import _native_linux
-    BACKENDS['v4l2loopback'] = _native_linux.V4L2LoopbackCamera
+    from pyvirtualcam import _native_linux_v4l2loopback
+    BACKENDS['v4l2loopback'] = _native_linux_v4l2loopback.Camera
 
 class Camera:
     def __init__(self, width: int, height: int, fps: float, delay=None,
