@@ -65,18 +65,18 @@ elif platform.system() == 'Darwin':
     )
 elif platform.system() == 'Linux':
     ext_modules.append(
-        Extension('pyvirtualcam._native_linux_obs',
+        Extension('pyvirtualcam._native_linux_v4l2loopback',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_linux_obs/main.cpp',
-                'pyvirtualcam/native_linux_obs/controller/controller.cpp',
+                'pyvirtualcam/native_linux_v4l2loopback/main.cpp',
+                'pyvirtualcam/native_linux_v4l2loopback/controller/controller.cpp',
                 'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_linux_obs'
+                'pyvirtualcam/native_linux_v4l2loopback'
             ],
             language='c++'
         )
