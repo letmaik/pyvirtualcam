@@ -99,11 +99,13 @@ void virtual_output_start(Context& ctx, uint32_t width, uint32_t height)
         );
     }
 
-    ctx.frame_width = width;
-    ctx.frame_height = height;
+    ctx.output_running = true;
     ctx.camera_device = std::string(device_name);
     ctx.camera_device_idx = device_idx;
-    ctx.output_running = true;
+    ctx.frame_width = width;
+    ctx.frame_height = height;
+    ctx.buffer.resize(ctx.frame_height * ctx.frame_width * 2); // UYVY
+
     active_devices.insert(device_idx);
 }
 
@@ -131,10 +133,7 @@ void virtual_output_send(Context& ctx, uint8_t *buf)
     if (!ctx.output_running)
         return;
 
-    size_t data_size = ctx.frame_height * ctx.frame_width * 2;
-    
-    std::vector<uint8_t> out_frame(data_size);
-    uint8_t* data = out_frame.data();   
+    uint8_t* data = ctx.buffer.data();
 
     // Convert RGB to UYVY
     for (uint32_t y = 0; y < ctx.frame_height; y++) {
@@ -168,7 +167,7 @@ void virtual_output_send(Context& ctx, uint8_t *buf)
         }
     }
 
-    ssize_t n = write(ctx.camera_fd, data, data_size);
+    ssize_t n = write(ctx.camera_fd, data, ctx.buffer.size());
     if (n == -1) {
         // not an exception, in case it is temporary
         fprintf(stderr, "error writing frame: %s", strerror(errno));

@@ -4,8 +4,11 @@
 #include "queue/shared-memory-queue.h"
 #include "controller.h"
 
-static video_queue_t *vq;
 static bool output_running = false;
+static video_queue_t *vq;
+static uint32_t cam_output_width;
+static uint32_t cam_output_height;
+static std::vector<uint8_t> buffer;
 
 static bool have_clockfreq = false;
 static LARGE_INTEGER clock_freq;
@@ -67,6 +70,9 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps)
         throw std::logic_error("virtual camera output could not be started");
     }
 
+    cam_output_width = width;
+    cam_output_height = height;
+    buffer.resize((width + width / 2) * height); // NV12
     output_running = true;
 }
 
@@ -86,12 +92,10 @@ void virtual_output_send(uint8_t *rgb)
     if (!output_running)
         return;
 
-    uint32_t cx, cy;
-    uint64_t interval;
-    video_queue_get_info(vq, &cx, &cy, &interval);
+    uint32_t cx = cam_output_width;
+    uint32_t cy = cam_output_height;
 
-    std::vector<uint8_t> out_frame((cx + cx / 2) * cy);
-    uint8_t* nv12 = out_frame.data();   
+    uint8_t* nv12 = buffer.data();
 
     // NV12 has two planes
     uint8_t* y = nv12;
