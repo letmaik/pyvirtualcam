@@ -101,7 +101,7 @@ void virtual_output_send(uint8_t* rgb) {
             frameBytes:uyvy];
 }
 
-std::string virtual_output_device()
+const char* virtual_output_device()
 {
     // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
     return "OBS Virtual Camera";

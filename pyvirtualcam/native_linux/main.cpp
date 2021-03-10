@@ -7,18 +7,22 @@ namespace py = pybind11;
 
 class V4L2LoopbackCamera {
   private:
-    Context context;
+    Context* context;
 
   public:
     V4L2LoopbackCamera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
-        virtual_output_start(context, width, height);
+        context = virtual_output_start(width, height);
+    }
+
+    ~V4L2LoopbackCamera() {
+        virtual_output_free(context);
     }
 
     void close() {
         virtual_output_stop(context);
     }
 
-    std::string device() {
+    const char* device() {
         return virtual_output_device(context);
     }
 

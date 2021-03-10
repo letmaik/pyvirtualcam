@@ -14,6 +14,16 @@
 #include "../native_shared/yuv.h"
 #include "controller.h"
 
+struct Context {
+    bool output_running = false;
+    int camera_fd;
+    std::string camera_device;
+    size_t camera_device_idx;
+    uint32_t frame_width;
+    uint32_t frame_height;
+    std::vector<uint8_t> buffer;
+};
+
 // v4l2loopback allows opening a device multiple times.
 // To avoid selecting the same device more than once,
 // we keep track of the ones we have open ourselves.
@@ -22,22 +32,20 @@
 // In this case, explicitly specifying the device seems the only solution.
 static std::set<size_t> active_devices;
 
-void virtual_output_start(Context& ctx, uint32_t width, uint32_t height)
+Context* virtual_output_start(uint32_t width, uint32_t height)
 {
-    if (ctx.output_running) {
-        throw std::logic_error("virtual camera output already started");
-    }
 
     char device_name[14];
     size_t device_idx = -1;
+    int camera_fd = -1;
 
     for (size_t i = 0; i < 100; i++) {
         if (active_devices.count(i)) {
             continue;
         }
         sprintf(device_name, "/dev/video%zu", i);
-        ctx.camera_fd = open(device_name, O_WRONLY | O_SYNC);
-        if (ctx.camera_fd == -1) {
+        camera_fd = open(device_name, O_WRONLY | O_SYNC);
+        if (camera_fd == -1) {
             if (errno == EACCES) {
                 throw std::runtime_error(
                     "Could not access " + std::string(device_name) + " due to missing permissions. "
@@ -50,7 +58,7 @@ void virtual_output_start(Context& ctx, uint32_t width, uint32_t height)
 
         struct v4l2_capability camera_cap;
 
-        if (ioctl(ctx.camera_fd, VIDIOC_QUERYCAP, &camera_cap) == -1) {
+        if (ioctl(camera_fd, VIDIOC_QUERYCAP, &camera_cap) == -1) {
             continue;
         }
         if (!(camera_cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)) {
@@ -84,55 +92,62 @@ void virtual_output_start(Context& ctx, uint32_t width, uint32_t height)
         .fmt = { .pix = pix_fmt }
     };
 
-    if (ioctl(ctx.camera_fd, VIDIOC_S_FMT, &camera_format) == -1) {
-        close(ctx.camera_fd);
+    if (ioctl(camera_fd, VIDIOC_S_FMT, &camera_format) == -1) {
+        close(camera_fd);
         throw std::runtime_error(
             "Virtual camera device " + std::string(device_name) + 
             " could not be configured: " + std::string(strerror(errno))
         );
     }
-
-    ctx.output_running = true;
-    ctx.camera_device = std::string(device_name);
-    ctx.camera_device_idx = device_idx;
-    ctx.frame_width = width;
-    ctx.frame_height = height;
-    ctx.buffer.resize(ctx.frame_height * ctx.frame_width * 2); // UYVY
+    Context* ctx = new Context;
+    ctx->output_running = true;
+    ctx->camera_device = std::string(device_name);
+    ctx->camera_device_idx = device_idx;
+    ctx->frame_width = width;
+    ctx->frame_height = height;
+    ctx->buffer.resize(ctx->frame_height * ctx->frame_width * 2); // UYVY
 
     active_devices.insert(device_idx);
+
+    return ctx;
 }
 
-std::string virtual_output_device(Context& ctx)
+const char* virtual_output_device(Context* ctx)
 {
-    return ctx.camera_device;
+    return ctx->camera_device.c_str();
 }
 
-void virtual_output_stop(Context& ctx)
+void virtual_output_stop(Context* ctx)
 {
-    if (!ctx.output_running) {
+    if (!ctx->output_running) {
         return;
     }
 
-    close(ctx.camera_fd);
+    close(ctx->camera_fd);
     
-    ctx.output_running = false;
-    active_devices.erase(ctx.camera_device_idx);
+    ctx->output_running = false;
+    active_devices.erase(ctx->camera_device_idx);
 }
 
 // data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects UYVY (packed YUV, 12bpp)
-void virtual_output_send(Context& ctx, uint8_t *rgb)
+void virtual_output_send(Context* ctx, uint8_t *rgb)
 {
-    if (!ctx.output_running)
+    if (!ctx->output_running)
         return;
 
-    uint8_t* uyvy = ctx.buffer.data();
+    uint8_t* uyvy = ctx->buffer.data();
 
-    uyvy_frame_from_rgb(rgb, uyvy, ctx.frame_width, ctx.frame_height);
+    uyvy_frame_from_rgb(rgb, uyvy, ctx->frame_width, ctx->frame_height);
 
-    ssize_t n = write(ctx.camera_fd, uyvy, ctx.buffer.size());
+    ssize_t n = write(ctx->camera_fd, uyvy, ctx->buffer.size());
     if (n == -1) {
         // not an exception, in case it is temporary
         fprintf(stderr, "error writing frame: %s", strerror(errno));
     }
+}
+
+void virtual_output_free(Context* ctx)
+{
+    delete ctx;
 }

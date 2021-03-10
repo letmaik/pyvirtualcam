@@ -14,7 +14,7 @@ struct OBSCamera {
         virtual_output_stop();
     }
 
-    std::string device() {
+    const char* device() {
         return virtual_output_device();
     }
 

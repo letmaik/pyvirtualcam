@@ -32,7 +32,7 @@ static uint64_t get_timestamp_ns()
     return (uint64_t)time_val;
 }
 
-std::string virtual_output_device()
+const char* virtual_output_device()
 {
     // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/win-dshow/virtualcam-module/virtualcam-module.cpp#L196
     return "OBS Virtual Camera";
