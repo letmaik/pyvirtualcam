@@ -34,6 +34,8 @@ static uint32_t cam_output_height;
 static uint32_t cam_fps_num;
 static uint32_t cam_fps_den;
 
+static std::vector<uint8_t> buffer;
+
 
 static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
     *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
@@ -62,6 +64,7 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     cam_output_height = height;
     cam_fps_num = fps * 1000;
     cam_fps_den = 1000;
+    buffer.resize(height * width * 2); // UYVY
 
     blog(LOG_DEBUG, "output_create");
     sMachServer = [[OBSDALMachServer alloc] init];
@@ -95,8 +98,7 @@ void virtual_output_send(uint8_t* buf) {
     
     uint64_t timestamp = mach_absolute_time();
 
-    std::vector<uint8_t> out_frame(frame_width * frame_height * 2);
-    uint8_t* data = out_frame.data();
+    uint8_t* data = buffer.data();
 
     // Convert RGB to UYVY
     for(uint32_t y = 0; y < frame_height; y++) {
