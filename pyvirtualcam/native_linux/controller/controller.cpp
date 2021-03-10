@@ -11,15 +11,8 @@
 #include <set>
 #include <stdexcept>
 
+#include "../native_shared/yuv.h"
 #include "controller.h"
-
-static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
-    *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
-}
-static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
-    *u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
-    *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
-}
 
 // v4l2loopback allows opening a device multiple times.
 // To avoid selecting the same device more than once,
@@ -128,46 +121,16 @@ void virtual_output_stop(Context& ctx)
 
 // data is in RGB format (packed RGB, 24bpp, RGBRGB...)
 // queue expects UYVY (packed YUV, 12bpp)
-void virtual_output_send(Context& ctx, uint8_t *buf)
+void virtual_output_send(Context& ctx, uint8_t *rgb)
 {
     if (!ctx.output_running)
         return;
 
-    uint8_t* data = ctx.buffer.data();
+    uint8_t* uyvy = ctx.buffer.data();
 
-    // Convert RGB to UYVY
-    for (uint32_t y = 0; y < ctx.frame_height; y++) {
-        for (uint32_t x = 0; x < ctx.frame_width / 2; x++) {
-            uint8_t* uyvy = &data[((y * ctx.frame_width + x * 2) * 2)];
-            const uint8_t* rgb = buf + ((y * ctx.frame_width + x * 2) * 3);
+    uyvy_frame_from_rgb(rgb, uyvy, ctx.frame_width, ctx.frame_height);
 
-            // Downsample
-            uint8_t mixRGB[3];
-            mixRGB[0] = (rgb[0+0] + rgb[3+0]) / 2;
-            mixRGB[1] = (rgb[0+1] + rgb[3+1]) / 2;
-            mixRGB[2] = (rgb[0+2] + rgb[3+2]) / 2;
-
-            // Get U and V
-            uint8_t u;
-            uint8_t v;
-            UVfromRGB(&u, &v, mixRGB[0], mixRGB[1], mixRGB[2]);
-
-            // Variable for Y
-            uint8_t y;
-
-            // Pixel 1
-            YfromRGB(&y, rgb[0+0], rgb[0+1], rgb[0+2]);
-            uyvy[0] = u;
-            uyvy[1] = y;
-
-            // Pixel 2
-            YfromRGB(&y, rgb[3+0], rgb[3+1], rgb[3+2]);
-            uyvy[2] = v;
-            uyvy[3] = y;
-        }
-    }
-
-    ssize_t n = write(ctx.camera_fd, data, ctx.buffer.size());
+    ssize_t n = write(ctx.camera_fd, uyvy, ctx.buffer.size());
     if (n == -1) {
         // not an exception, in case it is temporary
         fprintf(stderr, "error writing frame: %s", strerror(errno));

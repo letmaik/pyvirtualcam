@@ -3,6 +3,7 @@
 #include <vector>
 #include "queue/shared-memory-queue.h"
 #include "controller.h"
+#include "../native_shared/yuv.h"
 
 static bool output_running = false;
 static video_queue_t *vq;
@@ -29,14 +30,6 @@ static uint64_t get_timestamp_ns()
     time_val /= (double)clock_freq.QuadPart;
 
     return (uint64_t)time_val;
-}
-
-static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
-    *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
-}
-static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
-    *u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
-    *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
 }
 
 std::string virtual_output_device()
@@ -92,37 +85,16 @@ void virtual_output_send(uint8_t *rgb)
     if (!output_running)
         return;
 
-    uint32_t cx = cam_output_width;
-    uint32_t cy = cam_output_height;
-
     uint8_t* nv12 = buffer.data();
+
+    nv12_frame_from_rgb(rgb, nv12, cam_output_width, cam_output_height);
 
     // NV12 has two planes
     uint8_t* y = nv12;
-    uint8_t* uv = nv12 + cx * cy;
-
-    // Compute Y plane
-    for (uint32_t i=0; i < cx * cy; i++) {
-        YfromRGB(&y[i], rgb[i * 3 + 0], rgb[i * 3 + 1], rgb[i * 3 + 2]);
-    }
-    // Compute UV plane
-    for (uint32_t y=0; y < cy; y = y + 2) {
-        for (uint32_t x=0; x < cx; x = x + 2) {
-            // Downsample by 2
-            uint8_t* rgb1 = rgb + ((y * cx + x) * 3);
-            uint8_t* rgb2 = rgb + (((y + 1) * cx + x) * 3);
-            uint8_t r = (rgb1[0+0] + rgb1[3+0] + rgb2[0+0] + rgb2[3+0]) / 4;
-            uint8_t g = (rgb1[0+1] + rgb1[3+1] + rgb2[0+1] + rgb2[3+1]) / 4;
-            uint8_t b = (rgb1[0+2] + rgb1[3+2] + rgb2[0+2] + rgb2[3+2]) / 4;
-
-            uint8_t* u = &uv[y / 2 * cx + x];
-            uint8_t* v = u + 1;
-            UVfromRGB(u, v, r, g, b);
-        }
-    }
+    uint8_t* uv = nv12 + cam_output_width * cam_output_height;
 
     // One entry per plane
-    uint32_t linesize[2] = { cx, cx / 2 };
+    uint32_t linesize[2] = { cam_output_width, cam_output_width / 2 };
     uint8_t* data[2] = { y, uv };
 
     uint64_t timestamp = get_timestamp_ns();

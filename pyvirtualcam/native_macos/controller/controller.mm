@@ -26,6 +26,7 @@
 #include "server/OBSDALMachServer.h"
 #include "server/Defines.h"
 #include "controller/controller.h"
+#include "../native_shared/yuv.h"
 
 static OBSDALMachServer *sMachServer = nil;
 
@@ -35,15 +36,6 @@ static uint32_t cam_fps_num;
 static uint32_t cam_fps_den;
 
 static std::vector<uint8_t> buffer;
-
-
-static void YfromRGB(uint8_t* y, uint8_t r, uint8_t g, uint8_t b) {
-    *y = (uint8_t)( 0.257 * r + 0.504 * g + 0.098 * b +  16);
-}
-static void UVfromRGB(uint8_t* u, uint8_t* v, uint8_t r, uint8_t g, uint8_t b) {
-    *u = (uint8_t)(-0.148 * r - 0.291 * g + 0.439 * b + 128);
-    *v = (uint8_t)( 0.439 * r - 0.368 * g - 0.071 * b + 128);
-}
 
 void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     if (sMachServer != nil) {
@@ -82,13 +74,10 @@ void virtual_output_stop() {
     sMachServer = nil;
 }
 
-void virtual_output_send(uint8_t* buf) {
+void virtual_output_send(uint8_t* rgb) {
     if (sMachServer == nil) {
         return;
     }
-
-    uint32_t frame_width = cam_output_width;
-    uint32_t frame_height = cam_output_height;
 
     // We must handle port messages, and somehow our RunLoop isn't normally active.
     // Handle exactly one message. If no message is queued, return without blocking.
@@ -98,39 +87,9 @@ void virtual_output_send(uint8_t* buf) {
     
     uint64_t timestamp = mach_absolute_time();
 
-    uint8_t* data = buffer.data();
+    uint8_t* uyvy = buffer.data();
 
-    // Convert RGB to UYVY
-    for(uint32_t y = 0; y < frame_height; y++) {
-        for(uint32_t x = 0; x < frame_width / 2; x++) {
-            uint8_t* uyvy = &data[((y * frame_width + x * 2) * 2)];
-            const uint8_t* rgb = buf + ((y * frame_width + x * 2) * 3);
-
-            // Downsample
-            uint8_t mixRGB[3];
-            mixRGB[0] = (rgb[0+0] + rgb[3+0]) / 2;
-            mixRGB[1] = (rgb[0+1] + rgb[3+1]) / 2;
-            mixRGB[2] = (rgb[0+2] + rgb[3+2]) / 2;
-
-            // Get U and V
-            uint8_t u;
-            uint8_t v;
-            UVfromRGB(&u, &v, mixRGB[0], mixRGB[1], mixRGB[2]);
-
-            // Variable for Y
-            uint8_t y;
-
-            // Pixel 1
-            YfromRGB(&y, rgb[0+0], rgb[0+1], rgb[0+2]);
-            uyvy[0] = u;
-            uyvy[1] = y;
-
-            // Pixel 2
-            YfromRGB(&y, rgb[3+0], rgb[3+1], rgb[3+2]);
-            uyvy[2] = v;
-            uyvy[3] = y;
-        }
-    }
+    uyvy_frame_from_rgb(rgb, uyvy, cam_output_width, cam_output_height);
 
     CGFloat width = cam_output_width;
     CGFloat height = cam_output_height;
@@ -139,7 +98,7 @@ void virtual_output_send(uint8_t* buf) {
              timestamp:timestamp
           fpsNumerator:cam_fps_num
         fpsDenominator:cam_fps_den
-            frameBytes:data];
+            frameBytes:uyvy];
 }
 
 std::string virtual_output_device()
