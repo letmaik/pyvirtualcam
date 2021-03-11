@@ -18,7 +18,7 @@ class Camera {
         virtual_output.stop();
     }
 
-    const std::string& device() {
+    std::string device() {
         return virtual_output.device();
     }
 

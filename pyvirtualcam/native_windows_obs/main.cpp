@@ -5,22 +5,26 @@
 
 namespace py = pybind11;
 
-struct Camera {
-    Camera(uint32_t width, uint32_t height, double fps) {
-        virtual_output_start(width, height, fps);
+class Camera {
+  private:
+    VirtualOutput virtual_output;
+
+  public:
+    Camera(uint32_t width, uint32_t height, double fps)
+     : virtual_output {width, height, fps} {
     }
 
     void close() {
-        virtual_output_stop();
+        virtual_output.stop();
     }
 
-    const char* device() {
-        return virtual_output_device();
+    std::string device() {
+        return virtual_output.device();
     }
 
     void send(py::array_t<uint8_t, py::array::c_style> frame) {
         py::buffer_info buf = frame.request();    
-        virtual_output_send(static_cast<uint8_t*>(buf.ptr));
+        virtual_output.send(static_cast<uint8_t*>(buf.ptr));
     }
 };
 

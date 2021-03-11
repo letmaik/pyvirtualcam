@@ -34,11 +34,11 @@
 	self.port.delegate = nil;
 }
 
-- (void)run
+- (BOOL)run
 {
 	if (self.port != nil) {
 		blog(LOG_DEBUG, "mach server already running!");
-		return;
+		return NO;
 	}
 
 // It's a bummer this is deprecated. The replacement, NSXPCConnection, seems to require
@@ -55,7 +55,7 @@
 	if (self.port == nil) {
 		// This probably means another instance is running.
 		blog(LOG_ERROR, "Unable to open mach server port.");
-		return;
+		return NO;
 	}
 
 	self.port.delegate = self;
@@ -64,6 +64,7 @@
 	[self.runLoop addPort:self.port forMode:NSDefaultRunLoopMode];
 
 	blog(LOG_DEBUG, "mach server running!");
+	return YES;
 }
 
 - (void)handlePortMessage:(NSPortMessage *)message

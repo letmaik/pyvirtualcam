@@ -11,7 +11,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OBSDALMachServer : NSObject
 
-- (void)run;
+- (BOOL)run;
 
 /*!
  Will eventually be used for sending frames to all connected clients
