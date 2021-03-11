@@ -28,80 +28,86 @@
 #include "server/OBSDALMachServer.h"
 #include "../native_shared/uyvy.h"
 
-static OBSDALMachServer *sMachServer = nil;
+class VirtualOutput {
+  private:
+    OBSDALMachServer* mach_server = nil;
+    uint32_t frame_width;
+    uint32_t frame_height;
+    uint32_t fps_num;
+    uint32_t fps_den;
+    std::vector<uint8_t> buffer;
 
-static uint32_t cam_output_width;
-static uint32_t cam_output_height;
-static uint32_t cam_fps_num;
-static uint32_t cam_fps_den;
+  public:
+    VirtualOutput(uint32_t width, uint32_t height, double fps) {
+        NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
+        NSFileManager *file_manager = [NSFileManager defaultManager];
+        BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
+        if (!dal_plugin_installed) {
+            throw std::runtime_error(
+                "OBS Virtual Camera is not installed in your system. "
+                "Use the Virtual Camera function in OBS to trigger installation."
+                );
+        }
 
-static std::vector<uint8_t> buffer;
+        frame_width = width;
+        frame_height = height;
+        fps_num = fps * 1000;
+        fps_den = 1000;
+        buffer.resize(uyvy_frame_size(width, height));
 
-void virtual_output_start(uint32_t width, uint32_t height, double fps) {
-    if (sMachServer != nil) {
-        throw std::logic_error("virtual camera output already started");
+        mach_server = [[OBSDALMachServer alloc] init];
+        BOOL started = [mach_server run];
+        if (!started) {
+            throw std::runtime_error("virtual camera output could not be started");
+        }
     }
 
-    NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
-    NSFileManager *file_manager = [NSFileManager defaultManager];
-    BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
-    if (!dal_plugin_installed) {
-        throw std::runtime_error(
-            "OBS Virtual Camera is not installed in your system. "
-            "Use the Virtual Camera function in OBS to trigger installation."
-            );
+    void stop() {
+        if (mach_server == nil) {
+            return;
+        }
+
+        [mach_server stop];
+        [mach_server dealloc];
+        mach_server = nil;
+        
+        // When the named server port is invalidated, the effect is not immediate.
+        // Starting a new server immediately afterwards may then fail.
+        // There doesn't seem to be an easy way to wait for the invalidation to finish.
+        // As a work-around, we sleep for a short period and hope for the best.
+        [NSThread sleepForTimeInterval:0.1f];
     }
 
-    cam_output_width = width;
-    cam_output_height = height;
-    cam_fps_num = fps * 1000;
-    cam_fps_den = 1000;
-    buffer.resize(uyvy_frame_size(width, height));
+    void send(uint8_t* rgb) {
+        if (mach_server == nil) {
+            return;
+        }
 
-    sMachServer = [[OBSDALMachServer alloc] init];
+        // We must handle port messages, and somehow our RunLoop isn't normally active.
+        // Handle exactly one message. If no message is queued, return without blocking.
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        NSDate *now = [NSDate date];
+        [runLoop runMode:NSDefaultRunLoopMode beforeDate:now];
+        
+        uint64_t timestamp = mach_absolute_time();
 
-    [sMachServer run];
-}
+        uint8_t* uyvy = buffer.data();
 
-void virtual_output_stop() {
-    if (sMachServer == nil) {
-        return;
+        uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
+
+        CGFloat width = frame_width;
+        CGFloat height = frame_height;
+
+        [mach_server sendFrameWithSize:NSMakeSize(width, height)
+                timestamp:timestamp
+            fpsNumerator:fps_num
+            fpsDenominator:fps_den
+                frameBytes:uyvy];
     }
 
-    [sMachServer stop];
-
-    sMachServer = nil;
-}
-
-void virtual_output_send(uint8_t* rgb) {
-    if (sMachServer == nil) {
-        return;
+    std::string device()
+    {
+        // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
+        return "OBS Virtual Camera";
     }
-
-    // We must handle port messages, and somehow our RunLoop isn't normally active.
-    // Handle exactly one message. If no message is queued, return without blocking.
-    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-    NSDate *now = [NSDate date];
-    [runLoop runMode:NSDefaultRunLoopMode beforeDate:now];
-    
-    uint64_t timestamp = mach_absolute_time();
-
-    uint8_t* uyvy = buffer.data();
-
-    uyvy_frame_from_rgb(rgb, uyvy, cam_output_width, cam_output_height);
-
-    CGFloat width = cam_output_width;
-    CGFloat height = cam_output_height;
-
-    [sMachServer sendFrameWithSize:NSMakeSize(width, height)
-             timestamp:timestamp
-          fpsNumerator:cam_fps_num
-        fpsDenominator:cam_fps_den
-            frameBytes:uyvy];
-}
-
-const char* virtual_output_device()
-{
-    // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
-    return "OBS Virtual Camera";
-}
+};

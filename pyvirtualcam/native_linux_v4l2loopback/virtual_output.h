@@ -135,7 +135,7 @@ class VirtualOutput {
         }
     }
 
-    const std::string& device() {
+    std::string device() {
         return camera_device;
     }
 };
