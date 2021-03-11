@@ -75,7 +75,7 @@ class VirtualOutput {
         // Starting a new server immediately afterwards may then fail.
         // There doesn't seem to be an easy way to wait for the invalidation to finish.
         // As a work-around, we sleep for a short period and hope for the best.
-        [NSThread sleepForTimeInterval:0.1f];
+        [NSThread sleepForTimeInterval:0.2f];
     }
 
     void send(uint8_t* rgb) {
