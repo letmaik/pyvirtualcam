@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include "controller/controller.h"
+#include "virtual_output.h"
 
 namespace py = pybind11;
 

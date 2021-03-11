@@ -18,15 +18,15 @@
 //  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 //  DEALINGS IN THE SOFTWARE.
 
+#pragma once
+
 #include <stdexcept>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <mach/mach_time.h>
 #include "server/OBSDALMachServer.h"
-#include "server/Defines.h"
-#include "controller/controller.h"
-#include "../native_shared/yuv.h"
+#include "../native_shared/uyvy.h"
 
 static OBSDALMachServer *sMachServer = nil;
 
@@ -58,7 +58,6 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     cam_fps_den = 1000;
     buffer.resize(height * width * 2); // UYVY
 
-    blog(LOG_DEBUG, "output_create");
     sMachServer = [[OBSDALMachServer alloc] init];
 
     [sMachServer run];

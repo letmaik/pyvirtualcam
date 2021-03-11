@@ -3,7 +3,7 @@
 #include <pybind11/numpy.h>
 #include <cstdint>
 #include <string>
-#include "controller/controller.h"
+#include "virtual_output.h"
 
 namespace py = pybind11;
 

@@ -1,34 +1,30 @@
 #include <stdexcept>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include "controller/controller.h"
+#include "virtual_output.h"
 
 namespace py = pybind11;
 
 class Camera {
   private:
-    Context* context;
+    VirtualOutput virtual_output;
 
   public:
-    Camera(uint32_t width, uint32_t height, [[maybe_unused]] double fps) {
-        context = virtual_output_start(width, height);
-    }
-
-    ~Camera() {
-        virtual_output_free(context);
+    Camera(uint32_t width, uint32_t height, [[maybe_unused]] double fps)
+     : virtual_output {width, height} {
     }
 
     void close() {
-        virtual_output_stop(context);
+        virtual_output.stop();
     }
 
-    const char* device() {
-        return virtual_output_device(context);
+    const std::string& device() {
+        return virtual_output.device();
     }
 
     void send(py::array_t<uint8_t, py::array::c_style> frame) {
         py::buffer_info buf = frame.request();    
-        virtual_output_send(context, static_cast<uint8_t*>(buf.ptr));
+        virtual_output.send(static_cast<uint8_t*>(buf.ptr));
     }
 };
 

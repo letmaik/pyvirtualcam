@@ -1,9 +1,10 @@
+#pragma once
+
 #include <stdio.h>
 #include <Windows.h>
 #include <vector>
 #include "queue/shared-memory-queue.h"
-#include "controller.h"
-#include "../native_shared/yuv.h"
+#include "../native_shared/nv12.h"
 
 static bool output_running = false;
 static video_queue_t *vq;

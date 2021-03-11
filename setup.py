@@ -26,9 +26,7 @@ if platform.system() == 'Windows':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_windows_obs/main.cpp',
-                'pyvirtualcam/native_windows_obs/controller/controller.cpp',
                 'pyvirtualcam/native_windows_obs/queue/shared-memory-queue.c',
-                'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
@@ -48,9 +46,7 @@ elif platform.system() == 'Darwin':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_macos_obs/main.mm',
-                'pyvirtualcam/native_macos_obs/controller/controller.mm',
                 'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
-                'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
@@ -70,8 +66,6 @@ elif platform.system() == 'Linux':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_linux_v4l2loopback/main.cpp',
-                'pyvirtualcam/native_linux_v4l2loopback/controller/controller.cpp',
-                'pyvirtualcam/native_shared/yuv.cpp',
             ]),
             include_dirs=[
                 # Path to pybind11 headers
