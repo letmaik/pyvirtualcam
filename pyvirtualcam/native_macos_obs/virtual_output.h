@@ -56,7 +56,7 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps) {
     cam_output_height = height;
     cam_fps_num = fps * 1000;
     cam_fps_den = 1000;
-    buffer.resize(height * width * 2); // UYVY
+    buffer.resize(uyvy_frame_size(width, height));
 
     sMachServer = [[OBSDALMachServer alloc] init];
 

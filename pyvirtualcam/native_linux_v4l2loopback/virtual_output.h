@@ -104,7 +104,7 @@ class VirtualOutput {
         camera_device_idx = device_idx;
         frame_width = width;
         frame_height = height;
-        buffer.resize(frame_height * frame_width * 2); // UYVY
+        buffer.resize(uyvy_frame_size(width, height));
 
         active_devices.insert(device_idx);
     }

@@ -35,3 +35,7 @@ static void uyvy_frame_from_rgb(uint8_t *rgb, uint8_t* uyvy, uint32_t width, uin
         }
     }
 }
+
+static uint32_t uyvy_frame_size(uint32_t width, uint32_t height) {
+    return height * width * 2;
+}

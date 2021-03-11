@@ -66,7 +66,7 @@ void virtual_output_start(uint32_t width, uint32_t height, double fps)
 
     cam_output_width = width;
     cam_output_height = height;
-    buffer.resize((width + width / 2) * height); // NV12
+    buffer.resize(nv12_frame_size(width, height));
     output_running = true;
 }
 

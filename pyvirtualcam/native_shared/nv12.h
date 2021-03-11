@@ -31,3 +31,7 @@ static void nv12_frame_from_rgb(uint8_t *rgb, uint8_t* nv12, uint32_t width, uin
         }
     }
 }
+
+static uint32_t nv12_frame_size(uint32_t width, uint32_t height) {
+    return (width + width / 2) * height;
+}
