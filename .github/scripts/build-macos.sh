@@ -51,7 +51,7 @@ export CC=clang
 export CXX=clang++
 export CFLAGS="-arch x86_64"
 export CXXFLAGS=$CFLAGS
-export LDFLAGS="$CFLAGS -Wl,--strip-debug"
+export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
 
 # Build wheel
