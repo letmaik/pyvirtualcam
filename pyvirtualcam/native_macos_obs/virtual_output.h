@@ -26,8 +26,7 @@
 #include <vector>
 #include <mach/mach_time.h>
 #include "server/OBSDALMachServer.h"
-#include "../native_shared/uyvy.h"
-#include "../native_shared/libyuv_wrap.h"
+#include "../native_shared/image_formats.h"
 
 class VirtualOutput {
   private:
