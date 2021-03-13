@@ -14,6 +14,7 @@
 #include <stdexcept>
 
 #include "../native_shared/uyvy.h"
+#include "../native_shared/libyuv_wrap.h"
 
 // v4l2loopback allows opening a device multiple times.
 // To avoid selecting the same device more than once,
@@ -32,6 +33,7 @@ class VirtualOutput {
     uint32_t frame_width;
     uint32_t frame_height;
     std::vector<uint8_t> buffer;
+    std::vector<uint8_t> buffer_argb;
 
   public:
     VirtualOutput(uint32_t width, uint32_t height) {
@@ -104,6 +106,7 @@ class VirtualOutput {
         camera_device_idx = device_idx;
         frame_width = width;
         frame_height = height;
+        buffer_argb.resize(width * height * 4);
         buffer.resize(uyvy_frame_size(width, height));
 
         active_devices.insert(device_idx);
@@ -120,13 +123,17 @@ class VirtualOutput {
         active_devices.erase(camera_device_idx);
     }
 
-    void send(uint8_t *rgb) {
+    void send(const uint8_t *rgb) {
         if (!output_running)
             return;
 
         uint8_t* uyvy = buffer.data();
 
-        uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
+        uint8_t* argb = buffer_argb.data();
+        rgb_to_argb(rgb, argb, frame_width, frame_height);
+        argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+
+        //uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
 
         ssize_t n = write(camera_fd, uyvy, buffer.size());
         if (n == -1) {

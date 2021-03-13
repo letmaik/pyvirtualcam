@@ -6,6 +6,7 @@ from distutils.unixccompiler import UnixCCompiler
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import setuptools
+import glob
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -27,11 +28,12 @@ if platform.system() == 'Windows':
             sorted([
                 'pyvirtualcam/native_windows_obs/main.cpp',
                 'pyvirtualcam/native_windows_obs/queue/shared-memory-queue.c',
-            ]),
+            ] + glob.glob('external/libyuv/source/*.cc')),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_windows_obs'
+                'pyvirtualcam/native_windows_obs',
+                'external/libyuv/include'
             ],
             extra_link_args=[
                 "/DEFAULTLIB:advapi32.lib",
@@ -72,6 +74,7 @@ elif platform.system() == 'Linux':
                 get_pybind_include(),
                 'pyvirtualcam/native_linux_v4l2loopback'
             ],
+            libraries=['yuv'],
             language='c++'
         )
     )

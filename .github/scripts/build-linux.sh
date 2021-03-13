@@ -23,6 +23,15 @@ else
     exit 1
 fi
 
+# Install libyuv
+pushd external/libyuv
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release ..
+make install -j$(nproc)
+rm /usr/lib/libyuv.so # we only want the static library
+popd
+
 # install compile-time dependencies
 retry ${PYBIN}/pip install numpy==${NUMPY_VERSION}
 
