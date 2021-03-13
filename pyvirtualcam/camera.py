@@ -45,7 +45,6 @@ class Camera:
         self._print_fps = print_fps
 
         self._fps_counter = FPSCounter(fps)
-        self._fps_warning_printed = False
         self._fps_last_printed = time.perf_counter()
         self._frames_sent = 0
         self._last_frame_t = None
@@ -116,16 +115,6 @@ class Camera:
                 s += f' | {100*busy_ratio:.0f} %'
             
             print(s)
-
-        # The first few frames may lead to a lower fps, so we only print the
-        # warning after the rate has stabilized a bit.
-        if not self._fps_warning_printed and self._frames_sent > 100 and \
-                self._fps_counter.avg_fps / self._fps < 0.5:
-            self._fps_warning_printed = True
-            warnings.warn(
-                f'current fps ({self._fps_counter.avg_fps:.1f}) much lower '
-                f'than camera fps ({self._fps:.1f}), '
-                f'consider lowering the camera fps or try optimizing your code')
         
         self._backend.send(frame)
         
