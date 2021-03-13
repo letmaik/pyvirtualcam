@@ -26,7 +26,7 @@ class Camera:
             backends = [(backend, BACKENDS[backend])]
         else:
             backends = list(BACKENDS.items())
-        self._backend = None # for __del__ in case backend raises exception
+        self._backend = None
         errors = []
         for name, clazz in backends:
             try:
@@ -107,7 +107,15 @@ class Camera:
 
         if self._print_fps and self._last_frame_t - self._fps_last_printed > 1:
             self._fps_last_printed = self._last_frame_t
-            print(f'{self._fps_counter.avg_fps:.1f} fps')
+            s = f'{self._fps_counter.avg_fps:.1f} fps'
+            
+            # If sleep_until_next_frame() is used, show percentage of frame time
+            # spent in computation (vs sleeping).
+            if self._extra_time_per_frame > 0:
+                busy_ratio = min(1, self._extra_time_per_frame * self._fps)
+                s += f' | {100*busy_ratio:.0f} %'
+            
+            print(s)
 
         # The first few frames may lead to a lower fps, so we only print the
         # warning after the rate has stabilized a bit.
@@ -117,7 +125,7 @@ class Camera:
             warnings.warn(
                 f'current fps ({self._fps_counter.avg_fps:.1f}) much lower '
                 f'than camera fps ({self._fps:.1f}), '
-                f'consider lowering the camera fps')
+                f'consider lowering the camera fps or try optimizing your code')
         
         self._backend.send(frame)
         
@@ -129,7 +137,7 @@ class Camera:
         next_frame_t = self._last_frame_t + 1 / self._fps
         current_t = time.perf_counter()
         if current_t < next_frame_t:
-            factor = (self._fps - self._fps_counter.avg_fps) / self._fps_counter.avg_fps
+            factor = self._fps / self._fps_counter.avg_fps - 1
             self._extra_time_per_frame += 0.01 * factor
             self._extra_time_per_frame = max(0, self._extra_time_per_frame)
             t_sleep = next_frame_t - current_t - self._extra_time_per_frame
