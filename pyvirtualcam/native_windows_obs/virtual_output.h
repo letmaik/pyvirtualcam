@@ -4,8 +4,7 @@
 #include <Windows.h>
 #include <vector>
 #include "queue/shared-memory-queue.h"
-#include "../native_shared/nv12.h"
-#include "../native_shared/libyuv_wrap.h"
+#include "../native_shared/image_formats.h"
 
 class VirtualOutput {
   private:
@@ -13,8 +12,8 @@ class VirtualOutput {
     video_queue_t *vq;
     uint32_t frame_width;
     uint32_t frame_height;
-    std::vector<uint8_t> buffer;
     std::vector<uint8_t> buffer_argb;
+    std::vector<uint8_t> buffer_output;
     bool have_clockfreq = false;
     LARGE_INTEGER clock_freq;
 
@@ -56,8 +55,8 @@ class VirtualOutput {
 
         frame_width = width;
         frame_height = height;
-        buffer.resize(nv12_frame_size(width, height));
         buffer_argb.resize(width * height * 4);
+        buffer_output.resize(nv12_frame_size(width, height));
         output_running = true;
     }
 
@@ -77,13 +76,11 @@ class VirtualOutput {
         if (!output_running)
             return;
 
-        uint8_t* nv12 = buffer.data();
-
         uint8_t* argb = buffer_argb.data();
+        uint8_t* nv12 = buffer_output.data();
+
         rgb_to_argb(rgb, argb, frame_width, frame_height);
         argb_to_nv12(argb, nv12, frame_width, frame_height);
-
-        //nv12_frame_from_rgb(rgb, nv12, frame_width, frame_height);
 
         // NV12 has two planes
         uint8_t* y = nv12;
