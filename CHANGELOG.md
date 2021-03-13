@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linux: multiple camera support (#37).
 - If `print_fps=True` and `Camera.sleep_until_next_frame()` is used, the percentage of time spent in computation is printed in addition to fps.
 
+### Changed
+- macOS/Windows: raise error if OBS virtual camera is not installed.
+
 ### Fixed
 - macOS: camera was not correctly cleaned up after use (#39).
 - macOS: an error is now raised if the camera is already in use outside of the current process (#39).
