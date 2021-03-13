@@ -7,3 +7,5 @@ dist
 *.zip
 *.exe
 .vscode
+tmp
+wheelhouse

@@ -76,6 +76,7 @@ elif platform.system() == 'Linux':
                 get_pybind_include(),
                 'pyvirtualcam/native_linux_v4l2loopback'
             ] + common_inc,
+            extra_compile_args=['-flto'],
             language='c++'
         )
     )

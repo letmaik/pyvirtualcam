@@ -31,7 +31,7 @@ ${PYBIN}/pip freeze
 
 # Build pyvirtualcam wheel
 rm -rf wheelhouse
-retry ${PYBIN}/pip wheel . -w wheelhouse
+retry ${PYBIN}/pip wheel -v . -w wheelhouse
 
 # Bundle external shared libraries into wheel
 auditwheel repair wheelhouse/pyvirtualcam*.whl -w wheelhouse
