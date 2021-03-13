@@ -5,6 +5,7 @@
 #include <vector>
 #include "queue/shared-memory-queue.h"
 #include "../native_shared/nv12.h"
+#include "../native_shared/libyuv_wrap.h"
 
 class VirtualOutput {
   private:

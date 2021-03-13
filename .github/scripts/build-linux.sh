@@ -27,7 +27,7 @@ fi
 pushd external/libyuv
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON ..
 make install -j$(nproc)
 rm /usr/lib/libyuv.so # we only want the static library
 popd
