@@ -37,6 +37,7 @@ class VirtualOutput {
     uint32_t fps_num;
     uint32_t fps_den;
     std::vector<uint8_t> buffer;
+    std::vector<uint8_t> buffer_argb;
 
   public:
     VirtualOutput(uint32_t width, uint32_t height, double fps) {
@@ -80,7 +81,7 @@ class VirtualOutput {
         [NSThread sleepForTimeInterval:0.2f];
     }
 
-    void send(uint8_t* rgb) {
+    void send(const uint8_t* rgb) {
         if (mach_server == nil) {
             return;
         }
