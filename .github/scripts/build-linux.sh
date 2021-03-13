@@ -30,6 +30,7 @@ retry ${PYBIN}/pip install numpy==${NUMPY_VERSION}
 ${PYBIN}/pip freeze
 
 # Build pyvirtualcam wheel
+export LDFLAGS="-Wl,--strip-debug" # https://github.com/MacPython/numpy-wheels/blob/a7f79a8e/env_vars.sh
 rm -rf wheelhouse
 retry ${PYBIN}/pip wheel -v . -w wheelhouse
 

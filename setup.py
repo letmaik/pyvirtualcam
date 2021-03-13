@@ -58,7 +58,7 @@ elif platform.system() == 'Linux':
             # (https://github.com/pybind/python_example/pull/53)
             sorted(['pyvirtualcam/native_linux_v4l2loopback/main.cpp'] + common_src),
             include_dirs=['pyvirtualcam/native_linux_v4l2loopback'] + common_inc,
-            extra_compile_args=['-flto', '-Wl,--strip-debug'],
+            extra_compile_args=['-flto'],
             language='c++'
         )
     )
