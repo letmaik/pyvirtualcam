@@ -2,11 +2,11 @@
 
 import platform
 import sys
+import glob
 from distutils.unixccompiler import UnixCCompiler
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import setuptools
-import glob
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -20,6 +20,9 @@ class get_pybind_include(object):
 
 ext_modules = []
 
+common_src = glob.glob('external/libyuv/source/*.cc')
+common_inc = ['external/libyuv/include']
+
 if platform.system() == 'Windows':
     ext_modules.append(
         Extension('pyvirtualcam._native_windows_obs',
@@ -28,13 +31,12 @@ if platform.system() == 'Windows':
             sorted([
                 'pyvirtualcam/native_windows_obs/main.cpp',
                 'pyvirtualcam/native_windows_obs/queue/shared-memory-queue.c',
-            ] + glob.glob('external/libyuv/source/*.cc')),
+            ] + common_src),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
                 'pyvirtualcam/native_windows_obs',
-                'external/libyuv/include'
-            ],
+            ] + common_inc,
             extra_link_args=[
                 "/DEFAULTLIB:advapi32.lib",
             ],
@@ -49,12 +51,12 @@ elif platform.system() == 'Darwin':
             sorted([
                 'pyvirtualcam/native_macos_obs/main.mm',
                 'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
-            ]),
+            ] + common_src),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
-                'pyvirtualcam/native_macos_obs'
-            ],
+                'pyvirtualcam/native_macos_obs',
+            ] + common_inc,
             extra_link_args=[
                 "-framework", "Foundation",
             ],
@@ -68,13 +70,12 @@ elif platform.system() == 'Linux':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_linux_v4l2loopback/main.cpp',
-            ]),
+            ] + common_src),
             include_dirs=[
                 # Path to pybind11 headers
                 get_pybind_include(),
                 'pyvirtualcam/native_linux_v4l2loopback'
-            ],
-            libraries=['yuv'],
+            ] + common_inc,
             language='c++'
         )
     )

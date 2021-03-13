@@ -27,6 +27,7 @@
 #include <mach/mach_time.h>
 #include "server/OBSDALMachServer.h"
 #include "../native_shared/uyvy.h"
+#include "../native_shared/libyuv_wrap.h"
 
 class VirtualOutput {
   private:
@@ -54,6 +55,7 @@ class VirtualOutput {
         fps_num = fps * 1000;
         fps_den = 1000;
         buffer.resize(uyvy_frame_size(width, height));
+        buffer_argb.resize(width * height * 4);
 
         mach_server = [[OBSDALMachServer alloc] init];
         BOOL started = [mach_server run];
@@ -93,7 +95,11 @@ class VirtualOutput {
 
         uint8_t* uyvy = buffer.data();
 
-        uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
+        uint8_t* argb = buffer_argb.data();
+        rgb_to_argb(rgb, argb, frame_width, frame_height);
+        argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+
+        //uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
 
         CGFloat width = frame_width;
         CGFloat height = frame_height;
