@@ -81,8 +81,6 @@ class VirtualOutput {
 
         v4l2_format v4l2_fmt;
         memset(&v4l2_fmt, 0, sizeof(v4l2_fmt));
-        // v4l2loopback requires V4L2_BUF_TYPE_VIDEO_OUTPUT even
-        // for multi-plane formats. Seems non-standard.
         v4l2_fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
         v4l2_pix_format& pix = v4l2_fmt.fmt.pix;
         pix.width = width;
