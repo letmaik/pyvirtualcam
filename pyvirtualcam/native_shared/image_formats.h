@@ -53,8 +53,8 @@ static uint32_t uyvy_frame_size(uint32_t width, uint32_t height) {
     return height * width * 2;
 }
 
-static uint32_t nv12_frame_size(uint32_t width, uint32_t height) {
+static uint32_t i420_frame_size(uint32_t width, uint32_t height) {
     return (width + width / 2) * height;
 }
 
-#define i420_frame_size nv12_frame_size
+#define nv12_frame_size i420_frame_size
