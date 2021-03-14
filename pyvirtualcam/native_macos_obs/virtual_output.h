@@ -26,7 +26,7 @@
 #include <vector>
 #include <mach/mach_time.h>
 #include "server/OBSDALMachServer.h"
-#include "../native_shared/uyvy.h"
+#include "../native_shared/image_formats.h"
 
 class VirtualOutput {
   private:
@@ -35,7 +35,8 @@ class VirtualOutput {
     uint32_t frame_height;
     uint32_t fps_num;
     uint32_t fps_den;
-    std::vector<uint8_t> buffer;
+    std::vector<uint8_t> buffer_argb;
+    std::vector<uint8_t> buffer_output;
 
   public:
     VirtualOutput(uint32_t width, uint32_t height, double fps) {
@@ -53,7 +54,8 @@ class VirtualOutput {
         frame_height = height;
         fps_num = fps * 1000;
         fps_den = 1000;
-        buffer.resize(uyvy_frame_size(width, height));
+        buffer_argb.resize(width * height * 4);
+        buffer_output.resize(uyvy_frame_size(width, height));
 
         mach_server = [[OBSDALMachServer alloc] init];
         BOOL started = [mach_server run];
@@ -78,7 +80,7 @@ class VirtualOutput {
         [NSThread sleepForTimeInterval:0.2f];
     }
 
-    void send(uint8_t* rgb) {
+    void send(const uint8_t* rgb) {
         if (mach_server == nil) {
             return;
         }
@@ -91,9 +93,11 @@ class VirtualOutput {
         
         uint64_t timestamp = mach_absolute_time();
 
-        uint8_t* uyvy = buffer.data();
+        uint8_t* argb = buffer_argb.data();
+        uint8_t* uyvy = buffer_output.data();
 
-        uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
+        rgb_to_argb(rgb, argb, frame_width, frame_height);
+        argb_to_uyvy(argb, uyvy, frame_width, frame_height);
 
         CGFloat width = frame_width;
         CGFloat height = frame_height;

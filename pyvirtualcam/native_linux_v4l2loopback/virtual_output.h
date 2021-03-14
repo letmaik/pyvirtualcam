@@ -13,7 +13,7 @@
 #include <set>
 #include <stdexcept>
 
-#include "../native_shared/uyvy.h"
+#include "../native_shared/image_formats.h"
 
 // v4l2loopback allows opening a device multiple times.
 // To avoid selecting the same device more than once,
@@ -31,7 +31,7 @@ class VirtualOutput {
     size_t camera_device_idx;
     uint32_t frame_width;
     uint32_t frame_height;
-    std::vector<uint8_t> buffer;
+    std::vector<uint8_t> buffer_output;
 
   public:
     VirtualOutput(uint32_t width, uint32_t height) {
@@ -76,22 +76,21 @@ class VirtualOutput {
                 "See also pyvirtualcam's documentation.");
         }
 
-        struct v4l2_pix_format pix_fmt = {
-            .width = width,
-            .height = height,
-            .pixelformat = V4L2_PIX_FMT_UYVY,
-            .field = V4L2_FIELD_NONE,
-            .bytesperline = width * 2,
-            .sizeimage = width * height * 2,
-            .colorspace = V4L2_COLORSPACE_JPEG        
-        };
+        uint32_t half_width = width / 2;
+        uint32_t half_height = height / 2;
 
-        struct v4l2_format camera_format = {
-            .type = V4L2_BUF_TYPE_VIDEO_OUTPUT,
-            .fmt = { .pix = pix_fmt }
-        };
+        v4l2_format v4l2_fmt;
+        memset(&v4l2_fmt, 0, sizeof(v4l2_fmt));
+        // v4l2loopback requires V4L2_BUF_TYPE_VIDEO_OUTPUT even
+        // for multi-plane formats. Seems non-standard.
+        v4l2_fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+        v4l2_pix_format& pix = v4l2_fmt.fmt.pix;
+        pix.width = width;
+        pix.height = height;
+        pix.pixelformat = V4L2_PIX_FMT_YUV420;
+        // v4l2loopback sets bytesperline, sizeimage, and colorspace for us.
 
-        if (ioctl(camera_fd, VIDIOC_S_FMT, &camera_format) == -1) {
+        if (ioctl(camera_fd, VIDIOC_S_FMT, &v4l2_fmt) == -1) {
             close(camera_fd);
             throw std::runtime_error(
                 "Virtual camera device " + std::string(device_name) + 
@@ -104,7 +103,7 @@ class VirtualOutput {
         camera_device_idx = device_idx;
         frame_width = width;
         frame_height = height;
-        buffer.resize(uyvy_frame_size(width, height));
+        buffer_output.resize(i420_frame_size(width, height));
 
         active_devices.insert(device_idx);
     }
@@ -120,15 +119,15 @@ class VirtualOutput {
         active_devices.erase(camera_device_idx);
     }
 
-    void send(uint8_t *rgb) {
+    void send(const uint8_t *rgb) {
         if (!output_running)
             return;
 
-        uint8_t* uyvy = buffer.data();
+        uint8_t* i420 = buffer_output.data();
 
-        uyvy_frame_from_rgb(rgb, uyvy, frame_width, frame_height);
+        rgb_to_i420(rgb, i420, frame_width, frame_height);
 
-        ssize_t n = write(camera_fd, uyvy, buffer.size());
+        ssize_t n = write(camera_fd, i420, buffer_output.size());
         if (n == -1) {
             // not an exception, in case it is temporary
             fprintf(stderr, "error writing frame: %s", strerror(errno));

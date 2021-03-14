@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <vector>
 #include "queue/shared-memory-queue.h"
-#include "../native_shared/nv12.h"
+#include "../native_shared/image_formats.h"
 
 class VirtualOutput {
   private:
@@ -12,7 +12,8 @@ class VirtualOutput {
     video_queue_t *vq;
     uint32_t frame_width;
     uint32_t frame_height;
-    std::vector<uint8_t> buffer;
+    std::vector<uint8_t> buffer_i420;
+    std::vector<uint8_t> buffer_output;
     bool have_clockfreq = false;
     LARGE_INTEGER clock_freq;
 
@@ -54,7 +55,8 @@ class VirtualOutput {
 
         frame_width = width;
         frame_height = height;
-        buffer.resize(nv12_frame_size(width, height));
+        buffer_i420.resize(i420_frame_size(width, height));
+        buffer_output.resize(nv12_frame_size(width, height));
         output_running = true;
     }
 
@@ -69,14 +71,16 @@ class VirtualOutput {
 
     // data is in RGB format (packed RGB, 24bpp, RGBRGB...)
     // queue expects NV12 (semi-planar YUV, 12bpp)
-    void send(uint8_t *rgb)
+    void send(const uint8_t *rgb)
     {
         if (!output_running)
             return;
 
-        uint8_t* nv12 = buffer.data();
+        uint8_t* i420 = buffer_i420.data();
+        uint8_t* nv12 = buffer_output.data();
 
-        nv12_frame_from_rgb(rgb, nv12, frame_width, frame_height);
+        rgb_to_i420(rgb, i420, frame_width, frame_height);
+        i420_to_nv12(i420, nv12, frame_width, frame_height);
 
         // NV12 has two planes
         uint8_t* y = nv12;

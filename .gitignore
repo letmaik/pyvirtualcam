@@ -6,5 +6,6 @@ dist
 *.pyc
 *.zip
 *.exe
-obs-virtual-cam
-external/
+.vscode
+tmp
+wheelhouse
