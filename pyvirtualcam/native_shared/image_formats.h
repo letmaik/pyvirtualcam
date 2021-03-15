@@ -21,16 +21,22 @@ static void rgb_to_i420(const uint8_t *rgb, uint8_t* i420, uint32_t width, uint3
         width, height);
 }
 
-static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, uint32_t width, uint32_t height) {
+static void bgr_to_argb(const uint8_t *bgr, uint8_t* argb, uint32_t width, uint32_t height) {
+    libyuv::RGB24ToARGB(
+        bgr, width * 3,
+        argb, width * 4,
+        width, height);
+}
+
+static void bgr_to_i420(const uint8_t *bgr, uint8_t* i420, uint32_t width, uint32_t height) {
     uint32_t half_width = width / 2;
     uint32_t half_height = height / 2;
 
-    libyuv::I420ToNV12(
+    libyuv::RGB24ToI420(
+        bgr, width * 3,
         i420, width,
         i420 + width * height, half_width,
         i420 + width * height + half_width * half_height, half_width,
-        nv12, width,
-        nv12 + width * height, width,
         width, height);
 }
 
@@ -47,6 +53,35 @@ static void argb_to_uyvy(const uint8_t *argb, uint8_t* uyvy, uint32_t width, uin
         argb, width * 4,
         uyvy, width * 2,
         width, height);
+}
+
+static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, uint32_t width, uint32_t height) {
+    uint32_t half_width = width / 2;
+    uint32_t half_height = height / 2;
+
+    libyuv::I420ToNV12(
+        i420, width,
+        i420 + width * height, half_width,
+        i420 + width * height + half_width * half_height, half_width,
+        nv12, width,
+        nv12 + width * height, width,
+        width, height);
+}
+
+static void i420_to_uyvy(const uint8_t *i420, uint8_t* uyvy, uint32_t width, uint32_t height) {
+    uint32_t half_width = width / 2;
+    uint32_t half_height = height / 2;
+
+    libyuv::I420ToUYVY(
+        i420, width,
+        i420 + width * height, half_width,
+        i420 + width * height + half_width * half_height, half_width,
+        uyvy, width * 2,
+        width, height);
+}
+
+static uint32_t argb_frame_size(uint32_t width, uint32_t height) {
+    return height * width * 4;
 }
 
 static uint32_t uyvy_frame_size(uint32_t width, uint32_t height) {

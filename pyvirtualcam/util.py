@@ -23,3 +23,9 @@ class FPSCounter(object):
     @property
     def avg_fps(self):
         return 1 / self.avg_delta
+
+
+def fourcc(s: str) -> int:
+    if len(s) != 4:
+        raise ValueError('fourcc must be 4 characters')
+    return ord(s[0]) | (ord(s[1]) << 8) | (ord(s[2]) << 16) | (ord(s[3]) << 24)

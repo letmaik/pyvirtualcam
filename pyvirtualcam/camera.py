@@ -2,10 +2,11 @@ from typing import Optional
 import platform
 import time
 import warnings
+from enum import Enum
 
 import numpy as np
 
-from pyvirtualcam.util import FPSCounter
+from pyvirtualcam.util import FPSCounter, fourcc
 
 BACKENDS = {}
 
@@ -19,9 +20,19 @@ elif platform.system() == 'Linux':
     from pyvirtualcam import _native_linux_v4l2loopback
     BACKENDS['v4l2loopback'] = _native_linux_v4l2loopback.Camera
 
+class PixelFormat(Enum):
+    # See external/libyuv/include/libyuv/video_common.h for fourcc codes.
+    RGB = 'raw '
+    BGR = '24BG'
+    I420 = 'I420'
+
 class Camera:
-    def __init__(self, width: int, height: int, fps: float, delay=None,
-                 print_fps=False, backend: Optional[str]=None, **kw) -> None:
+    def __init__(self, width: int, height: int, fps: float, *,
+                 fmt: PixelFormat=PixelFormat.RGB,
+                 backend: Optional[str]=None,
+                 print_fps=False,
+                 delay=None,
+                 **kw) -> None:
         if backend:
             backends = [(backend, BACKENDS[backend])]
         else:
@@ -30,7 +41,9 @@ class Camera:
         errors = []
         for name, clazz in backends:
             try:
-                self._backend = clazz(width=width, height=height, fps=fps, **kw)
+                self._backend = clazz(
+                    width=width, height=height, fps=fps, fmt=fourcc(fmt.value),
+                    **kw)
             except Exception as e:
                 errors.append(f"'{name}' backend: {e}")
             else:

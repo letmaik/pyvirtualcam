@@ -29,12 +29,32 @@ class VirtualOutput {
     int camera_fd;
     std::string camera_device;
     size_t camera_device_idx;
+    uint32_t frame_fmt;
     uint32_t frame_width;
     uint32_t frame_height;
+    uint32_t out_frame_size;
     std::vector<uint8_t> buffer_output;
 
   public:
-    VirtualOutput(uint32_t width, uint32_t height) {
+    VirtualOutput(uint32_t width, uint32_t height, uint32_t fourcc) {
+        frame_width = width;
+        frame_height = height;
+        frame_fmt = libyuv::CanonicalFourCC(fourcc);
+        out_frame_size = i420_frame_size(width, height);
+
+        switch (frame_fmt) {
+            case libyuv::FOURCC_RAW:
+            case libyuv::FOURCC_24BG:
+                buffer_output.resize(out_frame_size);
+                break;
+            case libyuv::FOURCC_I420:
+                break;
+            default:
+                throw std::runtime_error(
+                    "Unsupported image format, must RGB, BGR, or I420."
+                );
+        }
+
         char device_name[14];
         int device_idx = -1;
 
@@ -99,9 +119,6 @@ class VirtualOutput {
         output_running = true;
         camera_device = std::string(device_name);
         camera_device_idx = device_idx;
-        frame_width = width;
-        frame_height = height;
-        buffer_output.resize(i420_frame_size(width, height));
 
         active_devices.insert(device_idx);
     }
@@ -117,13 +134,22 @@ class VirtualOutput {
         active_devices.erase(camera_device_idx);
     }
 
-    void send(const uint8_t *rgb) {
+    void send(const uint8_t* frame) {
         if (!output_running)
             return;
 
-        uint8_t* i420 = buffer_output.data();
-
-        rgb_to_i420(rgb, i420, frame_width, frame_height);
+        uint8_t* i420;
+        if (frame_fmt == libyuv::FOURCC_RAW) {
+            i420 = buffer_output.data();
+            rgb_to_i420(frame, i420, frame_width, frame_height);
+        } else if (frame_fmt == libyuv::FOURCC_24BG) {
+            i420 = buffer_output.data();
+            bgr_to_i420(frame, i420, frame_width, frame_height);
+        } else if (frame_fmt == libyuv::FOURCC_I420) {
+            i420 = const_cast<uint8_t*>(frame);
+        } else {
+            throw std::logic_error("not implemented");
+        }
 
         ssize_t n = write(camera_fd, i420, buffer_output.size());
         if (n == -1) {

@@ -4,6 +4,7 @@
 import argparse
 import cv2
 import pyvirtualcam
+from pyvirtualcam import PixelFormat
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--camera", type=int, default=0, help="ID of webcam device (default: 0)")
@@ -32,7 +33,7 @@ print(f'Webcam capture started ({width}x{height} @ {fps_in}fps)')
 fps_out = 20
 
 try:
-    with pyvirtualcam.Camera(width, height, fps_out, print_fps=args.fps) as cam:
+    with pyvirtualcam.Camera(width, height, fps_out, fmt=PixelFormat.BGR, print_fps=args.fps) as cam:
         print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
 
         # Shake two channels horizontally each frame.
@@ -49,9 +50,6 @@ try:
             c1, c2 = channels[cam.frames_sent % 3]
             frame[:,:-dx,c1] = frame[:,dx:,c1]
             frame[:,dx:,c2] = frame[:,:-dx,c2]
-
-            # Convert to RGB.
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Send to virtual cam.
             cam.send(frame)
