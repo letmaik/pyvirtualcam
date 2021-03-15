@@ -117,26 +117,24 @@ class VirtualOutput {
         
         uint64_t timestamp = mach_absolute_time();
 
+        uint8_t* tmp = buffer_tmp.data();
         uint8_t* uyvy = buffer_output.data();
         
         switch (frame_fmt) {
             case libyuv::FOURCC_RAW:            
-                uint8_t* argb = buffer_tmp.data();
-                rgb_to_argb(frame, argb, frame_width, frame_height);
-                argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+                rgb_to_argb(frame, tmp, frame_width, frame_height);
+                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_24BG:
-                uint8_t* argb = buffer_tmp.data();
-                bgr_to_argb(frame, argb, frame_width, frame_height);
-                argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+                bgr_to_argb(frame, tmp, frame_width, frame_height);
+                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_I420:
                 i420_to_uyvy(frame, uyvy, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_YUY2:
-                uint8_t* i422 = buffer_tmp.data();
-                yuyv_to_i422(frame, i422, frame_width, frame_height);
-                i422_to_uyvy(i422, uyvy, frame_width, frame_height);
+                yuyv_to_i422(frame, tmp, frame_width, frame_height);
+                i422_to_uyvy(tmp, uyvy, frame_width, frame_height);
                 break;
             default:
                 throw std::logic_error("not implemented");

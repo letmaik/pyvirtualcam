@@ -95,18 +95,17 @@ class VirtualOutput {
         if (!output_running)
             return;
 
+        uint8_t* tmp = buffer_tmp.data();
         uint8_t* nv12 = buffer_output.data();
         
         switch (frame_fmt) {
             case libyuv::FOURCC_RAW:
-                uint8_t* i420 = buffer_tmp.data();
-                rgb_to_i420(frame, i420, frame_width, frame_height);
-                i420_to_nv12(i420, nv12, frame_width, frame_height);
+                rgb_to_i420(frame, tmp, frame_width, frame_height);
+                i420_to_nv12(tmp, nv12, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_24BG:
-                uint8_t* i420 = buffer_tmp.data();
-                bgr_to_i420(frame, i420, frame_width, frame_height);
-                i420_to_nv12(i420, nv12, frame_width, frame_height);
+                bgr_to_i420(frame, tmp, frame_width, frame_height);
+                i420_to_nv12(tmp, nv12, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_I420:
                 i420_to_nv12(frame, nv12, frame_width, frame_height);
