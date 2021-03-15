@@ -51,13 +51,6 @@ def test_invalid_frame_shape():
         with pytest.raises(ValueError):
             cam.send(np.zeros((cam.height, cam.width), np.uint8))
 
-def test_deprecated_rgba_frame_format():
-    with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
-        with warnings.catch_warnings():
-            warnings.simplefilter("error")
-            with pytest.raises(DeprecationWarning):
-                cam.send(np.zeros((cam.height, cam.width, 4), np.uint8))
-
 @pytest.mark.skipif(
     os.environ.get('CI') and platform.system() == 'Darwin',
     reason='disabled due to high fluctuations in CI, manually verified on MacBook Pro')

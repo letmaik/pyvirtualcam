@@ -64,11 +64,11 @@ class Camera:
         if isinstance(frame_shape, int):
             def check_frame(frame: np.ndarray):
                 if frame.size != frame_shape:
-                    raise ValueError(f"mismatching frame size: {frame.size} != {frame_shape}")
+                    raise ValueError(f"unexpected frame size: {frame.size} != {frame_shape}")
         else:
             def check_frame(frame: np.ndarray):
                 if frame.shape != frame_shape:
-                    raise ValueError(f"unexpected frame shape: {frame.shape} != ({frame_shape})")
+                    raise ValueError(f"unexpected frame shape: {frame.shape} != {frame_shape}")
 
         self._check_frame = check_frame
 
