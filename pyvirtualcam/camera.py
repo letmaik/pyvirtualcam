@@ -3,6 +3,7 @@ import platform
 import time
 import warnings
 from enum import Enum
+from collections import namedtuple
 
 import numpy as np
 
@@ -22,9 +23,10 @@ elif platform.system() == 'Linux':
 
 class PixelFormat(Enum):
     # See external/libyuv/include/libyuv/video_common.h for fourcc codes.
-    RGB = 'raw '
-    BGR = '24BG'
-    I420 = 'I420'
+    RGB = 'raw ', lambda w, h: (h, w, 3)
+    BGR = '24BG', lambda w, h: (h, w, 3)
+    I420 = 'I420', lambda w, h: (w + w // 2) * h
+    YUYV = 'YUY2', lambda w, h: h * w * 2
 
 class Camera:
     def __init__(self, width: int, height: int, fps: float, *,
@@ -42,7 +44,7 @@ class Camera:
         for name, clazz in backends:
             try:
                 self._backend = clazz(
-                    width=width, height=height, fps=fps, fmt=fourcc(fmt.value),
+                    width=width, height=height, fps=fps, fmt=fourcc(fmt.value[0]),
                     **kw)
             except Exception as e:
                 errors.append(f"'{name}' backend: {e}")
@@ -55,7 +57,20 @@ class Camera:
         self._width = width
         self._height = height
         self._fps = fps
+        self._fmt = fmt
         self._print_fps = print_fps
+
+        frame_shape = fmt.value[1](width, height)
+        if isinstance(frame_shape, int):
+            def check_frame(frame: np.ndarray):
+                if frame.size != frame_shape:
+                    raise ValueError(f"mismatching frame size: {frame.size} != {frame_shape}")
+        else:
+            def check_frame(frame: np.ndarray):
+                if frame.shape != frame_shape:
+                    raise ValueError(f"unexpected frame shape: {frame.shape} != ({frame_shape})")
+
+        self._check_frame = check_frame
 
         self._fps_counter = FPSCounter(fps)
         self._fps_last_printed = time.perf_counter()
@@ -96,6 +111,10 @@ class Camera:
     @property
     def fps(self) -> float:
         return self._fps
+    
+    @property
+    def fmt(self) -> PixelFormat:
+        return self._fmt
 
     @property
     def frames_sent(self) -> int:
@@ -105,13 +124,7 @@ class Camera:
         self._backend.close()
 
     def send(self, frame: np.ndarray) -> None:
-        if frame.ndim != 3 or frame.shape[0] != self._height or frame.shape[1] != self._width:
-            raise ValueError(f"mismatching frame dimensions: {frame.shape} != ({self._height}, {self._width}, 3)")
-        if frame.shape[2] == 4:
-            warnings.warn('RGBA frames are deprecated, use RGB instead', DeprecationWarning)
-            frame = frame[:,:,:3]
-        elif frame.shape[2] != 3:
-            raise ValueError(f"invalid number of color channels, must be RGB or (deprecated) RGBA")
+        self._check_frame(frame)
 
         self._frames_sent += 1
         self._last_frame_t = time.perf_counter()

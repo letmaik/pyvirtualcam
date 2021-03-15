@@ -70,9 +70,14 @@ class VirtualOutput {
                 // I420 -> UYVY
                 buffer_output.resize(out_frame_size);
                 break;
+            case libyuv::FOURCC_YUY2:
+                // YUYV -> I422 -> UYVY
+                buffer_tmp.resize(i422_frame_size(width, height));
+                buffer_output.resize(out_frame_size);
+                break;
             default:
                 throw std::runtime_error(
-                    "Unsupported image format, must RGB, BGR, or I420."
+                    "Unsupported image format, must be RGB, BGR, I420, or YUYV."
                 );
         }
 
@@ -114,18 +119,27 @@ class VirtualOutput {
 
         uint8_t* uyvy = buffer_output.data();
         
-        if (frame_fmt == libyuv::FOURCC_RAW) {
-            uint8_t* argb = buffer_tmp.data();
-            rgb_to_argb(frame, argb, frame_width, frame_height);
-            argb_to_uyvy(argb, uyvy, frame_width, frame_height);
-        } else if (frame_fmt == libyuv::FOURCC_24BG) {
-            uint8_t* argb = buffer_tmp.data();
-            bgr_to_argb(frame, argb, frame_width, frame_height);
-            argb_to_uyvy(argb, uyvy, frame_width, frame_height);
-        } else if (frame_fmt == libyuv::FOURCC_I420) {
-            i420_to_uyvy(frame, uyvy, frame_width, frame_height);
-        } else {
-            throw std::logic_error("not implemented");
+        switch (frame_fmt) {
+            case libyuv::FOURCC_RAW:            
+                uint8_t* argb = buffer_tmp.data();
+                rgb_to_argb(frame, argb, frame_width, frame_height);
+                argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_24BG:
+                uint8_t* argb = buffer_tmp.data();
+                bgr_to_argb(frame, argb, frame_width, frame_height);
+                argb_to_uyvy(argb, uyvy, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_I420:
+                i420_to_uyvy(frame, uyvy, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_YUY2:
+                uint8_t* i422 = buffer_tmp.data();
+                yuyv_to_i422(frame, i422, frame_width, frame_height);
+                i422_to_uyvy(i422, uyvy, frame_width, frame_height);
+                break;
+            default:
+                throw std::logic_error("not implemented");
         }
 
         CGFloat width = frame_width;

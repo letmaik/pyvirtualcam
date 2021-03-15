@@ -48,10 +48,11 @@ class VirtualOutput {
                 buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
+            case libyuv::FOURCC_YUY2:
                 break;
             default:
                 throw std::runtime_error(
-                    "Unsupported image format, must RGB, BGR, or I420."
+                    "Unsupported image format, must be RGB, BGR, I420, or YUYV."
                 );
         }
 
@@ -105,7 +106,12 @@ class VirtualOutput {
         v4l2_pix_format& pix = v4l2_fmt.fmt.pix;
         pix.width = width;
         pix.height = height;
-        pix.pixelformat = V4L2_PIX_FMT_YUV420;
+        if (frame_fmt == libyuv::FOURCC_YUY2) {
+            pix.pixelformat = V4L2_PIX_FMT_YUYV;
+        } else {
+            pix.pixelformat = V4L2_PIX_FMT_YUV420;
+        }
+
         // v4l2loopback sets bytesperline, sizeimage, and colorspace for us.
 
         if (ioctl(camera_fd, VIDIOC_S_FMT, &v4l2_fmt) == -1) {
@@ -138,20 +144,26 @@ class VirtualOutput {
         if (!output_running)
             return;
 
-        uint8_t* i420;
-        if (frame_fmt == libyuv::FOURCC_RAW) {
-            i420 = buffer_output.data();
-            rgb_to_i420(frame, i420, frame_width, frame_height);
-        } else if (frame_fmt == libyuv::FOURCC_24BG) {
-            i420 = buffer_output.data();
-            bgr_to_i420(frame, i420, frame_width, frame_height);
-        } else if (frame_fmt == libyuv::FOURCC_I420) {
-            i420 = const_cast<uint8_t*>(frame);
-        } else {
-            throw std::logic_error("not implemented");
+        uint8_t* out_frame;
+
+        switch (frame_fmt) {
+            case libyuv::FOURCC_RAW:
+                out_frame = buffer_output.data();
+                rgb_to_i420(frame, out_frame, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_24BG:
+                out_frame = buffer_output.data();
+                bgr_to_i420(frame, out_frame, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_I420:
+            case libyuv::FOURCC_YUY2:
+                out_frame = const_cast<uint8_t*>(frame);
+                break;
+            default:
+                throw std::logic_error("not implemented");
         }
 
-        ssize_t n = write(camera_fd, i420, buffer_output.size());
+        ssize_t n = write(camera_fd, out_frame, out_frame_size);
         if (n == -1) {
             // not an exception, in case it is temporary
             fprintf(stderr, "error writing frame: %s", strerror(errno));
