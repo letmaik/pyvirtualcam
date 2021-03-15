@@ -1,9 +1,9 @@
 import os
 import platform
-import warnings
 import pytest
 import numpy as np
 import pyvirtualcam
+from pyvirtualcam import PixelFormat
 
 def test_consecutive():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
@@ -50,6 +50,21 @@ def test_invalid_frame_shape():
             cam.send(np.zeros((cam.height, cam.width, 1), np.uint8))
         with pytest.raises(ValueError):
             cam.send(np.zeros((cam.height, cam.width), np.uint8))
+
+def test_invalid_frame_dtype():
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
+        with pytest.raises(TypeError):
+            cam.send(np.zeros((cam.height, cam.width, 3), np.uint16))
+
+def test_alternative_pixel_formats():
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.BGR) as cam:
+        cam.send(np.zeros((cam.width, cam.height, 3), np.uint8))
+
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.I420) as cam:
+        cam.send(np.zeros(cam.height * cam.width + cam.height * (cam.width // 2), np.uint8))
+    
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.YUYV) as cam:
+        cam.send(np.zeros(cam.height * cam.width * 2, np.uint8))
 
 @pytest.mark.skipif(
     os.environ.get('CI') and platform.system() == 'Darwin',
