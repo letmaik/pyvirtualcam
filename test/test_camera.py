@@ -58,7 +58,7 @@ def test_invalid_frame_dtype():
 
 def test_alternative_pixel_formats():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.BGR) as cam:
-        cam.send(np.zeros((cam.width, cam.height, 3), np.uint8))
+        cam.send(np.zeros((cam.height, cam.width, 3), np.uint8))
 
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.I420) as cam:
         cam.send(np.zeros(cam.height * cam.width + cam.height * (cam.width // 2), np.uint8))
