@@ -3,6 +3,14 @@
 #include <libyuv.h>
 
 // copy
+static void gray_to_argb(const uint8_t *gray, uint8_t* argb, uint32_t width, uint32_t height) {
+    libyuv::J400ToARGB(
+        gray, width,
+        argb, width * 4,
+        width, height);
+}
+
+// copy
 static void rgb_to_argb(const uint8_t *rgb, uint8_t* argb, uint32_t width, uint32_t height) {
     libyuv::RAWToARGB(
         rgb, width * 3,

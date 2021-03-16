@@ -62,7 +62,8 @@ class VirtualOutput {
         switch (frame_fmt) {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
-                // RGB|BGR -> ARGB -> UYVY
+            case libyuv::FOURCC_J400:
+                // RGB|BGR|GRAY -> ARGB -> UYVY
                 buffer_tmp.resize(argb_frame_size(width, height));
                 buffer_output.resize(out_frame_size);
                 break;
@@ -127,6 +128,10 @@ class VirtualOutput {
                 break;
             case libyuv::FOURCC_24BG:
                 bgr_to_argb(frame, tmp, frame_width, frame_height);
+                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_J400:
+                gray_to_argb(frame, tmp, frame_width, frame_height);
                 argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
                 break;
             case libyuv::FOURCC_I420:

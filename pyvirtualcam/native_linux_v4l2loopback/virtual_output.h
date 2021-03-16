@@ -47,12 +47,13 @@ class VirtualOutput {
             case libyuv::FOURCC_24BG:
                 buffer_output.resize(out_frame_size);
                 break;
+            case libyuv::FOURCC_J400:
             case libyuv::FOURCC_I420:
             case libyuv::FOURCC_YUY2:
                 break;
             default:
                 throw std::runtime_error(
-                    "Unsupported image format, must be RGB, BGR, I420, or YUYV."
+                    "Unsupported image format, must be RGB, BGR, GRAY, I420, or YUYV."
                 );
         }
 
@@ -108,6 +109,8 @@ class VirtualOutput {
         pix.height = height;
         if (frame_fmt == libyuv::FOURCC_YUY2) {
             pix.pixelformat = V4L2_PIX_FMT_YUYV;
+        } else if (frame_fmt == libyuv::FOURCC_J400) {
+            pix.pixelformat = V4L2_PIX_FMT_GREY;
         } else {
             pix.pixelformat = V4L2_PIX_FMT_YUV420;
         }
@@ -155,6 +158,7 @@ class VirtualOutput {
                 out_frame = buffer_output.data();
                 bgr_to_i420(frame, out_frame, frame_width, frame_height);
                 break;
+            case libyuv::FOURCC_J400:
             case libyuv::FOURCC_I420:
             case libyuv::FOURCC_YUY2:
                 out_frame = const_cast<uint8_t*>(frame);

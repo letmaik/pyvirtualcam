@@ -25,6 +25,7 @@ class PixelFormat(Enum):
     # See external/libyuv/include/libyuv/video_common.h for fourcc codes.
     RGB = 'raw ', lambda w, h: (h, w, 3)
     BGR = '24BG', lambda w, h: (h, w, 3)
+    GRAY = 'J400', lambda w, h: (h, w)
     I420 = 'I420', lambda w, h: (w + w // 2) * h
     YUYV = 'YUY2', lambda w, h: h * w * 2
 
