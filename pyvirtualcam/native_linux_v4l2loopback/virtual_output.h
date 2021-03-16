@@ -42,14 +42,23 @@ class VirtualOutput {
         frame_fmt = libyuv::CanonicalFourCC(fourcc);
         out_frame_size = i420_frame_size(width, height);
 
+        uint32_t out_frame_fmt_v4l;
+
         switch (frame_fmt) {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
+                // RGB|BGR -> I420
                 buffer_output.resize(out_frame_size);
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUV420;
                 break;
             case libyuv::FOURCC_J400:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_GREY;
+                break;
             case libyuv::FOURCC_I420:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUV420;
+                break;
             case libyuv::FOURCC_YUY2:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUYV;
                 break;
             default:
                 throw std::runtime_error(
@@ -107,13 +116,7 @@ class VirtualOutput {
         v4l2_pix_format& pix = v4l2_fmt.fmt.pix;
         pix.width = width;
         pix.height = height;
-        if (frame_fmt == libyuv::FOURCC_YUY2) {
-            pix.pixelformat = V4L2_PIX_FMT_YUYV;
-        } else if (frame_fmt == libyuv::FOURCC_J400) {
-            pix.pixelformat = V4L2_PIX_FMT_GREY;
-        } else {
-            pix.pixelformat = V4L2_PIX_FMT_YUV420;
-        }
+        pix.pixelformat = out_frame_fmt_v4l;
 
         // v4l2loopback sets bytesperline, sizeimage, and colorspace for us.
 
