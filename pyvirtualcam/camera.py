@@ -3,7 +3,6 @@ import platform
 import time
 import warnings
 from enum import Enum
-from collections import namedtuple
 
 import numpy as np
 
