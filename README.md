@@ -17,7 +17,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         cam.sleep_until_next_frame()
 ```
 
-For more examples, check out the [`samples/`](samples) folder.
+For more examples, including using different pixel formats like BGR, check out the [`samples/`](samples) folder.
 
 ## Installation
 
