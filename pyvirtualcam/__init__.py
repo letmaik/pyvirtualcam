@@ -1,3 +1,3 @@
 from ._version import __version__
 
-from .camera import Camera, BACKENDS
+from .camera import Camera, PixelFormat, BACKENDS

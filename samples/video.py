@@ -2,6 +2,7 @@
 
 import argparse
 import pyvirtualcam
+from pyvirtualcam import PixelFormat
 import cv2
 
 parser = argparse.ArgumentParser()
@@ -17,7 +18,7 @@ width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 fps = video.get(cv2.CAP_PROP_FPS)
 
-with pyvirtualcam.Camera(width=width, height=height, fps=fps, print_fps=args.fps) as cam:
+with pyvirtualcam.Camera(width, height, fps, fmt=PixelFormat.BGR, print_fps=args.fps) as cam:
     print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
     count = 0
     while True:
@@ -31,9 +32,6 @@ with pyvirtualcam.Camera(width=width, height=height, fps=fps, print_fps=args.fps
         if not ret:
             raise RuntimeError('Error fetching frame')
         
-        # Convert to RGB.
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
         # Send to virtual cam.
         cam.send(frame)
 

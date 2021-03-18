@@ -29,12 +29,43 @@ class VirtualOutput {
     int camera_fd;
     std::string camera_device;
     size_t camera_device_idx;
+    uint32_t frame_fmt;
     uint32_t frame_width;
     uint32_t frame_height;
+    uint32_t out_frame_size;
     std::vector<uint8_t> buffer_output;
 
   public:
-    VirtualOutput(uint32_t width, uint32_t height) {
+    VirtualOutput(uint32_t width, uint32_t height, uint32_t fourcc) {
+        frame_width = width;
+        frame_height = height;
+        frame_fmt = libyuv::CanonicalFourCC(fourcc);
+        out_frame_size = i420_frame_size(width, height);
+
+        uint32_t out_frame_fmt_v4l;
+
+        switch (frame_fmt) {
+            case libyuv::FOURCC_RAW:
+            case libyuv::FOURCC_24BG:
+                // RGB|BGR -> I420
+                buffer_output.resize(out_frame_size);
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUV420;
+                break;
+            case libyuv::FOURCC_J400:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_GREY;
+                break;
+            case libyuv::FOURCC_I420:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUV420;
+                break;
+            case libyuv::FOURCC_YUY2:
+                out_frame_fmt_v4l = V4L2_PIX_FMT_YUYV;
+                break;
+            default:
+                throw std::runtime_error(
+                    "Unsupported image format, must be RGB, BGR, GRAY, I420, or YUYV."
+                );
+        }
+
         char device_name[14];
         int device_idx = -1;
 
@@ -85,7 +116,8 @@ class VirtualOutput {
         v4l2_pix_format& pix = v4l2_fmt.fmt.pix;
         pix.width = width;
         pix.height = height;
-        pix.pixelformat = V4L2_PIX_FMT_YUV420;
+        pix.pixelformat = out_frame_fmt_v4l;
+
         // v4l2loopback sets bytesperline, sizeimage, and colorspace for us.
 
         if (ioctl(camera_fd, VIDIOC_S_FMT, &v4l2_fmt) == -1) {
@@ -99,9 +131,6 @@ class VirtualOutput {
         output_running = true;
         camera_device = std::string(device_name);
         camera_device_idx = device_idx;
-        frame_width = width;
-        frame_height = height;
-        buffer_output.resize(i420_frame_size(width, height));
 
         active_devices.insert(device_idx);
     }
@@ -117,15 +146,31 @@ class VirtualOutput {
         active_devices.erase(camera_device_idx);
     }
 
-    void send(const uint8_t *rgb) {
+    void send(const uint8_t* frame) {
         if (!output_running)
             return;
 
-        uint8_t* i420 = buffer_output.data();
+        uint8_t* out_frame;
 
-        rgb_to_i420(rgb, i420, frame_width, frame_height);
+        switch (frame_fmt) {
+            case libyuv::FOURCC_RAW:
+                out_frame = buffer_output.data();
+                rgb_to_i420(frame, out_frame, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_24BG:
+                out_frame = buffer_output.data();
+                bgr_to_i420(frame, out_frame, frame_width, frame_height);
+                break;
+            case libyuv::FOURCC_J400:
+            case libyuv::FOURCC_I420:
+            case libyuv::FOURCC_YUY2:
+                out_frame = const_cast<uint8_t*>(frame);
+                break;
+            default:
+                throw std::logic_error("not implemented");
+        }
 
-        ssize_t n = write(camera_fd, i420, buffer_output.size());
+        ssize_t n = write(camera_fd, out_frame, out_frame_size);
         if (n == -1) {
             // not an exception, in case it is temporary
             fprintf(stderr, "error writing frame: %s", strerror(errno));
