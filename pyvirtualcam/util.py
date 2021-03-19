@@ -25,7 +25,10 @@ class FPSCounter(object):
         return 1 / self.avg_delta
 
 
-def fourcc(s: str) -> int:
+def encode_fourcc(s: str) -> int:
     if len(s) != 4:
         raise ValueError('fourcc must be 4 characters')
     return ord(s[0]) | (ord(s[1]) << 8) | (ord(s[2]) << 16) | (ord(s[3]) << 24)
+
+def decode_fourcc(i: int) -> str:
+    return chr((i & 0xff)) + chr((i >> 8) & 0xff) + chr((i >> 16) & 0xff) + chr((i >> 24) & 0xff)

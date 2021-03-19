@@ -30,14 +30,14 @@
 
 class VirtualOutput {
   private:
-    OBSDALMachServer* mach_server = nil;
-    uint32_t frame_width;
-    uint32_t frame_height;
-    uint32_t frame_fmt;
-    uint32_t fps_num;
-    uint32_t fps_den;
-    std::vector<uint8_t> buffer_tmp;
-    std::vector<uint8_t> buffer_output;
+    OBSDALMachServer* _mach_server = nil;
+    uint32_t _frame_width;
+    uint32_t _frame_height;
+    uint32_t _frame_fourcc;
+    uint32_t _fps_num;
+    uint32_t _fps_den;
+    std::vector<uint8_t> _buffer_tmp;
+    std::vector<uint8_t> _buffer_output;
 
   public:
     VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc) {
@@ -51,52 +51,57 @@ class VirtualOutput {
                 );
         }
 
-        frame_fmt = libyuv::CanonicalFourCC(fourcc);
-        frame_width = width;
-        frame_height = height;
-        fps_num = fps * 1000;
-        fps_den = 1000;
+        _frame_fourcc = libyuv::CanonicalFourCC(fourcc);
+        _frame_width = width;
+        _frame_height = height;
+        _fps_num = fps * 1000;
+        _fps_den = 1000;
 
         uint32_t out_frame_size = uyvy_frame_size(width, height);
 
-        switch (frame_fmt) {
+        switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
             case libyuv::FOURCC_J400:
                 // RGB|BGR|GRAY -> ARGB -> UYVY
-                buffer_tmp.resize(argb_frame_size(width, height));
-                buffer_output.resize(out_frame_size);
+                _buffer_tmp.resize(argb_frame_size(width, height));
+                _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
                 // I420 -> UYVY
-                buffer_output.resize(out_frame_size);
+                _buffer_output.resize(out_frame_size);
+                break;
+            case libyuv::FOURCC_NV12:
+                // NV12 -> I420 -> UYVY
+                _buffer_tmp.resize(i420_frame_size(width, height));
+                _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_YUY2:
                 // YUYV -> I422 -> UYVY
-                buffer_tmp.resize(i422_frame_size(width, height));
-                buffer_output.resize(out_frame_size);
+                _buffer_tmp.resize(i422_frame_size(width, height));
+                _buffer_output.resize(out_frame_size);
+                break;
+            case libyuv::FOURCC_UYVY:
                 break;
             default:
-                throw std::runtime_error(
-                    "Unsupported image format, must be RGB, BGR, I420, or YUYV."
-                );
+                throw std::runtime_error("Unsupported image format.");
         }
 
-        mach_server = [[OBSDALMachServer alloc] init];
-        BOOL started = [mach_server run];
+        _mach_server = [[OBSDALMachServer alloc] init];
+        BOOL started = [_mach_server run];
         if (!started) {
             throw std::runtime_error("virtual camera output could not be started");
         }
     }
 
     void stop() {
-        if (mach_server == nil) {
+        if (_mach_server == nil) {
             return;
         }
 
-        [mach_server stop];
-        [mach_server dealloc];
-        mach_server = nil;
+        [_mach_server stop];
+        [_mach_server dealloc];
+        _mach_server = nil;
         
         // When the named server port is invalidated, the effect is not immediate.
         // Starting a new server immediately afterwards may then fail.
@@ -106,58 +111,75 @@ class VirtualOutput {
     }
 
     void send(const uint8_t* frame) {
-        if (mach_server == nil) {
+        if (_mach_server == nil) {
             return;
         }
 
         // We must handle port messages, and somehow our RunLoop isn't normally active.
         // Handle exactly one message. If no message is queued, return without blocking.
-        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        NSRunLoop *run_loop = [NSRunLoop currentRunLoop];
         NSDate *now = [NSDate date];
-        [runLoop runMode:NSDefaultRunLoopMode beforeDate:now];
+        [run_loop runMode:NSDefaultRunLoopMode beforeDate:now];
         
         uint64_t timestamp = mach_absolute_time();
 
-        uint8_t* tmp = buffer_tmp.data();
-        uint8_t* uyvy = buffer_output.data();
+        uint8_t* tmp = _buffer_tmp.data();
+        uint8_t* out_frame;
         
-        switch (frame_fmt) {
+        switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:            
-                rgb_to_argb(frame, tmp, frame_width, frame_height);
-                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                rgb_to_argb(frame, tmp, _frame_width, _frame_height);
+                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_24BG:
-                bgr_to_argb(frame, tmp, frame_width, frame_height);
-                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                bgr_to_argb(frame, tmp, _frame_width, _frame_height);
+                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_J400:
-                gray_to_argb(frame, tmp, frame_width, frame_height);
-                argb_to_uyvy(tmp, uyvy, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                gray_to_argb(frame, tmp, _frame_width, _frame_height);
+                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_I420:
-                i420_to_uyvy(frame, uyvy, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                i420_to_uyvy(frame, out_frame, _frame_width, _frame_height);
+                break;
+            case libyuv::FOURCC_NV12:
+                out_frame = _buffer_output.data();
+                nv12_to_i420(frame, tmp, _frame_width, _frame_height);
+                i420_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_YUY2:
-                yuyv_to_i422(frame, tmp, frame_width, frame_height);
-                i422_to_uyvy(tmp, uyvy, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                yuyv_to_i422(frame, tmp, _frame_width, _frame_height);
+                i422_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
+                break;
+            case libyuv::FOURCC_UYVY:
+                out_frame = const_cast<uint8_t*>(frame);
                 break;
             default:
                 throw std::logic_error("not implemented");
         }
 
-        CGFloat width = frame_width;
-        CGFloat height = frame_height;
+        CGFloat width = _frame_width;
+        CGFloat height = _frame_height;
 
-        [mach_server sendFrameWithSize:NSMakeSize(width, height)
-                timestamp:timestamp
-            fpsNumerator:fps_num
-            fpsDenominator:fps_den
-                frameBytes:uyvy];
+        [_mach_server sendFrameWithSize:NSMakeSize(width, height)
+            timestamp:timestamp
+            fpsNumerator:_fps_num
+            fpsDenominator:_fps_den
+            frameBytes:out_frame];
     }
 
     std::string device()
     {
         // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/mac-virtualcam/src/dal-plugin/OBSDALDevice.mm#L106
         return "OBS Virtual Camera";
+    }
+
+    uint32_t native_fourcc() {
+        return libyuv::FOURCC_UYVY;
     }
 };
