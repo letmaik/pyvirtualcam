@@ -66,3 +66,32 @@ For further information, see the [v4l2loopback documentation](https://github.com
 
 pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
 The camera device name can be accessed with `cam.device`.
+
+## Build from source
+
+### Linux/macOS
+
+```sh
+git clone https://github.com/letmaik/pyvirtualcam
+cd pyvirtualcam
+pip install .
+```
+
+### Windows
+
+These instructions are experimental and support is not provided for them.
+Typically, there should be no need to build manually since wheels are hosted on PyPI.
+
+You need to have Visual Studio installed to build pyvirtualcam.
+
+In a PowerShell window:
+```sh
+$env:PYTHON_VERSION = '3.7'
+$env:PYTHON_ARCH = '64'
+$env:NUMPY_VERSION = '1.14'
+git clone https://github.com/letmaik/pyvirtualcam
+cd pyvirtualcam
+.github/scripts/build-windows.ps1
+```
+The above will download all build dependencies (including a Python installation)
+and is fully configured through the three environment variables.

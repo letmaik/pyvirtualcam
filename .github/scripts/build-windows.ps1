@@ -83,6 +83,12 @@ function Init-VS {
     }
 }
 
+function HasCondaEnv($name) {
+    $env_base = conda info --base
+    $env_dir = "$env_base/envs/$name"
+    return (Test-Path $env_dir)
+}
+
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
@@ -102,10 +108,11 @@ $env:CONDA_ROOT = $pwd.Path + "\external\miniconda_$env:PYTHON_ARCH"
 
 & $env:CONDA_ROOT\shell\condabin\conda-hook.ps1
 
-exec { conda update --yes -n base -c defaults conda }
-
-exec { conda create --yes --name pyenv_build python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION --force }
-exec { conda activate pyenv_build }
+if (-not (HasCondaEnv pyenv_build_$env:PYTHON_VERSION)) {
+    exec { conda update --yes -n base -c defaults conda }
+    exec { conda create --yes --name pyenv_build_$env:PYTHON_VERSION python=$env:PYTHON_VERSION numpy=$env:NUMPY_VERSION --force }
+}
+exec { conda activate pyenv_build_$env:PYTHON_VERSION }
 
 # Check that we have the expected version and architecture for Python
 exec { python --version }
@@ -125,12 +132,14 @@ exec { conda deactivate }
 
 # Import test on a minimal environment
 # (to catch DLL issues)
-exec { conda create --yes --name pyenv_minimal python=$env:PYTHON_VERSION --force }
-exec { conda activate pyenv_minimal }
+if (-not (HasCondaEnv pyenv_minimal_$env:PYTHON_VERSION)) {
+    exec { conda create --yes --name pyenv_minimal_$env:PYTHON_VERSION python=$env:PYTHON_VERSION --force }
+}
+exec { conda activate pyenv_minimal_$env:PYTHON_VERSION }
 
 # Avoid using in-source package
-New-Item -Force -ItemType directory tmp_for_test | out-null
-cd tmp_for_test
+New-Item -Force -ItemType directory tmp | out-null
+cd tmp
 
 python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
@@ -140,8 +149,10 @@ exec { python -c "import pyvirtualcam" }
 exec { conda deactivate }
 
 # Unit tests
-exec { conda create --yes --name pyenv_test python=$env:PYTHON_VERSION numpy --force }
-exec { conda activate pyenv_test }
+if (-not (HasCondaEnv pyenv_test_$env:PYTHON_VERSION)) {
+    exec { conda create --yes --name pyenv_test_$env:PYTHON_VERSION python=$env:PYTHON_VERSION numpy --force }
+}
+exec { conda activate pyenv_test_$env:PYTHON_VERSION }
 
 # Check that we have the expected version and architecture for Python
 exec { python --version }

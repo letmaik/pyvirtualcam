@@ -9,3 +9,4 @@ dist
 .vscode
 tmp
 wheelhouse
+external/miniconda*
