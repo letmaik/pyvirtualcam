@@ -8,28 +8,28 @@
 
 class VirtualOutput {
   private:
-    bool output_running = false;
-    video_queue_t *vq;
-    uint32_t frame_width;
-    uint32_t frame_height;
-    uint32_t frame_fmt;
-    std::vector<uint8_t> buffer_tmp;
-    std::vector<uint8_t> buffer_output;
-    bool have_clockfreq = false;
-    LARGE_INTEGER clock_freq;
+    bool _output_running = false;
+    video_queue_t *_vq;
+    uint32_t _frame_width;
+    uint32_t _frame_height;
+    uint32_t _frame_fourcc;
+    std::vector<uint8_t> _buffer_tmp;
+    std::vector<uint8_t> _buffer_output;
+    bool _have_clockfreq = false;
+    LARGE_INTEGER _clock_freq;
 
     uint64_t get_timestamp_ns()
     {
-        if (!have_clockfreq) {
-            QueryPerformanceFrequency(&clock_freq);
-            have_clockfreq = true;
+        if (!_have_clockfreq) {
+            QueryPerformanceFrequency(&_clock_freq);
+            _have_clockfreq = true;
         }
 
         LARGE_INTEGER current_time;
         QueryPerformanceCounter(&current_time);
         double time_val = (double)current_time.QuadPart;
         time_val *= 1000000000.0;
-        time_val /= (double)clock_freq.QuadPart;
+        time_val /= (double)_clock_freq.QuadPart;
 
         return static_cast<uint64_t>(time_val);
     }
@@ -46,102 +46,121 @@ class VirtualOutput {
             );
         }
 
-        frame_fmt = libyuv::CanonicalFourCC(fourcc);
-        frame_width = width;
-        frame_height = height;
+        _frame_fourcc = libyuv::CanonicalFourCC(fourcc);
+        _frame_width = width;
+        _frame_height = height;
 
         uint32_t out_frame_size = nv12_frame_size(width, height);
 
-        switch (frame_fmt) {
+        switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
                 // RGB|BGR -> I420 -> NV12
-                buffer_tmp.resize(i420_frame_size(width, height));
-                buffer_output.resize(out_frame_size);
+                _buffer_tmp.resize(i420_frame_size(width, height));
+                _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_J400:
                 // GRAY -> ARGB -> NV12
-                buffer_tmp.resize(argb_frame_size(width, height));
-                buffer_output.resize(out_frame_size);
+                _buffer_tmp.resize(argb_frame_size(width, height));
+                _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
             case libyuv::FOURCC_YUY2:
-                // I420|YUYV -> NV12
-                buffer_output.resize(out_frame_size);
+            case libyuv::FOURCC_UYVY:
+                // I420|YUYV|UYVY -> NV12
+                _buffer_output.resize(out_frame_size);
+                break;
+            case libyuv::FOURCC_NV12:
                 break;
             default:
                 throw std::runtime_error(
-                    "Unsupported image format, must RGB, BGR, or I420."
+                    "Unsupported image format."
                 );
         }
         
         uint64_t interval = (uint64_t)(10000000.0 / fps);
 
-        vq = video_queue_create(width, height, interval);
+        _vq = video_queue_create(width, height, interval);
 
-        if (!vq) {
+        if (!_vq) {
             throw std::runtime_error("virtual camera output could not be started");
         }
 
-        output_running = true;
+        _output_running = true;
     }
 
     void stop()
     {
-        if (!output_running) {
+        if (!_output_running) {
             return;
         }	
-        video_queue_close(vq);
-        output_running = false;
+        video_queue_close(_vq);
+        _output_running = false;
     }
 
     void send(const uint8_t *frame)
     {
-        if (!output_running)
+        if (!_output_running)
             return;
 
-        uint8_t* tmp = buffer_tmp.data();
-        uint8_t* nv12 = buffer_output.data();
+        uint8_t* tmp = _buffer_tmp.data();
+        uint8_t* out_frame;
         
-        switch (frame_fmt) {
+        switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:
-                rgb_to_i420(frame, tmp, frame_width, frame_height);
-                i420_to_nv12(tmp, nv12, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                rgb_to_i420(frame, tmp, _frame_width, _frame_height);
+                i420_to_nv12(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_24BG:
-                bgr_to_i420(frame, tmp, frame_width, frame_height);
-                i420_to_nv12(tmp, nv12, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                bgr_to_i420(frame, tmp, _frame_width, _frame_height);
+                i420_to_nv12(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_J400:
-                gray_to_argb(frame, tmp, frame_width, frame_height);
-                argb_to_nv12(tmp, nv12, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                gray_to_argb(frame, tmp, _frame_width, _frame_height);
+                argb_to_nv12(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_I420:
-                i420_to_nv12(frame, nv12, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                i420_to_nv12(frame, out_frame, _frame_width, _frame_height);
+                break;
+            case libyuv::FOURCC_NV12:
+                out_frame = const_cast<uint8_t*>(frame);
                 break;
             case libyuv::FOURCC_YUY2:
-                yuyv_to_nv12(frame, nv12, frame_width, frame_height);
+                out_frame = _buffer_output.data();
+                yuyv_to_nv12(frame, out_frame, _frame_width, _frame_height);
+                break;
+            case libyuv::FOURCC_UYVY:
+                out_frame = _buffer_output.data();
+                uyvy_to_nv12(frame, out_frame, _frame_width, _frame_height);
                 break;
             default:
                 throw std::logic_error("not implemented");
         }
 
         // NV12 has two planes
-        uint8_t* y = nv12;
-        uint8_t* uv = nv12 + frame_width * frame_height;
+        uint8_t* y = out_frame;
+        uint8_t* uv = out_frame + _frame_width * _frame_height;
 
         // One entry per plane
-        uint32_t linesize[2] = { frame_width, frame_width / 2 };
+        uint32_t linesize[2] = { _frame_width, _frame_width / 2 };
         uint8_t* data[2] = { y, uv };
 
         uint64_t timestamp = get_timestamp_ns();
 
-        video_queue_write(vq, data, linesize, timestamp);
+        video_queue_write(_vq, data, linesize, timestamp);
     }
 
     std::string device()
     {
         // https://github.com/obsproject/obs-studio/blob/eb98505a2/plugins/win-dshow/virtualcam-module/virtualcam-module.cpp#L196
         return "OBS Virtual Camera";
+    }
+
+    uint32_t native_fourcc() {
+        return libyuv::FOURCC_NV12;
     }
 };

@@ -6,7 +6,7 @@ from enum import Enum
 
 import numpy as np
 
-from pyvirtualcam.util import FPSCounter, fourcc
+from pyvirtualcam.util import FPSCounter, encode_fourcc, decode_fourcc
 
 BACKENDS = {}
 
@@ -22,11 +22,28 @@ elif platform.system() == 'Linux':
 
 class PixelFormat(Enum):
     # See external/libyuv/include/libyuv/video_common.h for fourcc codes.
-    RGB = 'raw ', lambda w, h: (h, w, 3)
-    BGR = '24BG', lambda w, h: (h, w, 3)
-    GRAY = 'J400', lambda w, h: (h, w)
-    I420 = 'I420', lambda w, h: (w + w // 2) * h
-    YUYV = 'YUY2', lambda w, h: h * w * 2
+    RGB = 'raw '
+    BGR = '24BG'
+    GRAY = 'J400'
+
+    I420 = 'I420'
+    NV12 = 'NV12'
+
+    YUYV = 'YUY2'
+    UYVY = 'UYVY'
+
+    def __str__(self):
+        return self.name
+
+FrameShapes = {
+    PixelFormat.RGB: lambda w, h: (h, w, 3),
+    PixelFormat.BGR: lambda w, h: (h, w, 3),
+    PixelFormat.GRAY: lambda w, h: (h, w),
+    PixelFormat.I420: lambda w, h: (w + w // 2) * h,
+    PixelFormat.NV12: lambda w, h: (w + w // 2) * h,
+    PixelFormat.YUYV: lambda w, h: h * w * 2,
+    PixelFormat.UYVY: lambda w, h: h * w * 2,
+}
 
 class Camera:
     def __init__(self, width: int, height: int, fps: float, *,
@@ -44,7 +61,7 @@ class Camera:
         for name, clazz in backends:
             try:
                 self._backend = clazz(
-                    width=width, height=height, fps=fps, fmt=fourcc(fmt.value[0]),
+                    width=width, height=height, fps=fps, fourcc=encode_fourcc(fmt.value),
                     **kw)
             except Exception as e:
                 errors.append(f"'{name}' backend: {e}")
@@ -60,7 +77,7 @@ class Camera:
         self._fmt = fmt
         self._print_fps = print_fps
 
-        frame_shape = fmt.value[1](width, height)
+        frame_shape = FrameShapes[fmt](width, height)
         if isinstance(frame_shape, int):
             def check_frame_shape(frame: np.ndarray):
                 if frame.size != frame_shape:
@@ -115,6 +132,10 @@ class Camera:
     @property
     def fmt(self) -> PixelFormat:
         return self._fmt
+    
+    @property
+    def native_fmt(self) -> PixelFormat:
+        return PixelFormat(decode_fourcc(self._backend.native_fourcc()))
 
     @property
     def frames_sent(self) -> int:

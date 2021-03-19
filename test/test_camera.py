@@ -56,17 +56,39 @@ def test_invalid_frame_dtype():
         with pytest.raises(TypeError):
             cam.send(np.zeros((cam.height, cam.width, 3), np.uint16))
 
+EXPECTED_NATIVE_FMTS = {
+    'Windows': lambda _: PixelFormat.NV12,
+    'Darwin': lambda _: PixelFormat.UYVY,
+    'Linux': lambda fmt: PixelFormat.I420 if fmt in [PixelFormat.RGB, PixelFormat.BGR]
+                         else fmt,
+}
+
 def test_alternative_pixel_formats():
+    def check_native_fmt(cam):
+        assert cam.native_fmt == EXPECTED_NATIVE_FMTS[platform.system()](cam.fmt)
+    
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.BGR) as cam:
+        check_native_fmt(cam)
         cam.send(np.zeros((cam.height, cam.width, 3), np.uint8))
     
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.GRAY) as cam:
+        check_native_fmt(cam)
         cam.send(np.zeros((cam.height, cam.width), np.uint8))
 
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.I420) as cam:
+        check_native_fmt(cam)
+        cam.send(np.zeros(cam.height * cam.width + cam.height * (cam.width // 2), np.uint8))
+
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.NV12) as cam:
+        check_native_fmt(cam)
         cam.send(np.zeros(cam.height * cam.width + cam.height * (cam.width // 2), np.uint8))
     
     with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.YUYV) as cam:
+        check_native_fmt(cam)
+        cam.send(np.zeros(cam.height * cam.width * 2, np.uint8))
+    
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, fmt=PixelFormat.UYVY) as cam:
+        check_native_fmt(cam)
         cam.send(np.zeros(cam.height * cam.width * 2, np.uint8))
 
 @pytest.mark.skipif(

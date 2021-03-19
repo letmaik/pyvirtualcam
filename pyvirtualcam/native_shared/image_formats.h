@@ -83,6 +83,20 @@ static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, uint32_t width, uin
         width, height);
 }
 
+// copy
+static void nv12_to_i420(const uint8_t *nv12, uint8_t* i420, uint32_t width, uint32_t height) {
+    uint32_t half_width = width / 2;
+    uint32_t half_height = height / 2;
+
+    libyuv::NV12ToI420(
+        nv12, width,
+        nv12 + width * height, width,
+        i420, width,
+        i420 + width * height, half_width,
+        i420 + width * height + half_width * half_height, half_width,
+        width, height);
+}
+
 // vertical upsampling
 static void i420_to_uyvy(const uint8_t *i420, uint8_t* uyvy, uint32_t width, uint32_t height) {
     uint32_t half_width = width / 2;
@@ -130,6 +144,15 @@ static void yuyv_to_i422(const uint8_t *yuyv, uint8_t* i422, uint32_t width, uin
         width, height);
 }
 
+// vertical subsampling
+static void uyvy_to_nv12(const uint8_t *uyvy, uint8_t* nv12, uint32_t width, uint32_t height) {
+    libyuv::UYVYToNV12(
+        uyvy, width * 2,
+        nv12, width,
+        nv12 + width * height, width,
+        width, height);
+}
+
 // copy
 static void i422_to_uyvy(const uint8_t *i422, uint8_t* uyvy, uint32_t width, uint32_t height) {
     uint32_t half_width = width / 2;
@@ -146,6 +169,10 @@ static uint32_t argb_frame_size(uint32_t width, uint32_t height) {
     return height * width * 4;
 }
 
+static uint32_t gray_frame_size(uint32_t width, uint32_t height) {
+    return width + width;
+}
+
 static uint32_t i420_frame_size(uint32_t width, uint32_t height) {
     return (width + width / 2) * height;
 }
@@ -156,3 +183,4 @@ static uint32_t i422_frame_size(uint32_t width, uint32_t height) {
 
 #define nv12_frame_size i420_frame_size
 #define uyvy_frame_size i422_frame_size
+#define yuyv_frame_size i422_frame_size
