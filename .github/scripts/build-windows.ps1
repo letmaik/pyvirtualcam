@@ -151,7 +151,7 @@ exec { conda deactivate }
 # Unit tests
 if (-not (HasCondaEnv pyenv_test_$env:PYTHON_VERSION)) {
     exec { conda create --yes --name pyenv_test_$env:PYTHON_VERSION python=$env:PYTHON_VERSION numpy --force }
-}
+}   
 exec { conda activate pyenv_test_$env:PYTHON_VERSION }
 
 # Check that we have the expected version and architecture for Python
@@ -172,5 +172,9 @@ exec { python -m pip freeze }
 python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r ..\dev-requirements.txt }
-exec { pytest -v -s ../test }
+exec { pytest -v -s -k "not test_capture" ../test }
+# Running those separately to prevent weird locking issues related to capture.
+foreach ($fmt in @("RGB", "BGR", "I420", "NV12", "YUYV", "UYVY")) {
+    exec { pytest -v -s -k "test_capture[$fmt]" ../test }
+}
 cd ..
