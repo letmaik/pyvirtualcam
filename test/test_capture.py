@@ -55,12 +55,18 @@ def get_test_frame(w, h, fmt: PixelFormat):
         elif fmt == PixelFormat.BGR:
             return np.array([b, g, r], np.uint8).reshape(1,1,3)
     
-    if fmt in [PixelFormat.BGR, PixelFormat.RGB]:
+    if fmt in [PixelFormat.RGB, PixelFormat.BGR]:
         frame = np.empty((h, w, 3), np.uint8)
         frame[:h//2,:w//2] = rgb_color(220, 20, 60)
         frame[:h//2,w//2:] = rgb_color(240, 230, 140)
         frame[h//2:,:w//2] = rgb_color(50, 205, 50)
         frame[h//2:,w//2:] = rgb_color(238, 130, 238)
+    elif fmt == PixelFormat.GRAY:
+        frame = np.empty((h, w), np.uint8)
+        frame[:h//2,:w//2] = 30
+        frame[:h//2,w//2:] = 60
+        frame[h//2:,:w//2] = 150
+        frame[h//2:,w//2:] = 230
     elif fmt == PixelFormat.I420:
         frame = np.empty((h + h // 2, w), np.uint8)
         # Y plane
@@ -110,6 +116,7 @@ def get_test_frame(w, h, fmt: PixelFormat):
 formats = [
     PixelFormat.RGB,
     PixelFormat.BGR,
+    PixelFormat.GRAY,
     PixelFormat.I420,
     PixelFormat.NV12,
     PixelFormat.YUYV,
@@ -121,6 +128,7 @@ frames = { fmt: get_test_frame(w, h, fmt) for fmt in formats }
 frames_rgb = {
     PixelFormat.RGB: frames[PixelFormat.RGB],
     PixelFormat.BGR: cv2.cvtColor(frames[PixelFormat.BGR], cv2.COLOR_BGR2RGB),
+    PixelFormat.GRAY: cv2.cvtColor(frames[PixelFormat.GRAY], cv2.COLOR_GRAY2RGB),
     PixelFormat.I420: cv2.cvtColor(frames[PixelFormat.I420], cv2.COLOR_YUV2RGB_I420),
     PixelFormat.NV12: cv2.cvtColor(frames[PixelFormat.NV12], cv2.COLOR_YUV2RGB_NV12),
     PixelFormat.YUYV: cv2.cvtColor(frames[PixelFormat.YUYV], cv2.COLOR_YUV2RGB_YUYV),

@@ -174,7 +174,7 @@ ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r ..\dev-requirements.txt }
 exec { pytest -v -s -k "not test_capture" ../test }
 # Running those separately to prevent weird locking issues related to capture.
-foreach ($fmt in @("RGB", "BGR", "I420", "NV12", "YUYV", "UYVY")) {
+foreach ($fmt in @("RGB", "BGR", "GRAY", "I420", "NV12", "YUYV", "UYVY")) {
     exec { pytest -v -s -k "test_capture[$fmt]" ../test }
 }
 cd ..
