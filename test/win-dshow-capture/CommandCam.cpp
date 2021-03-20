@@ -167,7 +167,9 @@ void exit_message(const char* error_message, int error)
 
   // Exit the program
   //exit(error);
-  throw std::runtime_error(error_message);
+  if (error != 0) {
+    throw std::runtime_error(error_message);
+  }
 } // exit_message 
 
 
@@ -1213,7 +1215,7 @@ int main(int argc, char **argv,
   _FreeMediaType(mt);
 
   //if (!quiet) fprintf(stdout, "Captured image saved to %s\n", filename);
-  //exit_message("", 0);
+  exit_message("", 0);
 } // main
 
 } // namespace commandcam

@@ -5,6 +5,7 @@ import time
 import pytest
 import numpy as np
 import cv2
+import imageio
 import pyvirtualcam
 from pyvirtualcam import PixelFormat
 
@@ -134,30 +135,41 @@ def test_capture(fmt):
     if fmt == PixelFormat.NV12 and platform.system() == 'Linux':
         pytest.skip('OpenCV VideoCapture does not support NV12')
 
-    with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
-        stop = False
-        def send_frames():
-            frame = frames[fmt]
-            while not stop:
-                cam.send(frame)
-                cam.sleep_until_next_frame()
-    
-        thread = threading.Thread(target=send_frames)
-        thread.start()
-            
+    retries = 5
+    success = False
+    for _ in range(retries):
         try:
-            captured_rgb = capture_rgb(cam.device, cam.width, cam.height)
+            with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
+                stop = False
+                def send_frames():
+                    frame = frames[fmt]
+                    while not stop:
+                        cam.send(frame)
+                        cam.sleep_until_next_frame()
+            
+                thread = threading.Thread(target=send_frames)
+                thread.start()
+                    
+                try:
+                    captured_rgb = capture_rgb(cam.device, cam.width, cam.height)
 
-            if os.environ.get('PYVIRTUALCAM_DUMP_FRAMES'):
-                import imageio
-                imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
-                imageio.imwrite(f'test_{fmt}_out.png', captured_rgb)
+                    if os.environ.get('PYVIRTUALCAM_DUMP_FRAMES'):
+                        imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
+                        imageio.imwrite(f'test_{fmt}_out.png', captured_rgb)
 
-            d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
-            assert d <= 2
-        finally:
-            stop = True
-            thread.join()
+                    d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
+                    assert d <= 2
+                finally:
+                    stop = True
+                    thread.join()
+            success = True
+            break
+        except Exception as e:
+            if platform.system() == 'Windows' \
+               and 'virtual camera output could not be started' in str(e):
+                print(f'Retrying ("{e}")')
+                time.sleep(1)
+            else:
+                raise
     
-    # wait until capture has fully let go of camera
-    time.sleep(4)
+    assert success
