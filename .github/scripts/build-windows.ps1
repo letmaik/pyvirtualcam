@@ -159,6 +159,13 @@ exec { python --version }
 exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
 exec { python -c "import sys; print(sys.prefix)" }
 
+# Install test helper package
+Push-Location ../test/win-dshow-capture
+exec { python -u setup.py bdist_wheel }
+python -m pip uninstall -y pyvirtualcam_win_dshow_capture
+ls dist\*.whl | % { exec { python -m pip install $_ } }
+Pop-Location
+
 # output what's installed
 exec { python -m pip freeze }
 
