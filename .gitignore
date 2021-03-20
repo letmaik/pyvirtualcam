@@ -10,3 +10,4 @@ dist
 tmp
 wheelhouse
 external/miniconda*
+*.png
