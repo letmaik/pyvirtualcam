@@ -93,7 +93,9 @@ jobs:
 
     - name: Build wheels (Windows)
       if: matrix.config.os-name == 'windows'
-      run: .github/scripts/build-windows.ps1
+      run: |
+        .github/scripts/install-windows-obs-virtual-cam.ps1
+        .github/scripts/build-windows.ps1
       shell: pwsh
       env:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
