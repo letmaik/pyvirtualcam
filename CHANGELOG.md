@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Support for common pixel formats: RGB (default), BGR (useful for OpenCV), GRAY, I420, YUYV.
+- Support for common pixel formats: RGB (default), BGR (useful for OpenCV), GRAY, I420, NV12, YUYV, UYVY.
+- New properties `Camera.fmt` (input format) and `Camera.native_fmt` (native format).
 
 ### Removed
 - RGBA support has been removed. Use RGB instead.
