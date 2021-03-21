@@ -1,11 +1,19 @@
-import os
+import signal
+from typing import Union
+import sys
+import signal
+import subprocess
+import json
+import traceback
 import platform
-import threading
 import time
+from pathlib import Path
+
 import pytest
 import numpy as np
 import cv2
 import imageio
+
 import pyvirtualcam
 from pyvirtualcam import PixelFormat
 
@@ -15,33 +23,19 @@ if platform.system() == 'Windows':
     def capture_rgb(device: str, width: int, height: int) -> np.ndarray:
         return dshow.capture(device, width, height)
 
-elif platform.system() == 'Linux':
-    def capture_rgb(device: str, width: int, height: int) -> np.ndarray:
-        bgr = np.empty((height, width, 3), np.uint8)
-        exc = []
-        def capture_cv2():
-            try:
-                print(f'Opening {device} for capture')
-                vc = cv2.VideoCapture(device)
-                assert vc.isOpened()
-                print(f'Configuring resolution of {device}')
-                vc.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-                vc.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-                print(f'Reading frame from {device}')
-                ret, frame = vc.read()
-                bgr[:] = frame
-                assert ret
-            except Exception as e:
-                exc.append(e)
-
-        # Sending and capturing frames on the same thread deadlocks.
-        thread = threading.Thread(target=capture_cv2)
-        thread.start()
-        thread.join()
-        if exc:
-            raise exc[0]
-
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+elif platform.system() in ['Linux', 'Darwin']:
+    def capture_rgb(device: Union[str, int], width: int, height: int) -> np.ndarray:
+        print(f'Opening device {device} for capture')
+        vc = cv2.VideoCapture(device)
+        assert vc.isOpened()
+        print(f'Configuring resolution of device {device}')
+        vc.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        vc.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        print(f'Reading frame from device {device}')
+        for _ in range(50):
+            ret, frame = vc.read()
+        assert ret
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         return rgb
 
 w = 1280
@@ -87,8 +81,9 @@ def get_test_frame(w, h, fmt: PixelFormat):
         # UUVV -> UVUV
         u = frame[h:h + h // 4].copy()
         v = frame[h + h // 4:].copy()
-        frame[h::2] = u
-        frame[h+1::2] = v
+        uv = frame[h:].reshape(-1)
+        uv[::2] = u.reshape(-1)
+        uv[1::2] = v.reshape(-1)
     elif fmt in [PixelFormat.YUYV, PixelFormat.UYVY]:
         frame = np.empty((h, w, 2), np.uint8)
         if fmt == PixelFormat.YUYV:
@@ -135,49 +130,82 @@ frames_rgb = {
     PixelFormat.UYVY: cv2.cvtColor(frames[PixelFormat.UYVY], cv2.COLOR_YUV2RGB_UYVY),
 }
 
-@pytest.mark.skipif(
-    platform.system() == 'Darwin',
-    reason='not implemented on macOS')
 @pytest.mark.parametrize("fmt", formats)
-def test_capture(fmt):
+def test_capture(fmt, tmp_path):
     if fmt == PixelFormat.NV12 and platform.system() == 'Linux':
         pytest.skip('OpenCV VideoCapture does not support NV12')
 
-    retries = 5
-    success = False
-    for _ in range(retries):
-        try:
-            with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
-                stop = False
-                def send_frames():
-                    frame = frames[fmt]
-                    while not stop:
-                        cam.send(frame)
-                        cam.sleep_until_next_frame()
-            
-                thread = threading.Thread(target=send_frames)
-                thread.start()
-                    
-                try:
-                    captured_rgb = capture_rgb(cam.device, cam.width, cam.height)
+    # informational only
+    imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
 
-                    if os.environ.get('PYVIRTUALCAM_DUMP_FRAMES'):
-                        imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
-                        imageio.imwrite(f'test_{fmt}_out.png', captured_rgb)
+    # Sending frames via pyvirtualcam and capturing them in parallel via OpenCV / DShow
+    # is done in separate processes to avoid locking and cleanup issues.
+    info_path = tmp_path / 'info.json'
+    p = subprocess.Popen([
+        sys.executable, __file__,
+        '--mode', 'send',
+        '--fmt', str(fmt),
+        '--info-path', str(info_path)])
+    try:
+        # wait for subprocess to start up and start sending frames
+        time.sleep(5)
+        alive = p.poll() is None
+        assert alive
+        
+        subprocess.run([
+            sys.executable, __file__,
+            '--mode', 'capture',
+            '--fmt', str(fmt),
+            '--info-path', str(info_path)],
+            check=True)
+    finally:
+        p.terminate()
+        exitcode = p.wait()
+        if platform.system() == 'Windows':
+            assert exitcode == 1
+        else:
+            assert exitcode == -signal.SIGTERM
 
-                    d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
-                    assert d <= 2
-                finally:
-                    stop = True
-                    thread.join()
-            success = True
-            break
-        except Exception as e:
-            if platform.system() == 'Windows' \
-               and 'virtual camera output could not be started' in str(e):
-                print(f'Retrying ("{e}")')
-                time.sleep(1)
-            else:
-                raise
+    captured_rgb = imageio.imread(get_capture_filename(fmt))
+    d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
+    assert d <= 2
+
+def get_capture_filename(fmt):
+    pyver = f'{sys.version_info.major}{sys.version_info.minor}'
+    return f'test_{fmt}_out_{platform.system()}_py{pyver}.png'
+
+def send_frames(fmt: PixelFormat, info_path: Path):
+    frame = frames[fmt]
+    try:
+        with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
+            print(f'sending frames to {cam.device}...')
+            with open(info_path, 'w') as f:
+                json.dump(cam.device, f)
+            while True:
+                cam.send(frame)
+                cam.sleep_until_next_frame()
+    except:
+        traceback.print_exc()
+        sys.exit(2)
+
+def capture_frame(fmt, info_path: Path):
+    if platform.system() == 'Darwin':
+        device = 0
+    else:
+        with open(info_path) as f:
+            device = json.load(f)
+    captured_rgb = capture_rgb(device, w, h)
+    imageio.imwrite(get_capture_filename(fmt), captured_rgb)
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', choices=['send', 'capture'], required=True)
+    parser.add_argument('--fmt', type=lambda fmt: PixelFormat[fmt], required=True)
+    parser.add_argument('--info-path', type=Path, required=True)
+    args = parser.parse_args()
+    if args.mode == 'send':
+        send_frames(args.fmt, args.info_path)
+    else:
+        capture_frame(args.fmt, args.info_path)
     
-    assert success

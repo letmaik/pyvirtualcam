@@ -170,7 +170,7 @@ static uint32_t argb_frame_size(uint32_t width, uint32_t height) {
 }
 
 static uint32_t gray_frame_size(uint32_t width, uint32_t height) {
-    return width + width;
+    return width * height;
 }
 
 static uint32_t i420_frame_size(uint32_t width, uint32_t height) {

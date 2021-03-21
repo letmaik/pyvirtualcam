@@ -172,9 +172,5 @@ exec { python -m pip freeze }
 python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
 exec { python -m pip install -r ..\dev-requirements.txt }
-exec { pytest -v -s -k "not test_capture" ../test }
-# Running those separately to prevent weird locking issues related to capture.
-foreach ($fmt in @("RGB", "BGR", "GRAY", "I420", "NV12", "YUYV", "UYVY")) {
-    exec { pytest -v -s -k "test_capture[$fmt]" ../test }
-}
+exec { pytest -v -s ../test }
 cd ..

@@ -104,17 +104,29 @@ jobs:
 
     - name: Build wheels (macOS)
       if: matrix.config.os-name == 'mac'
-      run: .github/scripts/build-macos.sh
+      run: |
+        .github/scripts/install-macos-obs-virtual-cam.sh
+        .github/scripts/build-macos.sh
       env:
         MACOS_MIN_VERSION: ${{ matrix.config.macos-min-version }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
+    - name: Store test captures as artifacts
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: test_captures
+        path: 'tmp/*.png'
+        if-no-files-found: ignore
+
     - name: Store wheels as artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
+      if: always()
       with:
         name: wheels
         path: dist
+        if-no-files-found: ignore
 
   deploy:
     runs-on: ubuntu-latest
@@ -125,7 +137,7 @@ jobs:
 
     steps:
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v2
       with:
         name: wheels
         path: dist

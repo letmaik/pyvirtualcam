@@ -42,7 +42,8 @@ ${PYBIN}/pip install pyvirtualcam --no-index -f wheelhouse
 
 retry ${PYBIN}/pip install -r dev-requirements.txt
 
-pushd $HOME
+mkdir tmp
+pushd tmp
 # NOTE: TESTING DISABLED!
 # The v4l2loopback kernel module cannot be installed as it depends
 # on v4l2 (videodev) kernel support.
