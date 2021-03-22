@@ -35,7 +35,8 @@ class VirtualOutput {
     }
 
   public:
-    VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc) {
+    VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc,
+                  std::optional<std::string> device_) {
         // https://github.com/obsproject/obs-studio/blob/9da6fc67/.github/workflows/main.yml#L484
         LPCWSTR guid = L"CLSID\\{A3FCE0F5-3493-419F-958A-ABA1250EC20B}";
         HKEY key = nullptr;
@@ -43,6 +44,12 @@ class VirtualOutput {
             throw std::runtime_error(
                 "OBS Virtual Camera device not found! "
                 "Did you install OBS?"
+            );
+        }
+
+        if (device_.has_value() && device_ != device()) {
+            throw std::invalid_argument(
+                "This backend supports only the '" + device() + "' device."
             );
         }
 

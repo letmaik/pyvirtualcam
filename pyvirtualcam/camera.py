@@ -48,6 +48,7 @@ FrameShapes = {
 class Camera:
     def __init__(self, width: int, height: int, fps: float, *,
                  fmt: PixelFormat=PixelFormat.RGB,
+                 device: Optional[str]=None,
                  backend: Optional[str]=None,
                  print_fps=False,
                  delay=None,
@@ -61,7 +62,9 @@ class Camera:
         for name, clazz in backends:
             try:
                 self._backend = clazz(
-                    width=width, height=height, fps=fps, fourcc=encode_fourcc(fmt.value),
+                    width=width, height=height, fps=fps,
+                    fourcc=encode_fourcc(fmt.value),
+                    device=device,
                     **kw)
             except Exception as e:
                 errors.append(f"'{name}' backend: {e}")

@@ -40,7 +40,8 @@ class VirtualOutput {
     std::vector<uint8_t> _buffer_output;
 
   public:
-    VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc) {
+    VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc,
+                  std::optional<std::string> device_) {
         NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
         NSFileManager *file_manager = [NSFileManager defaultManager];
         BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
@@ -49,6 +50,12 @@ class VirtualOutput {
                 "OBS Virtual Camera is not installed in your system. "
                 "Use the Virtual Camera function in OBS to trigger installation."
                 );
+        }
+
+        if (device_.has_value() && device_ != device()) {
+            throw std::invalid_argument(
+                "This backend supports only the '" + device() + "' device."
+            );
         }
 
         _frame_fourcc = libyuv::CanonicalFourCC(fourcc);
