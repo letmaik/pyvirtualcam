@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.6.0] - 2012-03-22
 ### Added
+- Support for device selection on Linux: `Camera(..., device="/dev/video0")`. On Windows/macOS there is only a single valid device `"OBS Virtual Camera"` when using the built-in backends.
 - Support for common pixel formats: RGB (default), BGR (useful for OpenCV), GRAY, I420, NV12, YUYV, UYVY.
 - New properties `Camera.fmt` (input format) and `Camera.native_fmt` (native format).
 

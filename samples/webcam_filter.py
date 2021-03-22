@@ -1,5 +1,6 @@
 # This scripts uses OpenCV to capture webcam output, applies a filter,
 # and sends it to the virtual camera.
+# It also shows how to use BGR as pixel format.
 
 import argparse
 import cv2

@@ -17,7 +17,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         cam.sleep_until_next_frame()
 ```
 
-For more examples, including using different pixel formats like BGR, check out the [`samples/`](samples) folder.
+For more examples, including using different pixel formats like BGR, or selecting a specific camera device on Linux, check out the [`samples/`](samples) folder.
 
 ## Installation
 
@@ -64,7 +64,7 @@ sudo modprobe v4l2loopback devices=1
 
 For further information, see the [v4l2loopback documentation](https://github.com/umlaeute/v4l2loopback).
 
-pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
+If the `device` keyword argument is not given, then pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
 The camera device name can be accessed with `cam.device`.
 
 ## Build from source
