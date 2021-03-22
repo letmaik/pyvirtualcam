@@ -9,6 +9,7 @@
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
 
+#include <string>
 #include <vector>
 #include <set>
 #include <stdexcept>
@@ -21,14 +22,13 @@
 // Obviously, this won't help if multiple processes are used
 // or if devices are opened by other tools.
 // In this case, explicitly specifying the device seems the only solution.
-static std::set<size_t> ACTIVE_DEVICES;
+static std::set<std::string> ACTIVE_DEVICES;
 
 class VirtualOutput {
   private:
     bool _output_running = false;
     int _camera_fd;
     std::string _camera_device;
-    size_t _camera_device_idx;
     uint32_t _frame_fourcc;
     uint32_t _native_fourcc;
     uint32_t _frame_width;
@@ -37,7 +37,8 @@ class VirtualOutput {
     std::vector<uint8_t> _buffer_output;
 
   public:
-    VirtualOutput(uint32_t width, uint32_t height, uint32_t fourcc) {
+    VirtualOutput(uint32_t width, uint32_t height, uint32_t fourcc,
+                  std::optional<std::string> device_) {
         _frame_width = width;
         _frame_height = height;
         _frame_fourcc = libyuv::CanonicalFourCC(fourcc);
@@ -82,49 +83,77 @@ class VirtualOutput {
                 throw std::runtime_error("Unsupported image format.");
         }
 
-        char device_name[14];
-        int device_idx = -1;
-
-        for (size_t i = 0; i < 100; i++) {
-            if (ACTIVE_DEVICES.count(i)) {
-                continue;
+        auto try_open = [&](const std::string& device_name) {
+            if (ACTIVE_DEVICES.count(device_name)) {
+                throw std::invalid_argument(
+                    "Device " + device_name + " is already in use."
+                );
             }
-            sprintf(device_name, "/dev/video%zu", i);
-            _camera_fd = open(device_name, O_WRONLY | O_SYNC);
+            _camera_fd = open(device_name.c_str(), O_WRONLY | O_SYNC);
             if (_camera_fd == -1) {
                 if (errno == EACCES) {
                     throw std::runtime_error(
-                        "Could not access " + std::string(device_name) + " due to missing permissions. "
+                        "Could not access " + device_name + " due to missing permissions. "
                         "Did you add your user to the 'video' group? "
                         "Run 'usermod -a -G video myusername' and log out and in again."
                     );
+                } else if (errno == ENOENT) {
+                    throw std::invalid_argument(
+                        "Device " + device_name + " does not exist."
+                    );
+                } else {
+                    throw std::invalid_argument(
+                        "Device " + device_name + " could not be opened: " + 
+                        std::string(strerror(errno))
+                    );
                 }
-                continue;
             }
 
             struct v4l2_capability camera_cap;
 
             if (ioctl(_camera_fd, VIDIOC_QUERYCAP, &camera_cap) == -1) {
-                continue;
+                throw std::invalid_argument(
+                    "Device capabilities of " + device_name + " could not be queried."
+                );
             }
             if (!(camera_cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)) {
-                continue;
+                throw std::invalid_argument(
+                    "Device " + device_name + " is not a video output device."
+                );
             }
             if (strcmp((const char*)camera_cap.driver, "v4l2 loopback") != 0) {
-                continue;
+                throw std::invalid_argument(
+                    "Device " + device_name + " is not a V4L2 device."
+                );
             }
-            device_idx = i;
-            break;
-        }
-        if (device_idx == -1) {
-            throw std::runtime_error(
-                "No v4l2 loopback device found at /dev/video[0-99]. "
-                "Did you run 'modprobe v4l2loopback'? "
-                "See also pyvirtualcam's documentation.");
-        }
+        };
 
-        uint32_t half_width = width / 2;
-        uint32_t half_height = height / 2;
+        std::string device_name;
+
+        if (device_.has_value()) {
+            device_name = device_.value();
+            try_open(device_name);
+        } else {
+            bool found = false;
+            for (size_t i = 0; i < 100; i++) {
+                std::ostringstream device_name_s;
+                device_name_s << "/dev/video" << i;
+                device_name = device_name_s.str();
+                try {
+                    try_open(device_name);
+                } catch (std::invalid_argument&) {
+                    continue;
+                }
+                found = true;
+                break;
+            }
+            if (!found) {
+                throw std::runtime_error(
+                    "No v4l2 loopback device found at /dev/video[0-99]. "
+                    "Did you run 'modprobe v4l2loopback'? "
+                    "See also pyvirtualcam's documentation.");
+            }
+        }
 
         v4l2_format v4l2_fmt;
         memset(&v4l2_fmt, 0, sizeof(v4l2_fmt));
@@ -139,16 +168,15 @@ class VirtualOutput {
         if (ioctl(_camera_fd, VIDIOC_S_FMT, &v4l2_fmt) == -1) {
             close(_camera_fd);
             throw std::runtime_error(
-                "Virtual camera device " + std::string(device_name) + 
+                "Virtual camera device " + device_name + 
                 " could not be configured: " + std::string(strerror(errno))
             );
         }
         
         _output_running = true;
-        _camera_device = std::string(device_name);
-        _camera_device_idx = device_idx;
+        _camera_device = device_name;
 
-        ACTIVE_DEVICES.insert(device_idx);
+        ACTIVE_DEVICES.insert(_camera_device);
     }
 
     void stop() {
@@ -159,7 +187,7 @@ class VirtualOutput {
         close(_camera_fd);
         
         _output_running = false;
-        ACTIVE_DEVICES.erase(_camera_device_idx);
+        ACTIVE_DEVICES.erase(_camera_device);
     }
 
     void send(const uint8_t* frame) {

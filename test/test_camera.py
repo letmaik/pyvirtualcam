@@ -40,6 +40,25 @@ def test_multiple_cameras_are_supported():
     frame = np.zeros((cam2.height, cam2.width, 3), np.uint8) # RGB
     cam2.send(frame)
 
+def test_select_camera_device():
+    if platform.system() in ['Windows', 'Darwin']:
+        device = 'OBS Virtual Camera'
+    else:
+        device = '/dev/video0'
+    with pyvirtualcam.Camera(width=1280, height=720, fps=20, device=device) as cam:
+        frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
+        cam.send(frame)
+
+def test_select_invalid_camera_device():
+    if platform.system() in ['Windows', 'Darwin']:
+        device = 'Foo'
+    else:
+        device = '/dev/video123'
+    with pytest.raises(RuntimeError):
+        with pyvirtualcam.Camera(width=1280, height=720, fps=20, device=device) as cam:
+            frame = np.zeros((cam.height, cam.width, 3), np.uint8) # RGB
+            cam.send(frame)
+
 def test_invalid_frame_shape():
     with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         with pytest.raises(ValueError):
