@@ -72,7 +72,7 @@ The camera device name can be accessed with `cam.device`.
 ### Linux/macOS
 
 ```sh
-git clone https://github.com/letmaik/pyvirtualcam
+git clone https://github.com/letmaik/pyvirtualcam --recursive
 cd pyvirtualcam
 pip install .
 ```
@@ -89,7 +89,7 @@ In a PowerShell window:
 $env:PYTHON_VERSION = '3.7'
 $env:PYTHON_ARCH = '64'
 $env:NUMPY_VERSION = '1.14'
-git clone https://github.com/letmaik/pyvirtualcam
+git clone https://github.com/letmaik/pyvirtualcam --recursive
 cd pyvirtualcam
 .github/scripts/build-windows.ps1
 ```
