@@ -10,6 +10,7 @@ from pyvirtualcam import PixelFormat
 parser = argparse.ArgumentParser()
 parser.add_argument("--camera", type=int, default=0, help="ID of webcam device (default: 0)")
 parser.add_argument("--fps", action="store_true", help="output fps every second")
+parser.add_argument("--filter", choices=["shake", "none"], default="shake")
 args = parser.parse_args()
 
 # Set up webcam capture.
@@ -46,11 +47,11 @@ try:
             if not ret:
                 raise RuntimeError('Error fetching frame')
 
-            # Shake.
-            dx = 15 - cam.frames_sent % 5
-            c1, c2 = channels[cam.frames_sent % 3]
-            frame[:,:-dx,c1] = frame[:,dx:,c1]
-            frame[:,dx:,c2] = frame[:,:-dx,c2]
+            if args.filter == "shake":
+                dx = 15 - cam.frames_sent % 5
+                c1, c2 = channels[cam.frames_sent % 3]
+                frame[:,:-dx,c1] = frame[:,dx:,c1]
+                frame[:,dx:,c2] = frame[:,:-dx,c2]
 
             # Send to virtual cam.
             cam.send(frame)

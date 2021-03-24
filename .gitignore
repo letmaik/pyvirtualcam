@@ -11,3 +11,4 @@ tmp
 wheelhouse
 external/miniconda*
 *.png
+*.json

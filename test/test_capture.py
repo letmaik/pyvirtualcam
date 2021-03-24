@@ -108,6 +108,25 @@ def get_test_frame(w, h, fmt: PixelFormat):
         assert False
     return frame
 
+def get_timestamp_ms():
+    return round(time.time() * 1000)
+
+def write_timestamp_ms(frame: np.ndarray):
+    timestamp_ms = get_timestamp_ms()
+    timestamp_b = timestamp_ms.to_bytes(8, sys.byteorder)
+    bits = np.unpackbits(np.frombuffer(timestamp_b, np.uint8))
+    if frame.ndim == 3:
+        bits = bits[..., np.newaxis]
+    frame[0, :len(bits)] = bits * 255
+    return timestamp_ms
+
+def read_timestamp_ms(frame: np.ndarray) -> int:
+    raw = np.atleast_3d(frame)[0,:64,0]
+    bits = (raw > 50).astype(np.uint8)
+    timestamp_b = np.packbits(bits)
+    timestamp_ms = int.from_bytes(timestamp_b, sys.byteorder)
+    return timestamp_ms
+
 formats = [
     PixelFormat.RGB,
     PixelFormat.BGR,
@@ -131,9 +150,19 @@ frames_rgb = {
 }
 
 @pytest.mark.parametrize("fmt", formats)
-def test_capture(fmt, tmp_path):
+@pytest.mark.parametrize("mode", ['latency', 'diff'])
+def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
     if fmt == PixelFormat.NV12 and platform.system() == 'Linux':
         pytest.skip('OpenCV VideoCapture does not support NV12')
+
+    measure_latency = mode == 'latency'
+    if measure_latency:
+        if fmt in [PixelFormat.UYVY, PixelFormat.YUYV]:
+            pytest.skip('Latency test currently not supported for packed YUV formats')
+        if platform.system() == 'Windows':
+            # CommandCam introduces a huge delay when capturing frames.
+            # The real latency is much lower (around 100-200 ms).
+            pytest.skip('Cannot effectively measure latency on Windows yet')
 
     # informational only
     imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
@@ -141,11 +170,12 @@ def test_capture(fmt, tmp_path):
     # Sending frames via pyvirtualcam and capturing them in parallel via OpenCV / DShow
     # is done in separate processes to avoid locking and cleanup issues.
     info_path = tmp_path / 'info.json'
+    extra_args = ['--measure-latency'] if measure_latency else []
     p = subprocess.Popen([
         sys.executable, __file__,
         '--mode', 'send',
         '--fmt', str(fmt),
-        '--info-path', str(info_path)])
+        '--info-path', str(info_path)] + extra_args)
     try:
         # wait for subprocess to start up and start sending frames
         time.sleep(5)
@@ -156,7 +186,7 @@ def test_capture(fmt, tmp_path):
             sys.executable, __file__,
             '--mode', 'capture',
             '--fmt', str(fmt),
-            '--info-path', str(info_path)],
+            '--info-path', str(info_path)] + extra_args,
             check=True)
     finally:
         p.terminate()
@@ -166,36 +196,65 @@ def test_capture(fmt, tmp_path):
         else:
             assert exitcode == -signal.SIGTERM
 
-    captured_rgb = imageio.imread(get_capture_filename(fmt))
-    d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
-    assert d <= 2
+    captured_rgb = imageio.imread(get_capture_filename(fmt, 'png'))
 
-def get_capture_filename(fmt):
+    if measure_latency:
+        frame_timestamp_ms = read_timestamp_ms(captured_rgb)
+        with open(get_capture_filename(fmt, 'json')) as f:
+            capture_timestamp_ms = json.load(f)["capture_timestamp_ms"]
+        latency_ms = capture_timestamp_ms - frame_timestamp_ms
+        with open(get_capture_filename(fmt, 'json'), 'w') as f:
+            json.dump({
+                "latency_ms": latency_ms
+            }, f, indent=2)
+        assert 0 <= latency_ms <= 1000
+        print(f'Latency: {latency_ms} ms')
+    else:
+        d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
+        assert d <= 2
+
+def test_frame_timestamp_ms():
+    frame = np.zeros((1, 64), np.uint8)
+    t1 = write_timestamp_ms(frame)
+    t2 = read_timestamp_ms(frame)
+    assert t1 == t2
+
+def get_capture_filename(fmt, ext):
     pyver = f'{sys.version_info.major}{sys.version_info.minor}'
-    return f'test_{fmt}_out_{platform.system()}_py{pyver}.png'
+    return f'test_{fmt}_out_{platform.system()}_py{pyver}.{ext}'
 
-def send_frames(fmt: PixelFormat, info_path: Path):
+def send_frames(fmt: PixelFormat, info_path: Path, measure_latency: bool):
     frame = frames[fmt]
+    if measure_latency:
+        frame[:] = 0
     try:
         with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
             print(f'sending frames to {cam.device}...')
             with open(info_path, 'w') as f:
                 json.dump(cam.device, f)
             while True:
+                if measure_latency:
+                    write_timestamp_ms(frame)
                 cam.send(frame)
                 cam.sleep_until_next_frame()
     except:
         traceback.print_exc()
         sys.exit(2)
 
-def capture_frame(fmt, info_path: Path):
+def capture_frame(fmt, info_path: Path, measure_latency: bool):
     if platform.system() == 'Darwin':
         device = 0
     else:
         with open(info_path) as f:
             device = json.load(f)
     captured_rgb = capture_rgb(device, w, h)
-    imageio.imwrite(get_capture_filename(fmt), captured_rgb)
+    timestamp_ms = get_timestamp_ms()
+    imageio.imwrite(get_capture_filename(fmt, 'png'), captured_rgb)
+    if measure_latency:
+        with open(get_capture_filename(fmt, 'json'), 'w') as f:
+            json.dump({
+                "capture_timestamp_ms": timestamp_ms
+            }, f)
 
 if __name__ == '__main__':
     import argparse
@@ -203,9 +262,10 @@ if __name__ == '__main__':
     parser.add_argument('--mode', choices=['send', 'capture'], required=True)
     parser.add_argument('--fmt', type=lambda fmt: PixelFormat[fmt], required=True)
     parser.add_argument('--info-path', type=Path, required=True)
+    parser.add_argument('--measure-latency', action='store_true')
     args = parser.parse_args()
     if args.mode == 'send':
-        send_frames(args.fmt, args.info_path)
+        send_frames(args.fmt, args.info_path, args.measure_latency)
     else:
-        capture_frame(args.fmt, args.info_path)
+        capture_frame(args.fmt, args.info_path, args.measure_latency)
     

@@ -91,7 +91,7 @@ $env:PYTHON_ARCH = '64'
 $env:NUMPY_VERSION = '1.14'
 git clone https://github.com/letmaik/pyvirtualcam --recursive
 cd pyvirtualcam
-.github/scripts/build-windows.ps1
+powershell .github/scripts/build-windows.ps1
 ```
 The above will download all build dependencies (including a Python installation)
 and is fully configured through the three environment variables.
