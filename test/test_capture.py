@@ -21,7 +21,7 @@ if platform.system() == 'Windows':
     import pyvirtualcam_win_dshow_capture as dshow
 
     def capture_rgb(device: str, width: int, height: int) -> np.ndarray:
-        return dshow.capture(device, width, height)
+        return dshow.capture(device, width, height), get_timestamp_ms()
 
 elif platform.system() in ['Linux', 'Darwin']:
     def capture_rgb(device: Union[str, int], width: int, height: int) -> np.ndarray:
@@ -33,10 +33,13 @@ elif platform.system() in ['Linux', 'Darwin']:
         vc.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         print(f'Reading frame from device {device}')
         for _ in range(50):
-            ret, frame = vc.read()
+            vc.read()
+        vc.grab()
+        timestamp_ms = get_timestamp_ms()
+        ret, frame = vc.retrieve()
         assert ret
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        return rgb
+        return rgb, timestamp_ms
 
 w = 1280
 h = 720
@@ -247,8 +250,7 @@ def capture_frame(fmt, info_path: Path, measure_latency: bool):
     else:
         with open(info_path) as f:
             device = json.load(f)
-    captured_rgb = capture_rgb(device, w, h)
-    timestamp_ms = get_timestamp_ms()
+    captured_rgb, timestamp_ms = capture_rgb(device, w, h)
     imageio.imwrite(get_capture_filename(fmt, 'png'), captured_rgb)
     if measure_latency:
         with open(get_capture_filename(fmt, 'json'), 'w') as f:
