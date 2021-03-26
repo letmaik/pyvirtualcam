@@ -166,7 +166,7 @@ static void i422_to_uyvy(const uint8_t *i422, uint8_t* uyvy, uint32_t width, uin
 }
 
 static uint32_t argb_frame_size(uint32_t width, uint32_t height) {
-    return height * width * 4;
+    return width * height * 4;
 }
 
 static uint32_t gray_frame_size(uint32_t width, uint32_t height) {
@@ -174,11 +174,11 @@ static uint32_t gray_frame_size(uint32_t width, uint32_t height) {
 }
 
 static uint32_t i420_frame_size(uint32_t width, uint32_t height) {
-    return (width + width / 2) * height;
+    return width * height * 3 / 2;
 }
 
 static uint32_t i422_frame_size(uint32_t width, uint32_t height) {
-    return height * width * 2;
+    return width * height * 2;
 }
 
 #define nv12_frame_size i420_frame_size

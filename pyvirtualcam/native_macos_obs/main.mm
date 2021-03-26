@@ -40,8 +40,9 @@ class Camera {
 PYBIND11_MODULE(_native_macos_obs, m) {
     py::class_<Camera>(m, "Camera")
         .def(py::init<uint32_t, uint32_t, double, uint32_t, std::optional<std::string>>(),
+             py::kw_only(),
              py::arg("width"), py::arg("height"), py::arg("fps"),
-             py::kw_only(), py::arg("fourcc"), py::arg("device"))
+             py::arg("fourcc"), py::arg("device"))
         .def("close", &Camera::close)
         .def("send", &Camera::send)
         .def("device", &Camera::device)

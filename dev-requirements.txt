@@ -1,3 +1,10 @@
+# test dependencies
+pytest
 opencv-python
 imageio
-pytest
+
+# documentation dependencies
+sphinx
+pydata-sphinx-theme
+sphinx-autodoc-typehints
+sphinx-automodapi
