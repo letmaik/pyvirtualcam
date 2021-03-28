@@ -34,29 +34,26 @@ print(f'Webcam capture started ({width}x{height} @ {fps_in}fps)')
 
 fps_out = 20
 
-try:
-    with pyvirtualcam.Camera(width, height, fps_out, fmt=PixelFormat.BGR, print_fps=args.fps) as cam:
-        print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
+with pyvirtualcam.Camera(width, height, fps_out, fmt=PixelFormat.BGR, print_fps=args.fps) as cam:
+    print(f'Virtual cam started: {cam.device} ({cam.width}x{cam.height} @ {cam.fps}fps)')
 
-        # Shake two channels horizontally each frame.
-        channels = [[0, 1], [0, 2], [1, 2]]
+    # Shake two channels horizontally each frame.
+    channels = [[0, 1], [0, 2], [1, 2]]
 
-        while True:
-            # Read frame from webcam.
-            ret, frame = vc.read()
-            if not ret:
-                raise RuntimeError('Error fetching frame')
+    while True:
+        # Read frame from webcam.
+        ret, frame = vc.read()
+        if not ret:
+            raise RuntimeError('Error fetching frame')
 
-            if args.filter == "shake":
-                dx = 15 - cam.frames_sent % 5
-                c1, c2 = channels[cam.frames_sent % 3]
-                frame[:,:-dx,c1] = frame[:,dx:,c1]
-                frame[:,dx:,c2] = frame[:,:-dx,c2]
+        if args.filter == "shake":
+            dx = 15 - cam.frames_sent % 5
+            c1, c2 = channels[cam.frames_sent % 3]
+            frame[:,:-dx,c1] = frame[:,dx:,c1]
+            frame[:,dx:,c2] = frame[:,:-dx,c2]
 
-            # Send to virtual cam.
-            cam.send(frame)
+        # Send to virtual cam.
+        cam.send(frame)
 
-            # Wait until it's time for the next frame.
-            cam.sleep_until_next_frame()
-finally:
-    vc.release()
+        # Wait until it's time for the next frame.
+        cam.sleep_until_next_frame()
