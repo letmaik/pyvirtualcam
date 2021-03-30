@@ -11,6 +11,7 @@ class DShowCapture {
     uint32_t _width;
     uint32_t _height;
     bool _is_nv12;
+    uint64_t _timestamp_ms;
 
   public:
     DShowCapture(char* device, uint32_t width, uint32_t height)
@@ -32,13 +33,17 @@ class DShowCapture {
         std::vector<uint8_t> img;
         uint32_t width, height;
 
-        commandcam::main(argc, argv, img, width, height, _is_nv12);
+        commandcam::main(argc, argv, img, width, height, _is_nv12, _timestamp_ms);
 
         return py::array_t<uint8_t>({height, width, (uint32_t)3}, img.data());
     }
 
     bool is_nv12() {
         return _is_nv12;
+    }
+
+    uint64_t timestamp_ms() {
+        return _timestamp_ms;
     }
 };
 
@@ -47,5 +52,6 @@ PYBIND11_MODULE(_win_dshow_capture, m) {
         .def(py::init<char*, uint32_t, uint32_t>(),
              py::arg("device"), py::arg("width"), py::arg("height"))
         .def("capture", &DShowCapture::capture)
-        .def("is_nv12", &DShowCapture::is_nv12);
+        .def("is_nv12", &DShowCapture::is_nv12)
+        .def("timestamp_ms", &DShowCapture::timestamp_ms);
 }

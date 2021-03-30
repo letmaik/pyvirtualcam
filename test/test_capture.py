@@ -20,11 +20,12 @@ from pyvirtualcam import PixelFormat
 if platform.system() == 'Windows':
     import pyvirtualcam_win_dshow_capture as dshow
 
-    def capture_rgb(device: str, width: int, height: int) -> np.ndarray:
-        return dshow.capture(device, width, height), get_timestamp_ms()
+    def capture_rgb(device: str, width: int, height: int):
+        rgb, timestamp_ms = dshow.capture(device, width, height)
+        return rgb, timestamp_ms
 
 elif platform.system() in ['Linux', 'Darwin']:
-    def capture_rgb(device: Union[str, int], width: int, height: int) -> np.ndarray:
+    def capture_rgb(device: Union[str, int], width: int, height: int):
         print(f'Opening device {device} for capture')
         vc = cv2.VideoCapture(device)
         assert vc.isOpened()
@@ -162,10 +163,6 @@ def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
     if measure_latency:
         if fmt in [PixelFormat.UYVY, PixelFormat.YUYV]:
             pytest.skip('Latency test currently not supported for packed YUV formats')
-        if platform.system() == 'Windows':
-            # CommandCam introduces a huge delay when capturing frames.
-            # The real latency is much lower (around 100-200 ms).
-            pytest.skip('Cannot effectively measure latency on Windows yet')
 
     # informational only
     imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])

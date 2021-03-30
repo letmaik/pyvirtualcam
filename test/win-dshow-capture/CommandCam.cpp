@@ -48,6 +48,7 @@
 
 #include <stdexcept>
 #include <vector>
+#include <chrono>
 
 #include <math.h>
 
@@ -514,11 +515,11 @@ char *strupcase(char *s)
 int main(int argc, char **argv,
          std::vector<uint8_t>& out_img,
          uint32_t& out_width, uint32_t& out_height,
-         bool& out_is_nv12)
+         bool& out_is_nv12, uint64_t& timestamp_ms)
 {
   // Capture settings
   int quiet = 0;
-  int snapshot_delay = 2000;
+  int snapshot_delay = 0; //2000;
   int show_preview_window = 0;
   int list_devices = 0;
   int details = 0;
@@ -1022,6 +1023,12 @@ int main(int argc, char **argv,
       exit_message("Could not render preview video stream\n", 37);
   }
 
+  // Don't use a graph clock to run as fast as possible.
+  IMediaFilter *pMediaFilter = 0;
+  pGraph->QueryInterface(IID_IMediaFilter, (void**)&pMediaFilter);
+  pMediaFilter->SetSyncSource(NULL);
+  pMediaFilter->Release();
+
   // Get media control interfaces to graph builder object
   hr = pGraph->QueryInterface(IID_IMediaControl,
                               (void**)&pMediaControl);
@@ -1043,7 +1050,7 @@ int main(int argc, char **argv,
   }
 
   // Wait for specified time delay (if any)
-  Sleep(snapshot_delay);
+  //Sleep(snapshot_delay);
 
   // Grab a sample
   // First, find the required buffer size
@@ -1065,7 +1072,7 @@ int main(int argc, char **argv,
   }
 
   // Stop the graph
-  pMediaControl->Stop();
+  //pMediaControl->Stop();
 
   // Allocate buffer for image
   imgBuffer = new char[imgBufferSize];
@@ -1076,6 +1083,12 @@ int main(int argc, char **argv,
   hr = pSampleGrabber->GetCurrentBuffer(&imgBufferSize, (long *)imgBuffer);
   if (hr != S_OK)
     exit_message("Could not get buffer data from sample grabber\n", 42);
+
+  timestamp_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+    std::chrono::system_clock::now().time_since_epoch()).count();
+
+  // Stop the graph
+  pMediaControl->Stop();
 
   // Get the media type from the sample grabber filter
   AM_MEDIA_TYPE mt;
