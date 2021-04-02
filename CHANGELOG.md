@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Removed
+- `delay` argument of `Camera` has been removed (deprecated since 0.4.0).
+
 ## [0.7.0] - 2021-03-26
 ### Added
 - [API documentation](https://letmaik.github.io/pyvirtualcam).

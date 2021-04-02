@@ -189,7 +189,6 @@ class Camera:
                  device: Optional[str]=None,
                  backend: Optional[str]=None,
                  print_fps: bool=False,
-                 delay=None,
                  **kw) -> None:
         if backend:
             backends = [(backend, BACKENDS[backend])]
@@ -235,9 +234,6 @@ class Camera:
         self._frames_sent = 0
         self._last_frame_t = None
         self._extra_time_per_frame = 0
-
-        if delay is not None:
-            warnings.warn("'delay' argument is deprecated and has no effect", DeprecationWarning)
 
     def __enter__(self):
         return self
