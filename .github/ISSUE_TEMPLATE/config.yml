@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question
+    url: https://github.com/letmaik/pyvirtualcam/discussions/categories/q-a
+    about: Please ask and answer questions here.
+  - name: Idea
+    url: https://github.com/letmaik/pyvirtualcam/discussions/categories/ideas
+    about: Discuss ideas here before creating a feature request.
