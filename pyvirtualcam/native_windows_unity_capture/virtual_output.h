@@ -14,23 +14,16 @@
 
 static constexpr int MAX_CAPNUM = SharedImageMemory::MAX_CAPNUM;
 
-int parse_int(const std::string& s) {
-    try {
-        return std::stoi(s);
-    } catch (std::exception&) {
-        return -1;
-    }
-}
-
 bool get_name(int num, std::string& str) {
     constexpr size_t key_size = 45;
     char key[key_size];
     snprintf(key, key_size, "CLSID\\{5C2CD55C-92AD-4999-8666-912BD3E700%02X}", GUID_OFFSET + num + !!num); // 1 is reserved by the library
-    str.resize(256);
-    DWORD size;
-    if (RegGetValueA(HKEY_CLASSES_ROOT, key, "", RRF_RT_REG_SZ, NULL, str.data(), &size) != ERROR_SUCCESS)
+    DWORD size; // includes terminating null character
+    if (RegGetValueA(HKEY_CLASSES_ROOT, key, NULL, RRF_RT_REG_SZ, NULL, NULL, &size) != ERROR_SUCCESS)
         return false;
-    str.resize(size / sizeof(char));
+    str.resize(size - 1);
+    if (RegGetValueA(HKEY_CLASSES_ROOT, key, NULL, RRF_RT_REG_SZ, NULL, str.data(), &size) != ERROR_SUCCESS)
+        return false;
     return true;
 }
 
@@ -51,18 +44,12 @@ class VirtualOutput {
         int i;
         if (device.has_value()) {
             std::string name = *device;
-            if ((i = parse_int(name)) != -1 && i < MAX_CAPNUM) {
-                if (!get_name(i, _device)) {
-                    throw std::runtime_error("No camera registered with this index.");
-                }
-            } else {
-                for (i = 0; i < MAX_CAPNUM; i++) {
-                    if (get_name(i, _device) && _device == name)
-                        break;
-                }
-                if (i == MAX_CAPNUM) {
-                    throw std::runtime_error("No camera registered with this name.");
-                }
+            for (i = 0; i < MAX_CAPNUM; i++) {
+                if (get_name(i, _device) && _device == name)
+                    break;
+            }
+            if (i == MAX_CAPNUM) {
+                throw std::runtime_error("No camera registered with this name.");
             }
         } else {
             for (i = 0; i < MAX_CAPNUM; i++) {
