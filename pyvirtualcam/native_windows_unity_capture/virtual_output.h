@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <vector>
 #include "../native_shared/image_formats.h"
-#include "shared.inl"
+#include "shared_memory/shared.inl"
 
 #ifdef _WIN64
 #define GUID_OFFSET 0x10

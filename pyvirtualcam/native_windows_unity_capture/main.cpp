@@ -33,7 +33,7 @@ class UnityCaptureCamera {
     }
 };
 
-PYBIND11_MODULE(_unity_video_capture, n) {
+PYBIND11_MODULE(_native_windows_unity_capture, n) {
     py::class_<UnityCaptureCamera>(n, "Camera")
         .def(py::init<uint32_t, uint32_t, double, uint32_t, std::optional<std::string>>(),
              py::kw_only(),
