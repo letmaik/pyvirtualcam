@@ -38,7 +38,7 @@ if platform.system() == 'Windows':
         )
     )
     ext_modules.append(
-        Extension('pyvirtualcam._unity_video_capture',
+        Extension('pyvirtualcam._native_windows_unity_capture',
             sorted(['pyvirtualcam/unity_video_capture/main.cpp'] + common_src),
             include_dirs=['pyvirtualcam/unity_video_capture'] + common_inc,
             extra_link_args=["/DEFAULTLIB:advapi32.lib"],

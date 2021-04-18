@@ -105,9 +105,9 @@ def register_backend(name: str, clazz):
     BACKENDS[name] = clazz
 
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows_obs, _unity_video_capture
+    from pyvirtualcam import _native_windows_obs, _native_windows_unity_capture
     register_backend('obs', _native_windows_obs.Camera)
-    register_backend('unitycapture', _unity_video_capture.Camera)
+    register_backend('unitycapture', _native_windows_unity_capture.Camera)
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos_obs
     register_backend('obs', _native_macos_obs.Camera)

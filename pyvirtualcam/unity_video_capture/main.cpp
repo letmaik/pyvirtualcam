@@ -7,7 +7,7 @@
 
 namespace py = pybind11;
 
-class UnityVideoCapture {
+class UnityCaptureCamera {
   private:
     VirtualOutput virtual_output;
 
@@ -39,8 +39,8 @@ PYBIND11_MODULE(_unity_video_capture, n) {
              py::kw_only(),
              py::arg("width"), py::arg("height"), py::arg("fps"),
              py::arg("fourcc"), py::arg("device"))
-        .def("close", &UnityVideoCapture::close)
-        .def("send", &UnityVideoCapture::send)
-        .def("device", &UnityVideoCapture::device)
-        .def("native_fourcc", &UnityVideoCapture::native_fourcc);
+        .def("close", &UnityCaptureCamera::close)
+        .def("send", &UnityCaptureCamera::send)
+        .def("device", &UnityCaptureCamera::device)
+        .def("native_fourcc", &UnityCaptureCamera::native_fourcc);
 }
