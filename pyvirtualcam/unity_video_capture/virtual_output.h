@@ -12,7 +12,7 @@
 #define GUID_OFFSET 0x20
 #endif
 
-int parse_int(char const *s) {
+int parse_int(const wchar_t *s) {
     if (s == NULL || *s == '\0') return -1;
     int result = 0;
     while (*s) {
@@ -36,8 +36,8 @@ bool get_name(int num, std::wstring str) {
 
 class VirtualOutput {
   private:
-    uint32_t _width;
-    uint32_t _height;
+    int32_t _width;
+    int32_t _height;
     uint32_t _fourcc;
     std::wstring _device;
     int _size;
@@ -53,11 +53,12 @@ class VirtualOutput {
             std::wstring name = *device;
             if ((i = parse_int(name.c_str())) != -1 && i < 74) { // maximum number defined in the library
                 if (!get_name(i, _device)) throw std::runtime_error("No camera registered with this index.");
-            } else if (name != NULL && name.size()) {
+            } else if (name.size()) {
                 for (i = 0; i < 74; i++) if (get_name(i, _device) && _device == name) break;
                 if (i == 74) throw std::runtime_error("No camera registered with this name.");
             }
-        } else {
+        }
+        if (!_device.size()) {
             for (i = 0; i < 74; i++) if (get_name(i, _device)) break;
             if (i == 74) throw std::runtime_error("No camera registered. Did you install any camera?");
         }
@@ -80,6 +81,7 @@ class VirtualOutput {
 
     void send(const uint8_t *frame) {
         if (!_running) return;
+        uint8_t* tmp;
         switch (_fourcc) {
             case libyuv::FOURCC_RAW:
                 tmp = _tmp.data();
