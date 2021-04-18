@@ -106,19 +106,6 @@ static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, int32_t width, int3
 }
 
 // copy
-static void i420_to_rgba(const uint8_t *i420, uint8_t* rgba, int32_t width, int32_t height) {
-    int32_t half_width = width / 2;
-    int32_t half_height = height / 2;
-
-    libyuv::I420ToABGR(
-        i420, width,
-        i420 + width * height, half_width,
-        i420 + width * height + half_width * half_height, half_width,
-        rgba, width * 4,
-        width, height);
-}
-
-// copy
 static void i420_to_bgra(const uint8_t *i420, uint8_t* bgra, int32_t width, int32_t height) {
     int32_t half_width = width / 2;
     int32_t half_height = height / 2;
@@ -151,15 +138,6 @@ static void nv12_to_bgra(const uint8_t *nv12, uint8_t* bgra, int32_t width, int3
         nv12, width,
         nv12 + width * height, width,
         bgra, width * 4,
-        width, height);
-}
-
-// copy
-static void nv12_to_rgba(const uint8_t *nv12, uint8_t* rgba, int32_t width, int32_t height) {
-    libyuv::NV12ToABGR(
-        nv12, width,
-        nv12 + width * height, width,
-        rgba, width * 4,
         width, height);
 }
 

@@ -72,9 +72,7 @@ class VirtualOutput {
         _height = height;
         _fourcc = libyuv::CanonicalFourCC(fourcc);
         _size = bgra_frame_size(width, height);
-        if (_fourcc != libyuv::FOURCC_I420 && 
-              _fourcc != libyuv::FOURCC_NV12 &&
-              _fourcc != libyuv::FOURCC_ABGR) {
+        if (_fourcc != libyuv::FOURCC_ABGR) {
             _tmp.resize(_size);
         }
         _out.resize(_size);
@@ -117,10 +115,12 @@ class VirtualOutput {
                 bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_I420:
-                i420_to_rgba(frame, out, _width, height_invert);
+                i420_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_NV12:
-                nv12_to_rgba(frame, out, _width, height_invert);
+                nv12_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_YUY2:
                 yuyv_to_bgra(frame, tmp, _width, _height);
@@ -131,8 +131,7 @@ class VirtualOutput {
                 bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_ABGR:
-                tmp = const_cast<uint8_t*>(frame);
-                rgba_to_rgba(tmp, out, _width, height_invert);
+                rgba_to_rgba(frame, out, _width, height_invert);
                 break;
             default:
                 throw std::logic_error("This format is currently not supported.");
