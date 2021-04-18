@@ -93,6 +93,7 @@ jobs:
       if: matrix.config.os-name == 'windows'
       run: |
         .github/scripts/install-windows-obs-virtual-cam.ps1
+        .github/scripts/install-windows-unity-capture.ps1
         .github/scripts/build-windows.ps1
       shell: pwsh
       env:
