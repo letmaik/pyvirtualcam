@@ -12,14 +12,14 @@ class UnityVideoCapture {
     VirtualOutput virtual_output;
 
   public:
-    UnityVideoCapture(uint32_t width, uint32_t height, double fps, uint32_t fourcc, std::optional<std::string> device) : virtual_output {width, height, fps, fourcc, device} {
+    UnityVideoCapture(uint32_t width, uint32_t height, double fps, uint32_t fourcc, std::optional<std::wstring> device) : virtual_output {width, height, fps, fourcc, device} {
     }
 
     void close() {
         virtual_output.stop();
     }
 
-    std::string device() {
+    std::wstring device() {
         return virtual_output.device();
     }
 
@@ -35,7 +35,7 @@ class UnityVideoCapture {
 
 PYBIND11_MODULE(_unity_video_capture, n) {
     py::class_<UnityVideoCapture>(n, "Camera")
-        .def(py::init<uint32_t, uint32_t, double, uint32_t, std::optional<std::string>>(),
+        .def(py::init<uint32_t, uint32_t, double, uint32_t, std::optional<std::wstring>>(),
              py::kw_only(),
              py::arg("width"), py::arg("height"), py::arg("fps"),
              py::arg("fourcc"), py::arg("device"))
