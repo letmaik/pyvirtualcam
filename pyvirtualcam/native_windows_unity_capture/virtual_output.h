@@ -14,16 +14,23 @@
 
 static constexpr int MAX_CAPNUM = SharedImageMemory::MAX_CAPNUM;
 
-bool get_name(int num, std::string& str) {
+static void rtrim(std::string& s) {
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch) && !std::iscntrl(ch);
+    }).base(), s.end());
+}
+
+static bool get_name(int num, std::string& str) {
     constexpr size_t key_size = 45;
     char key[key_size];
     snprintf(key, key_size, "CLSID\\{5C2CD55C-92AD-4999-8666-912BD3E700%02X}", GUID_OFFSET + num + !!num); // 1 is reserved by the library
-    DWORD size; // includes terminating null character
+    DWORD size; // includes terminating null character(s)
     if (RegGetValueA(HKEY_CLASSES_ROOT, key, NULL, RRF_RT_REG_SZ, NULL, NULL, &size) != ERROR_SUCCESS)
         return false;
     str.resize(size - 1);
     if (RegGetValueA(HKEY_CLASSES_ROOT, key, NULL, RRF_RT_REG_SZ, NULL, str.data(), &size) != ERROR_SUCCESS)
         return false;
+    rtrim(str);
     return true;
 }
 
