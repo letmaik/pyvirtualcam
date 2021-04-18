@@ -129,7 +129,7 @@ class PixelFormat(Enum):
     BGR = '24BG'
     """ Shape: ``(h,w,3)`` """
 
-    RGBA = 'ARGB'
+    RGBA = 'ABGR'
     """ Shape: ``(h,w,4)`` """
 
     GRAY = 'J400'

@@ -2,29 +2,43 @@
 
 #include <libyuv.h>
 
+// libyuv names RGBA-type formats after the order in a *register*,
+// whereas we name it after the order in *memory*.
+// For example, libyuv ARGB is referred to as BGRA in function names below.
+
 // copy
-static void gray_to_argb(const uint8_t *gray, uint8_t* argb, int32_t width, int32_t height) {
+static void gray_to_bgra(const uint8_t *gray, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::J400ToARGB(
         gray, width,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
 // copy
-static void rgb_to_argb(const uint8_t *rgb, uint8_t* argb, int32_t width, int32_t height) {
+static void rgb_to_bgra(const uint8_t *rgb, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::RAWToARGB(
         rgb, width * 3,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
 // copy
-static void argb_to_argb(const uint8_t *src, uint8_t* dist, int32_t width, int32_t height) {
+static void bgra_to_rgba(const uint8_t *bgra, uint8_t* rgba, int32_t width, int32_t height) {
+    libyuv::ARGBToABGR(
+        bgra, width * 4,
+        rgba, width * 4,
+        width, height);
+}
+
+// copy
+static void bgra_to_bgra(const uint8_t *src, uint8_t* dist, int32_t width, int32_t height) {
     libyuv::ARGBCopy(
         src, width * 4,
         dist, width * 4,
         width, height);
 }
+
+#define rgba_to_rgba bgra_to_bgra
 
 // horizontal and vertical subsampling and yuv conversion
 static void rgb_to_i420(const uint8_t *rgb, uint8_t* i420, int32_t width, int32_t height) {
@@ -40,10 +54,10 @@ static void rgb_to_i420(const uint8_t *rgb, uint8_t* i420, int32_t width, int32_
 }
 
 // copy
-static void bgr_to_argb(const uint8_t *bgr, uint8_t* argb, int32_t width, int32_t height) {
+static void bgr_to_bgra(const uint8_t *bgr, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::RGB24ToARGB(
         bgr, width * 3,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
@@ -61,18 +75,18 @@ static void bgr_to_i420(const uint8_t *bgr, uint8_t* i420, int32_t width, int32_
 }
 
 // horizontal and vertical subsampling and yuv conversion
-static void argb_to_nv12(const uint8_t *argb, uint8_t* nv12, int32_t width, int32_t height) {
+static void bgra_to_nv12(const uint8_t *bgra, uint8_t* nv12, int32_t width, int32_t height) {
     libyuv::ARGBToNV12(
-        argb, width * 4,
+        bgra, width * 4,
         nv12, width,
         nv12 + width * height, width,
         width, height);
 }
 
 // horizontal subsampling and yuv conversion
-static void argb_to_uyvy(const uint8_t *argb, uint8_t* uyvy, int32_t width, int32_t height) {
+static void bgra_to_uyvy(const uint8_t *bgra, uint8_t* uyvy, int32_t width, int32_t height) {
     libyuv::ARGBToUYVY(
-        argb, width * 4,
+        bgra, width * 4,
         uyvy, width * 2,
         width, height);
 }
@@ -92,7 +106,20 @@ static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, int32_t width, int3
 }
 
 // copy
-static void i420_to_argb(const uint8_t *i420, uint8_t* argb, int32_t width, int32_t height) {
+static void i420_to_rgba(const uint8_t *i420, uint8_t* rgba, int32_t width, int32_t height) {
+    int32_t half_width = width / 2;
+    int32_t half_height = height / 2;
+
+    libyuv::I420ToABGR(
+        i420, width,
+        i420 + width * height, half_width,
+        i420 + width * height + half_width * half_height, half_width,
+        rgba, width * 4,
+        width, height);
+}
+
+// copy
+static void i420_to_bgra(const uint8_t *i420, uint8_t* bgra, int32_t width, int32_t height) {
     int32_t half_width = width / 2;
     int32_t half_height = height / 2;
 
@@ -100,7 +127,7 @@ static void i420_to_argb(const uint8_t *i420, uint8_t* argb, int32_t width, int3
         i420, width,
         i420 + width * height, half_width,
         i420 + width * height + half_width * half_height, half_width,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
@@ -119,11 +146,20 @@ static void nv12_to_i420(const uint8_t *nv12, uint8_t* i420, int32_t width, int3
 }
 
 // copy
-static void nv12_to_argb(const uint8_t *nv12, uint8_t* argb, int32_t width, int32_t height) {
+static void nv12_to_bgra(const uint8_t *nv12, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::NV12ToARGB(
         nv12, width,
         nv12 + width * height, width,
-        argb, width * 4,
+        bgra, width * 4,
+        width, height);
+}
+
+// copy
+static void nv12_to_rgba(const uint8_t *nv12, uint8_t* rgba, int32_t width, int32_t height) {
+    libyuv::NV12ToABGR(
+        nv12, width,
+        nv12 + width * height, width,
+        rgba, width * 4,
         width, height);
 }
 
@@ -175,10 +211,10 @@ static void yuyv_to_i422(const uint8_t *yuyv, uint8_t* i422, int32_t width, int3
 }
 
 // copy
-static void yuyv_to_argb(const uint8_t *yuyv, uint8_t* argb, int32_t width, int32_t height) {
+static void yuyv_to_bgra(const uint8_t *yuyv, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::YUY2ToARGB(
         yuyv, width * 2,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
@@ -204,14 +240,14 @@ static void i422_to_uyvy(const uint8_t *i422, uint8_t* uyvy, int32_t width, int3
 }
 
 // copy
-static void uyvy_to_argb(const uint8_t *uyvy, uint8_t* argb, int32_t width, int32_t height) {
+static void uyvy_to_bgra(const uint8_t *uyvy, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::UYVYToARGB(
         uyvy, width * 2,
-        argb, width * 4,
+        bgra, width * 4,
         width, height);
 }
 
-static int32_t argb_frame_size(int32_t width, int32_t height) {
+static int32_t bgra_frame_size(int32_t width, int32_t height) {
     return width * height * 4;
 }
 

@@ -71,8 +71,12 @@ class VirtualOutput {
         _width = width;
         _height = height;
         _fourcc = libyuv::CanonicalFourCC(fourcc);
-        _size = argb_frame_size(width, height);
-        _tmp.resize(_size);
+        _size = bgra_frame_size(width, height);
+        if (_fourcc != libyuv::FOURCC_I420 && 
+              _fourcc != libyuv::FOURCC_NV12 &&
+              _fourcc != libyuv::FOURCC_ABGR) {
+            _tmp.resize(_size);
+        }
         _out.resize(_size);
 
         _running = true;
@@ -93,48 +97,47 @@ class VirtualOutput {
             return;
         }
 
-        uint8_t* tmp;
+        uint8_t* tmp = _tmp.data();
+        uint8_t* out = _out.data();
+
+        // vertical flip
+        int32_t height_invert = -static_cast<int32_t>(_height);
 
         switch (_fourcc) {
             case libyuv::FOURCC_RAW:
-                tmp = _tmp.data();
-                rgb_to_argb(frame, tmp, _width, _height);
+                rgb_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_24BG:
-                tmp = _tmp.data();
-                bgr_to_argb(frame, tmp, _width, _height);
+                bgr_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_J400:
-                tmp = _tmp.data();
-                gray_to_argb(frame, tmp, _width, _height);
+                gray_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_I420:
-                tmp = _tmp.data();
-                i420_to_argb(frame, tmp, _width, _height);
+                i420_to_rgba(frame, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_NV12:
-                tmp = _tmp.data();
-                nv12_to_argb(frame, tmp, _width, _height);
+                nv12_to_rgba(frame, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_YUY2:
-                tmp = _tmp.data();
-                yuyv_to_argb(frame, tmp, _width, _height);
+                yuyv_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_UYVY:
-                tmp = _tmp.data();
-                uyvy_to_argb(frame, tmp, _width, _height);
+                uyvy_to_bgra(frame, tmp, _width, _height);
+                bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
-            case libyuv::FOURCC_ARGB:
+            case libyuv::FOURCC_ABGR:
                 tmp = const_cast<uint8_t*>(frame);
+                rgba_to_rgba(tmp, out, _width, height_invert);
                 break;
             default:
                 throw std::logic_error("This format is currently not supported.");
         }
-        uint8_t* out = _out.data();
         
-        // vertical flip
-        argb_to_argb(tmp, out, _width, -static_cast<int32_t>(_height));
-
         _sender->Send(_width, _height, _size, out);
     }
 
@@ -143,6 +146,6 @@ class VirtualOutput {
     }
 
     uint32_t native_fourcc() {
-        return libyuv::FOURCC_ARGB;
+        return libyuv::FOURCC_ABGR;
     }
 };
