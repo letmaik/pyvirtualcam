@@ -37,6 +37,14 @@ if platform.system() == 'Windows':
             language='c++'
         )
     )
+    ext_modules.append(
+        Extension('pyvirtualcam._unity_video_capture',
+            sorted(['pyvirtualcam/unity_video_capture/main.cpp'] + common_src),
+            include_dirs=['pyvirtualcam/unity_video_capture'] + common_inc,
+            extra_link_args=["/DEFAULTLIB:advapi32.lib"],
+            language='c++'
+        )
+    )
 elif platform.system() == 'Darwin':
     ext_modules.append(
         Extension('pyvirtualcam._native_macos_obs',

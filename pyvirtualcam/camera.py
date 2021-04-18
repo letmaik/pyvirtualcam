@@ -105,8 +105,9 @@ def register_backend(name: str, clazz):
     BACKENDS[name] = clazz
 
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows_obs
+    from pyvirtualcam import _native_windows_obs, _unity_video_capture
     register_backend('obs', _native_windows_obs.Camera)
+    register_backend('unitycapture', _unity_video_capture.Camera)
 elif platform.system() == 'Darwin':
     from pyvirtualcam import _native_macos_obs
     register_backend('obs', _native_macos_obs.Camera)
@@ -127,6 +128,9 @@ class PixelFormat(Enum):
 
     BGR = '24BG'
     """ Shape: ``(h,w,3)`` """
+
+    RGBA = 'ARGB'
+    """ Shape: ``(h,w,4)`` """
 
     GRAY = 'J400'
     """ Shape: ``(h,w)`` """
@@ -152,6 +156,7 @@ class PixelFormat(Enum):
 FrameShapes = {
     PixelFormat.RGB: lambda w, h: (h, w, 3),
     PixelFormat.BGR: lambda w, h: (h, w, 3),
+    PixelFormat.RGBA: lambda w, h: (h, w, 4),
     PixelFormat.GRAY: lambda w, h: (h, w),
     PixelFormat.I420: lambda w, h: w * h * 3 // 2,
     PixelFormat.NV12: lambda w, h: w * h * 3 // 2,
@@ -171,6 +176,7 @@ class Camera:
         Built-in backends:
 
         - ``v4l2loopback`` (Linux): ``/dev/video<n>``
+        - ``unitycapture`` (Windows): ``Unity Video Capture``, or the name you gave to the device
         - ``obs`` (macOS/Windows): ``OBS Virtual Camera``
     :param backend: The virtual camera backend to use.
         If ``None``, all available backends are tried.
@@ -178,6 +184,7 @@ class Camera:
         Built-in backends:
 
         - ``v4l2loopback`` (Linux)
+        - ``unitycapture`` (Windows)
         - ``obs`` (macOS/Windows)
     :param print_fps: Print frame rate every second.
     :param kw: Extra keyword arguments forwarded to the backend.
