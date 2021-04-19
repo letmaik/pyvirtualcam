@@ -152,7 +152,8 @@ class VirtualOutput {
         
         int stride = _width;
         auto format = SharedImageMemory::FORMAT_UINT8;
-        auto resize_mode = SharedImageMemory::RESIZEMODE_DISABLED;
+        // Note: RESIZEMODE_LINEAR means nearest neighbor scaling.
+        auto resize_mode = SharedImageMemory::RESIZEMODE_LINEAR;
         auto mirror_mode = SharedImageMemory::MIRRORMODE_DISABLED;
         int timeout = 0;
         _shm->Send(_width, _height, stride, _out.size(), format, resize_mode, mirror_mode, timeout, out);
