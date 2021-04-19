@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stdio.h>
+#define NOMINMAX
 #include <Windows.h>
 #include <vector>
+#include <limits>
 #include "../native_shared/image_formats.h"
 #include "shared_memory/shared.inl"
 
@@ -179,7 +181,7 @@ class VirtualOutput {
         auto resize_mode = SharedImageMemory::RESIZEMODE_LINEAR;
         auto mirror_mode = SharedImageMemory::MIRRORMODE_DISABLED;
         // Keep showing last received frame after stopping while receiving app is still capturing.
-        int timeout = 1000 * 60 * 60 * 24;
+        constexpr int timeout = std::numeric_limits<int>::max() - SharedImageMemory::RECEIVE_MAX_WAIT;
         _shm->Send(_width, _height, stride, _out.size(), format, resize_mode, mirror_mode, timeout, out);
     }
 
