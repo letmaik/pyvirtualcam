@@ -36,14 +36,13 @@ static bool get_name(int num, std::string& str) {
 
 class VirtualOutput {
   private:
-    int32_t _width;
-    int32_t _height;
+    uint32_t _width;
+    uint32_t _height;
     uint32_t _fourcc;
     std::string _device;
-    int _size;
     std::vector<uint8_t> _tmp;
     std::vector<uint8_t> _out;
-    std::unique_ptr<SharedImageMemory> _sender;
+    std::unique_ptr<SharedImageMemory> _shm;
     bool _running = false;
 
   public:
@@ -67,30 +66,36 @@ class VirtualOutput {
                 throw std::runtime_error("No camera registered. Did you install any camera?");
             }
         }
-        _sender = std::make_unique<SharedImageMemory>(i);
+        _shm = std::make_unique<SharedImageMemory>(i);
         _width = width;
         _height = height;
         _fourcc = libyuv::CanonicalFourCC(fourcc);
-        _size = bgra_frame_size(width, height);
-        if (_fourcc != libyuv::FOURCC_ABGR) {
-            _tmp.resize(_size);
+        _out.resize(rgba_frame_size(width, height));
+        switch(_fourcc) {
+            case libyuv::FOURCC_ARGB:
+            case libyuv::FOURCC_I420:
+            case libyuv::FOURCC_NV12:
+                // RGBA|I420|NV12 -> RGBA
+                // Note: RGBA -> RGBA is needed for vertical flipping.
+                break;
+            default:
+                // RGB|BGR|GRAY|YUYV|UYVY -> BGRA -> RGBA
+                _tmp.resize(bgra_frame_size(width, height));
         }
-        _out.resize(_size);
-
         _running = true;
     }
 
     void stop() {
         if (!_running)
             return;
-        _sender = nullptr;
+        _shm = nullptr;
         _running = false;
     }
 
     void send(const uint8_t *frame) {
         if (!_running)
             return;
-        if (!_sender->SendIsReady()) {
+        if (!_shm->SendIsReady()) {
             // happens when no app is capturing the camera yet
             return;
         }
@@ -115,12 +120,10 @@ class VirtualOutput {
                 bgra_to_rgba(tmp, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_I420:
-                i420_to_bgra(frame, tmp, _width, _height);
-                bgra_to_rgba(tmp, out, _width, height_invert);
+                i420_to_rgba(frame, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_NV12:
-                nv12_to_bgra(frame, tmp, _width, _height);
-                bgra_to_rgba(tmp, out, _width, height_invert);
+                nv12_to_rgba(frame, out, _width, height_invert);
                 break;
             case libyuv::FOURCC_YUY2:
                 yuyv_to_bgra(frame, tmp, _width, _height);
@@ -142,7 +145,7 @@ class VirtualOutput {
         auto resize_mode = SharedImageMemory::RESIZEMODE_DISABLED;
         auto mirror_mode = SharedImageMemory::MIRRORMODE_DISABLED;
         int timeout = 0;
-        _sender->Send(_width, _height, stride, _size, format, resize_mode, mirror_mode, timeout, out);
+        _shm->Send(_width, _height, stride, _out.size(), format, resize_mode, mirror_mode, timeout, out);
     }
 
     std::string device() {
