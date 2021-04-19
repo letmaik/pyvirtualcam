@@ -17,7 +17,9 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         cam.sleep_until_next_frame()
 ```
 
-For more examples, including using different pixel formats like BGR, or selecting a specific camera device on Linux, check out the [`samples/`](samples) folder.
+pyvirtualcam uses the first available virtual camera it finds (see later section).
+
+For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`samples/`](samples) folder.
 
 See also the [API Documentation](https://letmaik.github.io/pyvirtualcam).
 
@@ -39,7 +41,13 @@ pyvirtualcam relies on existing virtual cameras which have to be installed first
 
 To use the OBS virtual camera, simply [install OBS](https://obsproject.com/).
 
-Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python, capture the camera in OBS, mix it with other content, and output it again as virtual camera.
+Note that OBS provides a single camera instance only, so it is *not* possible to send frames from Python to the built-in OBS virtual camera, capture the camera in OBS, mix it with other content, and output it again to OBS' built-in virtual camera. To achieve such a workflow, use another virtual camera from Python (like Unity Capture) so that OBS' built-in virtual camera is free for use in OBS.
+
+### Windows: Unity Capture
+
+[Unity Capture](https://github.com/schellingb/UnityCapture) provides a virtual camera originally meant for streaming Unity games. Compared to most other virtual cameras it supports RGBA frames (frames with transparency) which in turn can be captured in [OBS](https://obsproject.com/) for further processing.
+
+To use the Unity Capture virtual camera, follow the [installation instructions](https://github.com/schellingb/UnityCapture#installation) on the project site.
 
 ### macOS: OBS
 
@@ -65,9 +73,6 @@ sudo modprobe v4l2loopback devices=1
 ```
 
 For further information, see the [v4l2loopback documentation](https://github.com/umlaeute/v4l2loopback).
-
-If the `device` keyword argument is not given, then pyvirtualcam uses the first available v4l2loopback virtual camera it finds.
-The camera device name can be accessed with `cam.device`.
 
 ## Build from source
 
