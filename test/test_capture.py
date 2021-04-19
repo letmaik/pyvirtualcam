@@ -50,11 +50,14 @@ def get_test_frame(w, h, fmt: PixelFormat):
     def rgb_color(r, g, b):
         if fmt == PixelFormat.RGB:
             return np.array([r, g, b], np.uint8).reshape(1,1,3)
+        elif fmt == PixelFormat.RGBA:
+            return np.array([r, g, b, 255], np.uint8).reshape(1,1,4)
         elif fmt == PixelFormat.BGR:
             return np.array([b, g, r], np.uint8).reshape(1,1,3)
     
-    if fmt in [PixelFormat.RGB, PixelFormat.BGR]:
-        frame = np.empty((h, w, 3), np.uint8)
+    if fmt in [PixelFormat.RGB, PixelFormat.BGR, PixelFormat.RGBA]:
+        c = 4 if fmt == PixelFormat.RGBA else 3
+        frame = np.empty((h, w, c), np.uint8)
         frame[:h//2,:w//2] = rgb_color(220, 20, 60)
         frame[:h//2,w//2:] = rgb_color(240, 230, 140)
         frame[h//2:,:w//2] = rgb_color(50, 205, 50)
@@ -133,6 +136,7 @@ def read_timestamp_ms(frame: np.ndarray) -> int:
 
 formats = [
     PixelFormat.RGB,
+    PixelFormat.RGBA,
     PixelFormat.BGR,
     PixelFormat.GRAY,
     PixelFormat.I420,
@@ -145,6 +149,7 @@ frames = { fmt: get_test_frame(w, h, fmt) for fmt in formats }
 
 frames_rgb = {
     PixelFormat.RGB: frames[PixelFormat.RGB],
+    PixelFormat.RGBA: cv2.cvtColor(frames[PixelFormat.RGBA], cv2.COLOR_RGBA2RGB),
     PixelFormat.BGR: cv2.cvtColor(frames[PixelFormat.BGR], cv2.COLOR_BGR2RGB),
     PixelFormat.GRAY: cv2.cvtColor(frames[PixelFormat.GRAY], cv2.COLOR_GRAY2RGB),
     PixelFormat.I420: cv2.cvtColor(frames[PixelFormat.I420], cv2.COLOR_YUV2RGB_I420),
@@ -153,11 +158,15 @@ frames_rgb = {
     PixelFormat.UYVY: cv2.cvtColor(frames[PixelFormat.UYVY], cv2.COLOR_YUV2RGB_UYVY),
 }
 
+@pytest.mark.parametrize("backend", list(pyvirtualcam.camera.BACKENDS))
 @pytest.mark.parametrize("fmt", formats)
 @pytest.mark.parametrize("mode", ['latency', 'diff'])
-def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
+def test_capture(backend: str, fmt: PixelFormat, mode: str, tmp_path: Path):
     if fmt == PixelFormat.NV12 and platform.system() == 'Linux':
         pytest.skip('OpenCV VideoCapture does not support NV12')
+
+    if fmt == PixelFormat.RGBA and backend != 'unitycapture':
+        pytest.skip('RGBA only supported by unitycapture backend')
 
     measure_latency = mode == 'latency'
     if measure_latency:
@@ -170,12 +179,13 @@ def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
     # Sending frames via pyvirtualcam and capturing them in parallel via OpenCV / DShow
     # is done in separate processes to avoid locking and cleanup issues.
     info_path = tmp_path / 'info.json'
-    extra_args = ['--measure-latency'] if measure_latency else []
     p = subprocess.Popen([
         sys.executable, __file__,
-        '--mode', 'send',
+        '--action', 'send',
+        '--mode', mode,
+        '--backend', backend,
         '--fmt', str(fmt),
-        '--info-path', str(info_path)] + extra_args)
+        '--info-path', str(info_path)])
     try:
         # wait for subprocess to start up and start sending frames
         time.sleep(5)
@@ -184,9 +194,11 @@ def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
         
         subprocess.run([
             sys.executable, __file__,
-            '--mode', 'capture',
+            '--action', 'capture',
+            '--mode', mode,
+            '--backend', backend,
             '--fmt', str(fmt),
-            '--info-path', str(info_path)] + extra_args,
+            '--info-path', str(info_path)],
             check=True)
     finally:
         p.terminate()
@@ -196,14 +208,14 @@ def test_capture(fmt: PixelFormat, mode: str, tmp_path: Path):
         else:
             assert exitcode == -signal.SIGTERM
 
-    captured_rgb = imageio.imread(get_capture_filename(fmt, 'png'))
+    captured_rgb = imageio.imread(get_capture_filename(mode, backend, fmt, 'png'))
 
     if measure_latency:
         frame_timestamp_ms = read_timestamp_ms(captured_rgb)
-        with open(get_capture_filename(fmt, 'json')) as f:
+        with open(get_capture_filename(mode, backend, fmt, 'json')) as f:
             capture_timestamp_ms = json.load(f)["capture_timestamp_ms"]
         latency_ms = capture_timestamp_ms - frame_timestamp_ms
-        with open(get_capture_filename(fmt, 'json'), 'w') as f:
+        with open(get_capture_filename(mode, backend, fmt, 'json'), 'w') as f:
             json.dump({
                 "latency_ms": latency_ms
             }, f, indent=2)
@@ -219,21 +231,21 @@ def test_frame_timestamp_ms():
     t2 = read_timestamp_ms(frame)
     assert t1 == t2
 
-def get_capture_filename(fmt, ext):
+def get_capture_filename(mode: str, backend: str, fmt: PixelFormat, ext: str):
     pyver = f'{sys.version_info.major}{sys.version_info.minor}'
-    return f'test_{fmt}_out_{platform.system()}_py{pyver}.{ext}'
+    return f'test_{fmt}_out_{mode}_{platform.system()}_{backend}_py{pyver}.{ext}'
 
-def send_frames(fmt: PixelFormat, info_path: Path, measure_latency: bool):
+def send_frames(backend: str, fmt: PixelFormat, info_path: Path, mode: str):
     frame = frames[fmt]
-    if measure_latency:
+    if mode == 'latency':
         frame[:] = 0
     try:
-        with pyvirtualcam.Camera(w, h, fps, fmt=fmt) as cam:
+        with pyvirtualcam.Camera(w, h, fps, backend=backend, fmt=fmt) as cam:
             print(f'sending frames to {cam.device}...')
             with open(info_path, 'w') as f:
                 json.dump(cam.device, f)
             while True:
-                if measure_latency:
+                if mode == 'latency':
                     write_timestamp_ms(frame)
                 cam.send(frame)
                 cam.sleep_until_next_frame()
@@ -241,16 +253,16 @@ def send_frames(fmt: PixelFormat, info_path: Path, measure_latency: bool):
         traceback.print_exc()
         sys.exit(2)
 
-def capture_frame(fmt, info_path: Path, measure_latency: bool):
+def capture_frame(backend: str, fmt: PixelFormat, info_path: Path, mode: str):
     if platform.system() == 'Darwin':
         device = 0
     else:
         with open(info_path) as f:
             device = json.load(f)
     captured_rgb, timestamp_ms = capture_rgb(device, w, h)
-    imageio.imwrite(get_capture_filename(fmt, 'png'), captured_rgb)
-    if measure_latency:
-        with open(get_capture_filename(fmt, 'json'), 'w') as f:
+    imageio.imwrite(get_capture_filename(mode, backend, fmt, 'png'), captured_rgb)
+    if mode == 'latency':
+        with open(get_capture_filename(mode, backend, fmt, 'json'), 'w') as f:
             json.dump({
                 "capture_timestamp_ms": timestamp_ms
             }, f)
@@ -258,13 +270,14 @@ def capture_frame(fmt, info_path: Path, measure_latency: bool):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', choices=['send', 'capture'], required=True)
+    parser.add_argument('--action', choices=['send', 'capture'], required=True)
+    parser.add_argument('--mode', choices=['diff', 'latency'], required=True)
+    parser.add_argument('--backend', choices=list(pyvirtualcam.camera.BACKENDS), required=True)
     parser.add_argument('--fmt', type=lambda fmt: PixelFormat[fmt], required=True)
     parser.add_argument('--info-path', type=Path, required=True)
-    parser.add_argument('--measure-latency', action='store_true')
     args = parser.parse_args()
-    if args.mode == 'send':
-        send_frames(args.fmt, args.info_path, args.measure_latency)
+    if args.action == 'send':
+        send_frames(args.backend, args.fmt, args.info_path, args.mode)
     else:
-        capture_frame(args.fmt, args.info_path, args.measure_latency)
+        capture_frame(args.backend, args.fmt, args.info_path, args.mode)
     

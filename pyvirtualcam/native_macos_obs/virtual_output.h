@@ -70,8 +70,8 @@ class VirtualOutput {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
             case libyuv::FOURCC_J400:
-                // RGB|BGR|GRAY -> ARGB -> UYVY
-                _buffer_tmp.resize(argb_frame_size(width, height));
+                // RGB|BGR|GRAY -> BGRA -> UYVY
+                _buffer_tmp.resize(bgra_frame_size(width, height));
                 _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
@@ -136,18 +136,18 @@ class VirtualOutput {
         switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:            
                 out_frame = _buffer_output.data();
-                rgb_to_argb(frame, tmp, _frame_width, _frame_height);
-                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
+                rgb_to_bgra(frame, tmp, _frame_width, _frame_height);
+                bgra_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_24BG:
                 out_frame = _buffer_output.data();
-                bgr_to_argb(frame, tmp, _frame_width, _frame_height);
-                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
+                bgr_to_bgra(frame, tmp, _frame_width, _frame_height);
+                bgra_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_J400:
                 out_frame = _buffer_output.data();
-                gray_to_argb(frame, tmp, _frame_width, _frame_height);
-                argb_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
+                gray_to_bgra(frame, tmp, _frame_width, _frame_height);
+                bgra_to_uyvy(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_I420:
                 out_frame = _buffer_output.data();

@@ -519,7 +519,7 @@ int main(int argc, char **argv,
 {
   // Capture settings
   int quiet = 0;
-  int snapshot_delay = 0; //2000;
+  int snapshot_delay = 2000;
   int show_preview_window = 0;
   int list_devices = 0;
   int details = 0;
@@ -1050,7 +1050,7 @@ int main(int argc, char **argv,
   }
 
   // Wait for specified time delay (if any)
-  //Sleep(snapshot_delay);
+  Sleep(snapshot_delay);
 
   // Grab a sample
   // First, find the required buffer size

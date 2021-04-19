@@ -67,8 +67,8 @@ class VirtualOutput {
                 _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_J400:
-                // GRAY -> ARGB -> NV12
-                _buffer_tmp.resize(argb_frame_size(width, height));
+                // GRAY -> BGRA -> NV12
+                _buffer_tmp.resize(bgra_frame_size(width, height));
                 _buffer_output.resize(out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
@@ -126,8 +126,8 @@ class VirtualOutput {
                 break;
             case libyuv::FOURCC_J400:
                 out_frame = _buffer_output.data();
-                gray_to_argb(frame, tmp, _frame_width, _frame_height);
-                argb_to_nv12(tmp, out_frame, _frame_width, _frame_height);
+                gray_to_bgra(frame, tmp, _frame_width, _frame_height);
+                bgra_to_nv12(tmp, out_frame, _frame_width, _frame_height);
                 break;
             case libyuv::FOURCC_I420:
                 out_frame = _buffer_output.data();
