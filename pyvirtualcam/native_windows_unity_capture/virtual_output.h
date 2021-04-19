@@ -155,7 +155,8 @@ class VirtualOutput {
         // Note: RESIZEMODE_LINEAR means nearest neighbor scaling.
         auto resize_mode = SharedImageMemory::RESIZEMODE_LINEAR;
         auto mirror_mode = SharedImageMemory::MIRRORMODE_DISABLED;
-        int timeout = 0;
+        // Keep showing last received frame after stopping while receiving app is still capturing.
+        int timeout = 1000 * 60 * 60 * 24;
         _shm->Send(_width, _height, stride, _out.size(), format, resize_mode, mirror_mode, timeout, out);
     }
 
