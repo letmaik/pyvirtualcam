@@ -137,7 +137,12 @@ class VirtualOutput {
                 throw std::logic_error("This format is currently not supported.");
         }
         
-        _sender->Send(_width, _height, _size, out);
+        int stride = _width;
+        auto format = SharedImageMemory::FORMAT_UINT8;
+        auto resize_mode = SharedImageMemory::RESIZEMODE_DISABLED;
+        auto mirror_mode = SharedImageMemory::MIRRORMODE_DISABLED;
+        int timeout = 0;
+        _sender->Send(_width, _height, stride, _size, format, resize_mode, mirror_mode, timeout, out);
     }
 
     std::string device() {
