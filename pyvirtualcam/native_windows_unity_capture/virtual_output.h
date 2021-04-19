@@ -35,6 +35,14 @@ static bool get_name(int num, std::string& str) {
     return true;
 }
 
+// Unity Capture does not have an exclusive access / locking mechanism.
+// To avoid selecting the same device more than once,
+// we keep track of the ones we use ourselves.
+// Obviously, this won't help if multiple processes are used
+// or if devices are used by other tools.
+// In this case, explicitly specifying the device seems the only solution.
+static std::set<std::string> ACTIVE_DEVICES;
+
 class VirtualOutput {
   private:
     uint32_t _width;
@@ -51,6 +59,11 @@ class VirtualOutput {
         int i;
         if (device.has_value()) {
             std::string name = *device;
+            if (ACTIVE_DEVICES.count(name)) {
+                throw std::invalid_argument(
+                    "Device " + name + " is already in use."
+                );
+            }
             for (i = 0; i < MAX_CAPNUM; i++) {
                 if (get_name(i, _device) && _device == name)
                     break;
@@ -59,12 +72,20 @@ class VirtualOutput {
                 throw std::runtime_error("No camera registered with this name.");
             }
         } else {
+            bool found_one = false;
             for (i = 0; i < MAX_CAPNUM; i++) {
-                if (get_name(i, _device))
-                    break;
+                if (get_name(i, _device)) {
+                    found_one = true;
+                    if (!ACTIVE_DEVICES.count(_device))
+                        break;
+                }
             }
             if (i == MAX_CAPNUM) {
-                throw std::runtime_error("No camera registered. Did you install any camera?");
+                if (found_one) {
+                    throw std::runtime_error("All cameras are already in use.");
+                } else {
+                    throw std::runtime_error("No camera registered. Did you install any camera?");
+                }
             }
         }
         _shm = std::make_unique<SharedImageMemory>(i);
@@ -92,6 +113,7 @@ class VirtualOutput {
                     "Unsupported image format."
                 );
         }
+        ACTIVE_DEVICES.insert(_device);
         _running = true;
     }
 
@@ -100,6 +122,7 @@ class VirtualOutput {
             return;
         _shm = nullptr;
         _running = false;
+        ACTIVE_DEVICES.erase(_device);
     }
 
     void send(const uint8_t *frame) {
