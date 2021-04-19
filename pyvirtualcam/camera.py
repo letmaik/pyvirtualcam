@@ -176,16 +176,16 @@ class Camera:
         Built-in backends:
 
         - ``v4l2loopback`` (Linux): ``/dev/video<n>``
-        - ``unitycapture`` (Windows): ``Unity Video Capture``, or the name you gave to the device
         - ``obs`` (macOS/Windows): ``OBS Virtual Camera``
+        - ``unitycapture`` (Windows): ``Unity Video Capture``, or the name you gave to the device
     :param backend: The virtual camera backend to use.
         If ``None``, all available backends are tried.
 
         Built-in backends:
 
         - ``v4l2loopback`` (Linux)
-        - ``unitycapture`` (Windows)
         - ``obs`` (macOS/Windows)
+        - ``unitycapture`` (Windows)
     :param print_fps: Print frame rate every second.
     :param kw: Extra keyword arguments forwarded to the backend.
         Should only be given if a backend is specified.

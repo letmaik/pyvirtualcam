@@ -70,7 +70,7 @@ class VirtualOutput {
             case libyuv::FOURCC_RAW:
             case libyuv::FOURCC_24BG:
             case libyuv::FOURCC_J400:
-                // RGB|BGR|GRAY -> ARGB -> UYVY
+                // RGB|BGR|GRAY -> BGRA -> UYVY
                 _buffer_tmp.resize(bgra_frame_size(width, height));
                 _buffer_output.resize(out_frame_size);
                 break;

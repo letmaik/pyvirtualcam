@@ -105,7 +105,7 @@ static void i420_to_nv12(const uint8_t *i420, uint8_t* nv12, int32_t width, int3
         width, height);
 }
 
-// copy
+// horizontal and vertical upsampling and yuv conversion
 static void i420_to_bgra(const uint8_t *i420, uint8_t* bgra, int32_t width, int32_t height) {
     int32_t half_width = width / 2;
     int32_t half_height = height / 2;
@@ -132,7 +132,7 @@ static void nv12_to_i420(const uint8_t *nv12, uint8_t* i420, int32_t width, int3
         width, height);
 }
 
-// copy
+// horizontal and vertical upsampling and yuv conversion
 static void nv12_to_bgra(const uint8_t *nv12, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::NV12ToARGB(
         nv12, width,
@@ -188,7 +188,7 @@ static void yuyv_to_i422(const uint8_t *yuyv, uint8_t* i422, int32_t width, int3
         width, height);
 }
 
-// copy
+// horizontal upsampling and yuv conversion
 static void yuyv_to_bgra(const uint8_t *yuyv, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::YUY2ToARGB(
         yuyv, width * 2,
@@ -217,7 +217,7 @@ static void i422_to_uyvy(const uint8_t *i422, uint8_t* uyvy, int32_t width, int3
         width, height);
 }
 
-// copy
+// horizontal upsampling and yuv conversion
 static void uyvy_to_bgra(const uint8_t *uyvy, uint8_t* bgra, int32_t width, int32_t height) {
     libyuv::UYVYToARGB(
         uyvy, width * 2,

@@ -12,7 +12,8 @@ class UnityCaptureCamera {
     VirtualOutput virtual_output;
 
   public:
-    UnityCaptureCamera(uint32_t width, uint32_t height, double fps, uint32_t fourcc, std::optional<std::string> device) : virtual_output {width, height, fps, fourcc, device} {
+    UnityCaptureCamera(uint32_t width, uint32_t height, double fps, uint32_t fourcc, std::optional<std::string> device) 
+        : virtual_output {width, height, fps, fourcc, device} {
     }
 
     void close() {
