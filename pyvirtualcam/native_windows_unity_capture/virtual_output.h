@@ -23,6 +23,7 @@ static void rtrim(std::string& s) {
 static bool get_name(int num, std::string& str) {
     constexpr size_t key_size = 45;
     char key[key_size];
+    // https://github.com/schellingb/UnityCapture/blob/fe461e8f/Source/UnityCaptureFilter.cpp#L39
     snprintf(key, key_size, "CLSID\\{5C2CD55C-92AD-4999-8666-912BD3E700%02X}", GUID_OFFSET + num + !!num); // 1 is reserved by the library
     DWORD size; // includes terminating null character(s)
     if (RegGetValueA(HKEY_CLASSES_ROOT, key, NULL, RRF_RT_REG_SZ, NULL, NULL, &size) != ERROR_SUCCESS)
@@ -72,15 +73,24 @@ class VirtualOutput {
         _fourcc = libyuv::CanonicalFourCC(fourcc);
         _out.resize(rgba_frame_size(width, height));
         switch(_fourcc) {
-            case libyuv::FOURCC_ARGB:
+            case libyuv::FOURCC_ABGR:
             case libyuv::FOURCC_I420:
             case libyuv::FOURCC_NV12:
                 // RGBA|I420|NV12 -> RGBA
                 // Note: RGBA -> RGBA is needed for vertical flipping.
                 break;
-            default:
+            case libyuv::FOURCC_RAW:
+            case libyuv::FOURCC_24BG:
+            case libyuv::FOURCC_J400:
+            case libyuv::FOURCC_YUY2:
+            case libyuv::FOURCC_UYVY:
                 // RGB|BGR|GRAY|YUYV|UYVY -> BGRA -> RGBA
                 _tmp.resize(bgra_frame_size(width, height));
+                break;
+            default:
+                throw std::runtime_error(
+                    "Unsupported image format."
+                );
         }
         _running = true;
     }
@@ -137,7 +147,7 @@ class VirtualOutput {
                 rgba_to_rgba(frame, out, _width, height_invert);
                 break;
             default:
-                throw std::logic_error("This format is currently not supported.");
+                throw std::logic_error("not implemented");
         }
         
         int stride = _width;
