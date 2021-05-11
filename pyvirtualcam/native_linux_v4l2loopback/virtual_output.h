@@ -109,22 +109,28 @@ class VirtualOutput {
                 }
             }
 
-            struct v4l2_capability camera_cap;
+            try {
+                struct v4l2_capability camera_cap;
 
-            if (ioctl(_camera_fd, VIDIOC_QUERYCAP, &camera_cap) == -1) {
-                throw std::invalid_argument(
-                    "Device capabilities of " + device_name + " could not be queried."
-                );
-            }
-            if (!(camera_cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)) {
-                throw std::invalid_argument(
-                    "Device " + device_name + " is not a video output device."
-                );
-            }
-            if (strcmp((const char*)camera_cap.driver, "v4l2 loopback") != 0) {
-                throw std::invalid_argument(
-                    "Device " + device_name + " is not a V4L2 device."
-                );
+                if (ioctl(_camera_fd, VIDIOC_QUERYCAP, &camera_cap) == -1) {
+                    throw std::invalid_argument(
+                        "Device capabilities of " + device_name + " could not be queried."
+                    );
+                }
+                if (!(camera_cap.capabilities & V4L2_CAP_VIDEO_OUTPUT)) {
+                    throw std::invalid_argument(
+                        "Device " + device_name + " is not a video output device."
+                    );
+                }
+                if (strcmp((const char*)camera_cap.driver, "v4l2 loopback") != 0) {
+                    throw std::invalid_argument(
+                        "Device " + device_name + " is not a V4L2 device."
+                    );
+                }
+            } catch (std::exception &ex) {
+                close(_camera_fd);
+                _camera_fd = -1;
+                throw ex;
             }
         };
 
