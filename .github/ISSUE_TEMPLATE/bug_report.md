@@ -11,8 +11,8 @@ assignees: ''
 
 - Operating system:
 - pyvirtualcam version:
-- *(macOS & Windows)* OBS version:
-- *(Linux)* v4l2loopback version:
+- Virtual camera (OBS, v4l2loopback, UnityCapture): 
+- Virtual camera version:
 
 **Describe the bug**
 ...
