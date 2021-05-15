@@ -1,6 +1,6 @@
 # test dependencies
 pytest
-opencv-python
+opencv-python==4.5.1
 imageio
 
 # documentation dependencies
