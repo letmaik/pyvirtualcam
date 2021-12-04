@@ -19,7 +19,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
 
 pyvirtualcam uses the first available virtual camera it finds (see later section).
 
-For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`samples/`](samples) folder.
+For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`examples/`](examples) folder.
 
 See also the [API Documentation](https://letmaik.github.io/pyvirtualcam).
 
