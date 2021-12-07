@@ -130,8 +130,8 @@ if (-not (HasCondaEnv pyenv_minimal_$env:PYTHON_VERSION)) {
 exec { conda activate pyenv_minimal_$env:PYTHON_VERSION }
 
 # Avoid using in-source package
-New-Item -Force -ItemType directory tmp | out-null
-cd tmp
+New-Item -Force -ItemType directory tmp_for_test | out-null
+cd tmp_for_test
 
 python -m pip uninstall -y pyvirtualcam
 ls ..\dist\*.whl | % { exec { python -m pip install $_ } }
