@@ -10,6 +10,7 @@ assignees: ''
 <!-- 🔎 Search existing issues to avoid creating duplicates. -->
 
 - Operating system:
+- Python version:
 - pyvirtualcam version:
 - Virtual camera (OBS, v4l2loopback, UnityCapture): 
 - Virtual camera version:

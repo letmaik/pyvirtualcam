@@ -76,7 +76,7 @@ pip install dist/*.whl
 retry pip install -r dev-requirements.txt
 # make sure it's working without any required libraries installed
 rm -rf $LIB_INSTALL_PREFIX
-mkdir tmp
-pushd tmp
+mkdir tmp_for_test
+pushd tmp_for_test
 python -u -m pytest -v -s ../test
 popd
