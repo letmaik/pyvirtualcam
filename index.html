@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Reference &#8212; pyvirtualcam 0.8.0 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API Reference &#8212; pyvirtualcam 0.9.0 documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet" />
-  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -22,19 +23,22 @@
       
 
     
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
 
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -132,19 +136,19 @@
               
               <div>
                 
-  <div class="section" id="api-reference">
+  <section id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="pyvirtualcam.Camera">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></code><code class="sig-name descname"><span class="pre">Camera</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PixelFormat.RGB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Camera">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></span><span class="sig-name descname"><span class="pre">Camera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PixelFormat.RGB</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Frame width in pixels.</p></li>
-<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Frame height in pixels.</p></li>
-<li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Target frame rate in frames per second.</p></li>
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Frame width in pixels.</p></li>
+<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Frame height in pixels.</p></li>
+<li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Target frame rate in frames per second.</p></li>
 <li><p><strong>fmt</strong> (<a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.camera.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a>) – Input pixel format.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – <p>The virtual camera device to use.
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – <p>The virtual camera device to use.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the first available device is used.</p>
 <p>Built-in backends:</p>
 <ul>
@@ -153,7 +157,7 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <li><p><code class="docutils literal notranslate"><span class="pre">unitycapture</span></code> (Windows): <code class="docutils literal notranslate"><span class="pre">Unity</span> <span class="pre">Video</span> <span class="pre">Capture</span></code>, or the name you gave to the device</p></li>
 </ul>
 </p></li>
-<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – <p>The virtual camera backend to use.
+<li><p><strong>backend</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – <p>The virtual camera backend to use.
 If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all available backends are tried.</p>
 <p>Built-in backends:</p>
 <ul>
@@ -162,7 +166,7 @@ If <code class="docutils literal notranslate"><span class="pre">None</span></cod
 <li><p><code class="docutils literal notranslate"><span class="pre">unitycapture</span></code> (Windows)</p></li>
 </ul>
 </p></li>
-<li><p><strong>print_fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Print frame rate every second.</p></li>
+<li><p><strong>print_fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Print frame rate every second.</p></li>
 <li><p><strong>kw</strong> – Extra keyword arguments forwarded to the backend.
 Should only be given if a backend is specified.
 Note that the built-in backends do not have extra arguments.</p></li>
@@ -170,36 +174,36 @@ Note that the built-in backends do not have extra arguments.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pyvirtualcam.Camera.close">
-<code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.close" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manually free resources.</p>
 <p>This method is automatically called when using <code class="docutils literal notranslate"><span class="pre">with</span></code> or
 when this instance goes out of scope.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyvirtualcam.Camera.send">
-<code class="sig-name descname"><span class="pre">send</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.send" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a frame to the virtual camera device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>frame</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Frame to send. The shape of the array must match
+<dd class="field-odd"><p><strong>frame</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – Frame to send. The shape of the array must match
 the chosen <a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyvirtualcam.Camera.sleep_until_next_frame">
-<code class="sig-name descname"><span class="pre">sleep_until_next_frame</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.sleep_until_next_frame" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.sleep_until_next_frame">
+<span class="sig-name descname"><span class="pre">sleep_until_next_frame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Camera.sleep_until_next_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adaptively sleep until the next frame is due.</p>
 <p>This method continuously adapts the sleep duration
 in order to reach the target frame rate.
@@ -208,47 +212,47 @@ which is printed as a percentage if <code class="docutils literal notranslate"><
 is given as argument in the constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.backend">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">backend</span></code><a class="headerlink" href="#pyvirtualcam.Camera.backend" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.backend">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.backend" title="Permalink to this definition">¶</a></dt>
 <dd><p>The virtual camera backend in use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.current_fps">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">current_fps</span></code><a class="headerlink" href="#pyvirtualcam.Camera.current_fps" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.current_fps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_fps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.current_fps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Current measured frames per second.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.device">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">device</span></code><a class="headerlink" href="#pyvirtualcam.Camera.device" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The virtual camera device in use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.fmt">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">fmt</span></code><a class="headerlink" href="#pyvirtualcam.Camera.fmt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fmt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.camera.PixelFormat"><span class="pre">pyvirtualcam.camera.PixelFormat</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>The input pixel format as accepted by <a class="reference internal" href="#pyvirtualcam.Camera.send" title="pyvirtualcam.Camera.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
@@ -257,42 +261,42 @@ is given as argument in the constructor.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.fps">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">fps</span></code><a class="headerlink" href="#pyvirtualcam.Camera.fps" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.fps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.fps" title="Permalink to this definition">¶</a></dt>
 <dd><p>Target frame rate in frames per second.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.frames_sent">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">frames_sent</span></code><a class="headerlink" href="#pyvirtualcam.Camera.frames_sent" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.frames_sent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frames_sent</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.frames_sent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Number of frames sent.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.height">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">height</span></code><a class="headerlink" href="#pyvirtualcam.Camera.height" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.height">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">height</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.height" title="Permalink to this definition">¶</a></dt>
 <dd><p>Frame height in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.native_fmt">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">native_fmt</span></code><a class="headerlink" href="#pyvirtualcam.Camera.native_fmt" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.native_fmt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">native_fmt</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.camera.PixelFormat"><span class="pre">pyvirtualcam.camera.PixelFormat</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pyvirtualcam.Camera.native_fmt" title="Permalink to this definition">¶</a></dt>
 <dd><p>The native pixel format of the virtual camera,
 or <code class="docutils literal notranslate"><span class="pre">None</span></code> if not known or otherwise unavailable.</p>
 <p>Note that this is the native format in use in the virtual
@@ -302,18 +306,18 @@ For example, on Windows, a camera device typically
 supports multiple formats.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.camera.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.camera.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt id="pyvirtualcam.Camera.width">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">width</span></code><a class="headerlink" href="#pyvirtualcam.Camera.width" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyvirtualcam.Camera.width">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">width</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></em><a class="headerlink" href="#pyvirtualcam.Camera.width" title="Permalink to this definition">¶</a></dt>
 <dd><p>Frame width in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -321,71 +325,71 @@ supports multiple formats.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="pyvirtualcam.PixelFormat">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></code><code class="sig-name descname"><span class="pre">PixelFormat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.PixelFormat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></span><span class="sig-name descname"><span class="pre">PixelFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.PixelFormat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pixel formats.</p>
 <p>The enum values are libyuv FourCC codes.
 They are only used internally by the virtual camera backends.</p>
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.BGR">
-<code class="sig-name descname"><span class="pre">BGR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'24BG'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.BGR" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.BGR">
+<span class="sig-name descname"><span class="pre">BGR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'24BG'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.BGR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: <code class="docutils literal notranslate"><span class="pre">(h,w,3)</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.GRAY">
-<code class="sig-name descname"><span class="pre">GRAY</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'J400'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.GRAY" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.GRAY">
+<span class="sig-name descname"><span class="pre">GRAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'J400'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.GRAY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: <code class="docutils literal notranslate"><span class="pre">(h,w)</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.I420">
-<code class="sig-name descname"><span class="pre">I420</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'I420'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.I420" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.I420">
+<span class="sig-name descname"><span class="pre">I420</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'I420'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.I420" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: any of size <code class="docutils literal notranslate"><span class="pre">w</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">3/2</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.NV12">
-<code class="sig-name descname"><span class="pre">NV12</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'NV12'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.NV12" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.NV12">
+<span class="sig-name descname"><span class="pre">NV12</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NV12'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.NV12" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: any of size <code class="docutils literal notranslate"><span class="pre">w</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">3/2</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.RGB">
-<code class="sig-name descname"><span class="pre">RGB</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'raw</span> <span class="pre">'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.RGB" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.RGB">
+<span class="sig-name descname"><span class="pre">RGB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'raw</span> <span class="pre">'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.RGB" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: <code class="docutils literal notranslate"><span class="pre">(h,w,3)</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.RGBA">
-<code class="sig-name descname"><span class="pre">RGBA</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'ABGR'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.RGBA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.RGBA">
+<span class="sig-name descname"><span class="pre">RGBA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ABGR'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.RGBA" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: <code class="docutils literal notranslate"><span class="pre">(h,w,4)</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.UYVY">
-<code class="sig-name descname"><span class="pre">UYVY</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'UYVY'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.UYVY" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.UYVY">
+<span class="sig-name descname"><span class="pre">UYVY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UYVY'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.UYVY" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: any of size <code class="docutils literal notranslate"><span class="pre">w</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">2</span></code></p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="pyvirtualcam.PixelFormat.YUYV">
-<code class="sig-name descname"><span class="pre">YUYV</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'YUY2'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.YUYV" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.PixelFormat.YUYV">
+<span class="sig-name descname"><span class="pre">YUYV</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'YUY2'</span></em><a class="headerlink" href="#pyvirtualcam.PixelFormat.YUYV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shape: any of size <code class="docutils literal notranslate"><span class="pre">w</span> <span class="pre">*</span> <span class="pre">h</span> <span class="pre">*</span> <span class="pre">2</span></code></p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="pyvirtualcam.register_backend">
-<code class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></code><code class="sig-name descname"><span class="pre">register_backend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clazz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.register_backend" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.register_backend">
+<span class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></span><span class="sig-name descname"><span class="pre">register_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clazz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.register_backend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Register a new backend.</p>
 <p>If a backend with the same name is already registered,
 it will be replaced.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Name of the backend.
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Name of the backend.
 Used as <code class="docutils literal notranslate"><span class="pre">backend</span></code> argument in <a class="reference internal" href="#pyvirtualcam.Camera" title="pyvirtualcam.Camera"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Camera()</span></code></a>.</p></li>
 <li><p><strong>clazz</strong> – Class type of the backend conforming to <a class="reference internal" href="#pyvirtualcam.Backend" title="pyvirtualcam.Backend"><code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code></a>.</p></li>
 </ul>
@@ -394,8 +398,8 @@ Used as <code class="docutils literal notranslate"><span class="pre">backend</sp
 </dd></dl>
 
 <dl class="py class">
-<dt id="pyvirtualcam.Backend">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></code><code class="sig-name descname"><span class="pre">Backend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fourcc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Backend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyvirtualcam.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fourcc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend" title="Permalink to this definition">¶</a></dt>
 <dd><p>Describes the interface of Backend classes.</p>
 <p>Note that Backend classes should not inherit from this class,
 it exists only for documentation and static typing purposes.</p>
@@ -403,22 +407,22 @@ it exists only for documentation and static typing purposes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Image width of the frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>.
+<li><p><strong>width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Image width of the frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>.
 If the virtual camera does not support the given width and
 height combination then an exception must be raised.</p></li>
-<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Image height of the frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>.</p></li>
-<li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Approximate rate at which <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> will be called,
+<li><p><strong>height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Image height of the frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>.</p></li>
+<li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Approximate rate at which <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> will be called,
 actual rate may be more or less. The backend should
 not expect a specific rate but may use this rate as a hint
 or an upper bound. If the rate is not one of the native frame
 rates supported by the virtual camera device, then a suitable
 rate should be chosen. An exception should generally not be raised.</p></li>
-<li><p><strong>fourcc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Pixel format of frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>, encoded as
+<li><p><strong>fourcc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Pixel format of frames passed to <a class="reference internal" href="#pyvirtualcam.Backend.send" title="pyvirtualcam.Backend.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a>, encoded as
 <a class="reference external" href="https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/master/include/libyuv/video_common.h">libyuv FourCC</a>
 code. One of the codes in the <a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a> enum.
 If the pixel format is unsupported then an exception must
 be raised.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – If given, name of the virtual camera device to use,
+<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – If given, name of the virtual camera device to use,
 otherwise any available device can be used.
 Depending on the operating system, this is typically a device
 file name or a camera name as it appears in apps.
@@ -431,29 +435,29 @@ then an exception must be raised.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="pyvirtualcam.Backend.close">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.close" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Backend.close">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Releases any resources associated with the virtual camera device.</p>
 <p>This method is guaranteed to be called exactly once.
 After this method was called, no further methods are called.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyvirtualcam.Backend.device">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">device</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.device" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Backend.device">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.device" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the virtual camera device in use.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">device</span></code> was not <code class="docutils literal notranslate"><span class="pre">None</span></code> in the constructor, then
 the returned value must match the constructor argument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyvirtualcam.Backend.native_fourcc">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">native_fourcc</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.native_fourcc" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Backend.native_fourcc">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">native_fourcc</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.native_fourcc" title="Permalink to this definition">¶</a></dt>
 <dd><p>The <a class="reference external" href="https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/master/include/libyuv/video_common.h">libyuv FourCC</a>
 code of the native pixel format used in the backend.
 Must be one of the codes in the <a class="reference internal" href="#pyvirtualcam.PixelFormat" title="pyvirtualcam.PixelFormat"><code class="xref py py-class docutils literal notranslate"><span class="pre">PixelFormat</span></code></a> enum,
@@ -467,18 +471,18 @@ conversions have to be done in the backend itself before
 sending the frame to the camera device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="pyvirtualcam.Backend.send">
-<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">send</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.send" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="pyvirtualcam.Backend.send">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyvirtualcam.Backend.send" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send the given frame to the camera device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>frame</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.20)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – A 1D C-contiguous uint8 numpy array corresponding
+<dd class="field-odd"><p><strong>frame</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>) – A 1D C-contiguous uint8 numpy array corresponding
 to the chosen pixel format and frame width and height.</p>
 </dd>
 </dl>
@@ -486,38 +490,35 @@ to the chosen pixel format and frame width and height.</p>
 
 </dd></dl>
 
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
 </div>
-
-
-              </div>
-              
-              
-              <div class='prev-next-bottom'>
-                
-
-              </div>
               
           </main>
           
 
       </div>
     </div>
-    
-  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-
-    <footer class="footer mt-5 mt-md-0">
+  
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2020, Maik Riechert.<br/>
+    &copy; Copyright 2020, Maik Riechert.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br>
 </p>
     </div>
     
