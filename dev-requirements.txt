@@ -7,7 +7,7 @@ pytest
 # only works for <= 3.9.
 # Tests that require OpenCV on macOS are disabled in CI for >= 3.10.
 opencv-python==4.5.1.48 ; python_version < '3.10' and sys_platform == 'darwin'
-opencv-python; python_version >= '3.10' or sys_platform != 'darwin'
+opencv-python; sys_platform != 'darwin'
 imageio
 
 # documentation dependencies

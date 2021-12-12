@@ -12,8 +12,18 @@ from pathlib import Path
 
 import pytest
 import numpy as np
-import cv2
 import imageio
+
+# This guard exists only to deal with a macOS/GitHub Actions scenario.
+# See dev-requirements.txt for more details.
+try:
+    import cv2
+except ImportError:
+    if os.environ.get('CI'):
+        assert platform.system() == 'Darwin'
+        assert sys.version_info[:2] >= (3, 10)
+        print('Skipping due to https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850')
+    pytest.skip('OpenCV is not installed', allow_module_level=True)
 
 import pyvirtualcam
 from pyvirtualcam import PixelFormat
@@ -162,10 +172,6 @@ frames_rgb = {
 @pytest.mark.parametrize("backend", list(pyvirtualcam.camera.BACKENDS))
 @pytest.mark.parametrize("fmt", formats)
 @pytest.mark.parametrize("mode", ['latency', 'diff'])
-@pytest.mark.skipif(
-    os.environ.get('CI') and platform.system() == 'Darwin' and \
-    sys.version_info[:2] >= (3, 10),
-    reason='disabled due to https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850')
 def test_capture(backend: str, fmt: PixelFormat, mode: str, tmp_path: Path):
     if fmt == PixelFormat.NV12 and platform.system() == 'Linux':
         pytest.skip('OpenCV VideoCapture does not support NV12')
