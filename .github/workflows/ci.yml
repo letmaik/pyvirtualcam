@@ -48,7 +48,7 @@ jobs:
           numpy-version: '1.19.*'
         - os-image: macos-latest
           os-name: mac
-          macos-min-version: '10.9'
+          macos-min-version: '11.0'
           python-version: '3.10'
           numpy-version: '1.21.*'
 
