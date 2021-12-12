@@ -1,6 +1,13 @@
 # test dependencies
 pytest
-opencv-python==4.5.1.48
+# https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850
+# 4.5.1.48 is the last version for macOS that works without requiring
+# media capture authorization which is unsupported in GitHub Actions.
+# There is no Python 3.10 wheel though, which means that this work-around
+# only works for <= 3.9.
+# Tests that require OpenCV on macOS are disabled in CI for >= 3.10.
+opencv-python==4.5.1.48 ; python_version < '3.10' and sys_platform == 'darwin'
+opencv-python; sys_platform != 'darwin'
 imageio
 
 # documentation dependencies

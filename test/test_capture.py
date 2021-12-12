@@ -1,3 +1,4 @@
+import os
 import signal
 from typing import Union
 import sys
@@ -11,8 +12,18 @@ from pathlib import Path
 
 import pytest
 import numpy as np
-import cv2
 import imageio
+
+# This guard exists only to deal with a macOS/GitHub Actions scenario.
+# See dev-requirements.txt for more details.
+try:
+    import cv2
+except ImportError:
+    if os.environ.get('CI'):
+        assert platform.system() == 'Darwin'
+        assert sys.version_info[:2] >= (3, 10)
+        print('Skipping due to https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850')
+    pytest.skip('OpenCV is not installed', allow_module_level=True)
 
 import pyvirtualcam
 from pyvirtualcam import PixelFormat

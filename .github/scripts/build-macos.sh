@@ -14,17 +14,6 @@ export MACOSX_DEPLOYMENT_TARGET=$MACOS_MIN_VERSION
 # The Python variant to install, see exception below.
 export PYTHON_INSTALLER_MACOS_VERSION=$MACOS_MIN_VERSION
 
-# Work-around issue building on newer XCode versions.
-# https://github.com/pandas-dev/pandas/issues/23424#issuecomment-446393981
-if [ $PYTHON_VERSION == "3.5" ]; then
-    # No 10.9 installer available, use 10.6.
-    # The resulting wheel platform tags still have 10.6 (=target of Python itself),
-    # even though technically the wheel should only be run on 10.9 upwards.
-    # This is fixed manually below by renaming the wheel.
-    # See https://github.com/pypa/wheel/issues/312.
-    export PYTHON_INSTALLER_MACOS_VERSION=10.6
-fi
-
 # Install Python
 # Note: The GitHub Actions supplied Python versions are not used
 # as they are built without MACOSX_DEPLOYMENT_TARGET/-mmacosx-version-min
@@ -56,12 +45,6 @@ export ARCHFLAGS=$CFLAGS
 
 # Build wheel
 python setup.py bdist_wheel
-
-# Fix wheel platform tag, see above for details.
-if [ $PYTHON_VERSION == "3.5" ]; then
-    filename=$(ls dist/*.whl)
-    mv -v "$filename" "${filename/macosx_10_6_intel/macosx_10_9_x86_64}"
-fi
 
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
 delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
