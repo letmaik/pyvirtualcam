@@ -38,7 +38,7 @@ pip freeze
 
 export CC=clang
 export CXX=clang++
-export CFLAGS="-arch x86_64"
+export CFLAGS="-arch arm64"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
@@ -47,7 +47,7 @@ export ARCHFLAGS=$CFLAGS
 python setup.py bdist_wheel
 
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
+delocate-wheel --verbose --require-archs=arm64 dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.
