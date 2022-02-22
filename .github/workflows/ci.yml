@@ -120,7 +120,7 @@ jobs:
       if: always()
       with:
         name: test_captures
-        path: 'tmp/*.png'
+        path: 'tmp_for_test/*.png'
         if-no-files-found: ignore
 
     - name: Store wheels as artifacts
