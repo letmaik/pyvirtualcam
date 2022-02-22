@@ -13,3 +13,4 @@ wheelhouse
 external/miniconda*
 *.png
 *.json
+env

@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e -x
 
-source .github/scripts/retry.sh
-
 # General note:
 # Apple guarantees forward, but not backward ABI compatibility unless
 # the deployment target is set for the oldest supported OS.
@@ -31,7 +29,7 @@ set -x
 popd
 
 # Install dependencies
-retry pip install numpy==$NUMPY_VERSION wheel delocate
+pip install numpy==$NUMPY_VERSION wheel delocate
 
 # List installed packages
 pip freeze
@@ -45,6 +43,10 @@ export ARCHFLAGS=$CFLAGS
 
 # Build wheel
 python setup.py bdist_wheel
+
+# Note: The following is generic code and copied from the rawpy project.
+# Strictly speaking it is not needed here since currently there are
+# no shared library dependencies that have to be bundled.
 
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
 delocate-wheel --verbose --require-archs=x86_64 dist/*.whl # copies library dependencies into wheel
@@ -68,15 +70,3 @@ for file in pyvirtualcam/.dylibs/*.dylib; do
 done
 popd
 set -x
-
-# Install pyvirtualcam
-pip install dist/*.whl
-
-# Test installed pyvirtualcam
-retry pip install -r dev-requirements.txt
-# make sure it's working without any required libraries installed
-rm -rf $LIB_INSTALL_PREFIX
-mkdir tmp_for_test
-pushd tmp_for_test
-python -u -m pytest -v -s ../test
-popd

@@ -66,17 +66,47 @@ if (!$env:PYTHON_VERSION) {
 if ($env:PYTHON_ARCH -ne '32' -and $env:PYTHON_ARCH -ne '64') {
     throw "PYTHON_ARCH env var must be 32 or 64"
 }
-if (!$env:NUMPY_VERSION) {
-    throw "NUMPY_VERSION env var missing"
-}
+
+$PYVER = ($env:PYTHON_VERSION).Replace('.', '')
 
 Initialize-Python
 
 Get-ChildItem env:
 
-# Build the wheel.
-Create-And-Enter-VEnv build
-exec { python -m pip install --upgrade pip wheel setuptools }
-exec { python -m pip install --only-binary :all: numpy==$env:NUMPY_VERSION cython }
+
+# Install and import in an empty environment.
+# This is to catch DLL issues that may be hidden with dependencies.
+Create-And-Enter-VEnv import-test
+python -m pip uninstall -y pyvirtualcam
+ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
+
+# Avoid using in-source package during tests
+mkdir -f tmp_for_test | out-null
+pushd tmp_for_test
+exec { python -c "import pyvirtualcam" }
+popd
+
+Exit-VEnv
+
+# Unit tests
+# Run test suite with all required and optional dependencies
+Create-And-Enter-VEnv testsuite
+python -m pip uninstall -y pyvirtualcam
+ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
+exec { python -m pip install -r dev-requirements.txt }
+
+# Install test helper package
+Push-Location test/win-dshow-capture
+exec { python -m pip install wheel }
 exec { python -u setup.py bdist_wheel }
+python -m pip uninstall -y pyvirtualcam_win_dshow_capture
+ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
+Pop-Location
+
+# Avoid using in-source package during tests
+mkdir -f tmp_for_test | out-null
+pushd tmp_for_test
+exec { pytest --verbosity=3 -s ../test }
+popd
+
 Exit-VEnv
