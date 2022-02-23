@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2022-02-23
+### Fixed
+- macOS: Python 3.10 wheel was incorrectly named (universal2 instead of x86_64)
+
 ## [0.9.0] - 2021-12-12
 ### Added
 - Python 3.10 support.
@@ -106,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for [OBS-VirtualCam](https://github.com/CatxFish/obs-virtual-cam).
 
 
+[0.9.1]: https://github.com/letmaik/pyvirtualcam/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/letmaik/pyvirtualcam/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/letmaik/pyvirtualcam/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/letmaik/pyvirtualcam/compare/v0.6.0...v0.7.0
