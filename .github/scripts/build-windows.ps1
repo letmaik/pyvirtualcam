@@ -77,6 +77,6 @@ Get-ChildItem env:
 # Build the wheel.
 Create-And-Enter-VEnv build
 exec { python -m pip install --upgrade pip wheel setuptools }
-exec { python -m pip install --only-binary :all: numpy==$env:NUMPY_VERSION cython }
+exec { python -m pip install --only-binary :all: numpy==$env:NUMPY_VERSION }
 exec { python -u setup.py bdist_wheel }
 Exit-VEnv
