@@ -64,6 +64,29 @@ class VirtualOutput {
                 throw std::runtime_error("Unable to get camera " + std::to_string(i) + " description.");
             }
             std::cout<<cameraDescription << std::endl;
+
+            int cameraFormats;
+            if(!getDwordRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\" + std::to_string(i) + "\\Formats","size", cameraFormats)){
+                throw std::runtime_error("Unable to get number camera formats");
+            }
+
+            int width;
+            int height;
+            for(int j = 1; j <= cameraFormats; j++){
+
+                std::cout<< "Format #" << std::to_string(j) << ":" << std::endl;
+                if(!getDwordRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\" + std::to_string(i) + "\\Formats\\" + std::to_string(j),"height", height)){
+                    throw std::runtime_error("Unable to get camera " + std::to_string(i) + " format "+ std::to_string(j) +" height.");
+                }
+
+                if(!getDwordRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\" + std::to_string(i) + "\\Formats\\" + std::to_string(j),"width", width)){
+                    throw std::runtime_error("Unable to get camera " + std::to_string(i) + " format "+ std::to_string(j) +" width.");
+                }
+                std::cout<< " > height: " << std::to_string(height) << std::endl;
+                std::cout<< " > width: " << std::to_string(width) << std::endl;
+            }
+
+
         }
 
     }
