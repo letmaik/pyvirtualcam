@@ -150,10 +150,13 @@ class VirtualOutput {
 
         char cmd[1024];
 
+        std::string akvcam_mamanger_path;
+        if(!getStringRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera","installPath", akvcam_mamanger_path)){
+            throw std::runtime_error("Unable to get akvcam installation path.");
+        }
+
         memset(cmd, 0, 1024);
-        snprintf(cmd,1024, "\"C:\\Program Files\\AkVirtualCamera\\x64\\AkVCamManager.exe\" stream %s %s %d %d",
-                "AzureDepthCamera", format.c_str(), _width, _height);
-        std::cout << cmd << std::endl;
+        snprintf(cmd, 1024, "\"%s\\x64\\AkVCamManager.exe\" stream %s %s %d %d", akvcam_mamanger_path.c_str(), _camera_info->id.c_str(), format.c_str(), _width, _height);
 
         // Get the handles to the standard input and standard output.
         memset(&stream_proc, 0, sizeof(StreamProcess));
