@@ -23,7 +23,8 @@ static std::set<std::string> ACTIVE_DEVICES;
 
 class VirtualOutput {
   private:
-    char * buffer;
+    std::vector<uint8_t> _buffer;
+    size_t _buffer_size;
     std::optional<CameraInfo> _camera_info;
     uint32_t _width;
     uint32_t _height;
@@ -175,8 +176,8 @@ class VirtualOutput {
         }
 
         // Allocate the frame buffer.
-        size_t buffer_size = 3 * _width;
-        buffer = (char *)malloc(buffer_size);
+        _buffer_size = 3 * _width;
+        _buffer.resize(_buffer_size);
 
         ACTIVE_DEVICES.insert(_camera_info->desc);
         _running = true;
@@ -188,7 +189,6 @@ class VirtualOutput {
             return;
         }
 
-        free(buffer);
         ACTIVE_DEVICES.erase(_camera_info->desc);
         _running = false;
 
@@ -207,11 +207,11 @@ class VirtualOutput {
         }
 
        for (uint32_t y = 0; y < _height; y++) {
-            for (size_t byte = 0; byte < 3*_width; byte++)
-                buffer[byte] = frame[0,0] & 0xff;
+            for (size_t byte = 0; byte < _buffer_size; byte++)
+                _buffer[byte] = frame[0,0] & 0xff;
 
             DWORD bytesWritten = 0;
-            WriteFile(stream_proc.stdinWritePipe, buffer,DWORD(3*_width),&bytesWritten,NULL);
+            WriteFile(stream_proc.stdinWritePipe, _buffer.data(),DWORD(_buffer_size),&bytesWritten,NULL);
         }
     }
 
