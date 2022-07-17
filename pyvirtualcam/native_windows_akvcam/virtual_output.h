@@ -24,7 +24,6 @@ static std::set<std::string> ACTIVE_DEVICES;
 class VirtualOutput {
   private:
     char * buffer;
-    std::string _device_name;
     std::optional<CameraInfo> _camera_info;
     uint32_t _width;
     uint32_t _height;
@@ -76,7 +75,6 @@ class VirtualOutput {
     VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc, std::optional<std::string> device) {
 
         int number_cameras;
-        std::cout<<" enter" <<std::endl;
         //Get number of cameras available
         if(!getDwordRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras","size",number_cameras)){
             throw std::runtime_error("Unable to get number of available cameras");
@@ -85,7 +83,6 @@ class VirtualOutput {
             throw std::runtime_error("No cameras avaliable. Did you add one device using AkVCamManager add-device?");
         }
 
-        std::cout<< "Cameras available: " << std::to_string(number_cameras)<<std::endl;
         
         if(device.has_value()){
             std::string device_name = *device;
@@ -94,14 +91,10 @@ class VirtualOutput {
             }
         }
 
-        std::cout<<"Looking for cameras..." <<std::endl;
-
         //Get info on cameras
         std::string tmpCameraDesc;
         std::string tmpCameraID;
         for(int i = 1; i <= number_cameras; i++){
-
-            std::cout<<"Getting camera " << std::to_string(i) << " info" <<std::endl;
 
             if(!getStringRegistry(HKEY_LOCAL_MACHINE, "SOFTWARE\\Webcamoid\\VirtualCamera\\Cameras\\" + std::to_string(i),"description", tmpCameraDesc)){
                 throw std::runtime_error("Unable to get camera " + std::to_string(i) + " description.");
@@ -111,11 +104,7 @@ class VirtualOutput {
                 throw std::runtime_error("Unable to get camera " + std::to_string(i) + " id.");
             }
 
-            std::cout<<"Camera desc: " << tmpCameraDesc <<std::endl;
-            std::cout<<"Camera id: " << tmpCameraID <<std::endl;
-
             if((device.has_value() && tmpCameraDesc == *device) || (!device.has_value() && ACTIVE_DEVICES.count(tmpCameraDesc) == 0)){
-                std::cout<< "Saving Camera!" << std::endl;
                 _camera_info ={tmpCameraDesc, tmpCameraID};
                 break;
             }
@@ -157,6 +146,7 @@ class VirtualOutput {
 
         memset(cmd, 0, 1024);
         snprintf(cmd, 1024, "\"%s\\x64\\AkVCamManager.exe\" stream %s %s %d %d", akvcam_mamanger_path.c_str(), _camera_info->id.c_str(), format.c_str(), _width, _height);
+        std::cout << cmd << std::endl;
 
         // Get the handles to the standard input and standard output.
         memset(&stream_proc, 0, sizeof(StreamProcess));
@@ -227,7 +217,10 @@ class VirtualOutput {
 
     std::string device()
     {
-        return _device_name;
+        if(!_camera_info.has_value()){
+            throw std::runtime_error("Device name not available.");
+        }
+        return _camera_info->desc;
     }
 
     uint32_t native_fourcc() {
