@@ -176,7 +176,7 @@ class VirtualOutput {
         }
 
         // Allocate the frame buffer.
-        _buffer_size = 3 * _width;
+        _buffer_size = 3 * _width*_height;
         _buffer.resize(_buffer_size);
 
         ACTIVE_DEVICES.insert(_camera_info->desc);
@@ -210,14 +210,9 @@ class VirtualOutput {
         if (processState == WAIT_OBJECT_0){
             throw std::runtime_error("AkVCam stream process not running.");
         }
-
-       for (uint32_t y = 0; y < _height; y++) {
-            for (size_t byte = 0; byte < _buffer_size; byte++)
-                _buffer[byte] = frame[0,0] & 0xff;
-
-            DWORD bytesWritten = 0;
-            WriteFile(stream_proc.stdinWritePipe, _buffer.data(),DWORD(_buffer_size),&bytesWritten,NULL);
-        }
+      
+        DWORD bytesWritten = 0;
+        WriteFile(stream_proc.stdinWritePipe, frame,DWORD(_buffer_size),&bytesWritten,NULL);
     }
 
     std::string device()
