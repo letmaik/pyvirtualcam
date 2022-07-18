@@ -206,6 +206,13 @@ class VirtualOutput {
             return;
         }
 
+        DWORD processState = WaitForSingleObject(stream_proc.procInfo.hProcess, 0); 
+        if (processState == WAIT_OBJECT_0){
+            throw std::runtime_error("AkVCam stream process not running.");
+        }else{
+            std::cout<<"asdas"<<std::endl;
+        }
+
        for (uint32_t y = 0; y < _height; y++) {
             for (size_t byte = 0; byte < _buffer_size; byte++)
                 _buffer[byte] = frame[0,0] & 0xff;
