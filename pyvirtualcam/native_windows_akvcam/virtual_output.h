@@ -231,6 +231,6 @@ class VirtualOutput {
     }
 
     uint32_t native_fourcc() {
-        return libyuv::FOURCC_YUY2;
+        return _fourcc;
     }
 };
