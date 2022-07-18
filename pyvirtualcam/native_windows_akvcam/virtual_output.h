@@ -208,6 +208,7 @@ class VirtualOutput {
 
         DWORD processState = WaitForSingleObject(stream_proc.procInfo.hProcess, 0); 
         if (processState == WAIT_OBJECT_0){
+            stop();
             throw std::runtime_error("AkVCam stream process not running.");
         }
       
