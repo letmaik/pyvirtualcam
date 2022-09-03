@@ -14,5 +14,6 @@ sudo mkdir -p "${INSTALL_PATH}"
 curl -L --retry 3 "${DMG_URL}" -o "${DMG_FILENAME}"
 
 sudo hdiutil attach "${DMG_FILENAME}"
-sudo cp -r "${MOUNT_PATH}/OBS.app/Contents/resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin" "${INSTALL_PATH}"
+#sudo cp -r "${MOUNT_PATH}/OBS.app/Contents/resources/data/obs-plugins/mac-virtualcam/obs-mac-virtualcam.plugin" "${INSTALL_PATH}"
+sudo cp -r "${MOUNT_PATH}/OBS.app/Contents/resources/obs-mac-virtualcam.plugin" "${INSTALL_PATH}"
 sudo hdiutil unmount "${MOUNT_PATH}" -force
