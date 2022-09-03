@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -x
 
-VERSION="27.2.1"
+VERSION="28.0.1"
 
 DMG_FILENAME="obs-mac-${VERSION}.dmg"
 DMG_URL="https://cdn-fastly.obsproject.com/downloads/${DMG_FILENAME}"
