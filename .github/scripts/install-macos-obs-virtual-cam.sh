@@ -3,7 +3,8 @@ set -e -x
 
 VERSION="28.0.1"
 
-DMG_FILENAME="obs-mac-${VERSION}.dmg"
+#DMG_FILENAME="obs-mac-${VERSION}.dmg"
+DMG_FILENAME="obs-studio-${VERSION}-macos-x86_64.dmg"
 DMG_URL="https://cdn-fastly.obsproject.com/downloads/${DMG_FILENAME}"
 MOUNT_PATH="/Volumes/OBS-Studio ${VERSION}"
 INSTALL_PATH="/Library/CoreMediaIO/Plug-Ins/DAL"
