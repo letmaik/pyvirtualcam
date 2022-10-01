@@ -19,7 +19,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
 
 pyvirtualcam uses the first available virtual camera it finds (see later section).
 
-For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`examples/`](examples) folder.
+For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`examples/`](https://github.com/letmaik/pyvirtualcam/tree/main/examples) folder.
 
 See also the [API Documentation](https://letmaik.github.io/pyvirtualcam).
 
@@ -52,6 +52,8 @@ To use the Unity Capture virtual camera, follow the [installation instructions](
 ### macOS: OBS
 
 [OBS](https://obsproject.com/) includes a built-in virtual camera for macOS (since 26.1).
+
+**NOTE**: Currently, only OBS 26 and 27 is supported. OBS 28 is not yet supported, see [#95](https://github.com/letmaik/pyvirtualcam/issues/95).
 
 To use the OBS virtual camera, follow these one-time setup steps:
 - [Install OBS](https://obsproject.com/).
