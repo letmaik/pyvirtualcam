@@ -145,7 +145,7 @@ def test_sleep_until_next_frame():
             cam.sleep_until_next_frame()
         
         actual_fps = cam.current_fps
-        assert abs(target_fps - actual_fps) < 0.5
+        assert abs(target_fps - actual_fps) < 1.5
 
 @pytest.mark.parametrize("backend", list(pyvirtualcam.camera.BACKENDS))
 def test_device_name(backend: str):

@@ -183,6 +183,9 @@ def test_capture(backend: str, fmt: PixelFormat, mode: str, tmp_path: Path):
     if measure_latency:
         if fmt in [PixelFormat.UYVY, PixelFormat.YUYV]:
             pytest.skip('Latency test currently not supported for packed YUV formats')
+        if fmt in [PixelFormat.I420, PixelFormat.NV12] and platform.system() == 'Darwin':
+            # https://github.com/letmaik/pyvirtualcam/issues/82
+            pytest.skip('Latency test currently not supported for I420 & NV12 on macOS')
 
     # informational only
     imageio.imwrite(f'test_{fmt}_in.png', frames_rgb[fmt])
@@ -234,7 +237,11 @@ def test_capture(backend: str, fmt: PixelFormat, mode: str, tmp_path: Path):
         print(f'Latency: {latency_ms} ms')
     else:
         d = np.fabs(captured_rgb.astype(np.int16) - frames_rgb[fmt]).max()
-        assert d <= 2
+        if platform.system() == 'Darwin':
+            # https://github.com/letmaik/pyvirtualcam/issues/82
+            assert d <= 35
+        else:
+            assert d <= 2
 
 def test_frame_timestamp_ms():
     frame = np.zeros((1, 64), np.uint8)

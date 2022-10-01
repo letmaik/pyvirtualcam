@@ -55,7 +55,7 @@ elif platform.system() == 'Darwin':
                 'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
             ] + common_src),
             include_dirs=['pyvirtualcam/native_macos_obs'] + common_inc,
-            extra_link_args=["-framework", "Foundation"],
+            extra_link_args=["-framework", "Foundation", "-framework", "CoreVideo"],
             language='objc'
         )
     )

@@ -31,9 +31,12 @@
 class VirtualOutput {
   private:
     OBSDALMachServer* _mach_server = nil;
+    CVPixelBufferPoolRef _cv_pool;
+    FourCharCode _cv_format;
     uint32_t _frame_width;
     uint32_t _frame_height;
     uint32_t _frame_fourcc;
+    uint32_t _out_frame_size;
     uint32_t _fps_num;
     uint32_t _fps_den;
     std::vector<uint8_t> _buffer_tmp;
@@ -64,7 +67,7 @@ class VirtualOutput {
         _fps_num = fps * 1000;
         _fps_den = 1000;
 
-        uint32_t out_frame_size = uyvy_frame_size(width, height);
+        _out_frame_size = uyvy_frame_size(width, height);
 
         switch (_frame_fourcc) {
             case libyuv::FOURCC_RAW:
@@ -72,26 +75,42 @@ class VirtualOutput {
             case libyuv::FOURCC_J400:
                 // RGB|BGR|GRAY -> BGRA -> UYVY
                 _buffer_tmp.resize(bgra_frame_size(width, height));
-                _buffer_output.resize(out_frame_size);
+                _buffer_output.resize(_out_frame_size);
                 break;
             case libyuv::FOURCC_I420:
                 // I420 -> UYVY
-                _buffer_output.resize(out_frame_size);
+                _buffer_output.resize(_out_frame_size);
                 break;
             case libyuv::FOURCC_NV12:
                 // NV12 -> I420 -> UYVY
                 _buffer_tmp.resize(i420_frame_size(width, height));
-                _buffer_output.resize(out_frame_size);
+                _buffer_output.resize(_out_frame_size);
                 break;
             case libyuv::FOURCC_YUY2:
                 // YUYV -> I422 -> UYVY
                 _buffer_tmp.resize(i422_frame_size(width, height));
-                _buffer_output.resize(out_frame_size);
+                _buffer_output.resize(_out_frame_size);
                 break;
             case libyuv::FOURCC_UYVY:
                 break;
             default:
                 throw std::runtime_error("Unsupported image format.");
+        }
+
+        _cv_format = kCVPixelFormatType_422YpCbCr8; // UYVY
+
+        NSDictionary *pAttr = @{};
+        NSDictionary *pbAttr = @{
+            (id)kCVPixelBufferPixelFormatTypeKey: @(_cv_format),
+            (id)kCVPixelBufferWidthKey: @(_frame_width),
+            (id)kCVPixelBufferHeightKey: @(_frame_height),
+            (id)kCVPixelBufferIOSurfacePropertiesKey: @{}
+        };
+        CVReturn status = CVPixelBufferPoolCreate(
+            kCFAllocatorDefault, (__bridge CFDictionaryRef)pAttr,
+            (__bridge CFDictionaryRef)pbAttr, &_cv_pool);
+        if (status != kCVReturnSuccess) {
+            throw std::runtime_error("unable to allocate pixel buffer pool");
         }
 
         _mach_server = [[OBSDALMachServer alloc] init];
@@ -109,6 +128,8 @@ class VirtualOutput {
         [_mach_server stop];
         [_mach_server dealloc];
         _mach_server = nil;
+
+        CVPixelBufferPoolRelease(_cv_pool);
         
         // When the named server port is invalidated, the effect is not immediate.
         // Starting a new server immediately afterwards may then fail.
@@ -169,15 +190,37 @@ class VirtualOutput {
             default:
                 throw std::logic_error("not implemented");
         }
+        
+        CVPixelBufferRef frame_ref = nil;
+        CVReturn status = CVPixelBufferPoolCreatePixelBuffer(
+            kCFAllocatorDefault, _cv_pool, &frame_ref);
 
-        CGFloat width = _frame_width;
-        CGFloat height = _frame_height;
+        if (status != kCVReturnSuccess) {
+            // not an exception, in case it is temporary
+            fprintf(stderr, "unable to allocate pixel buffer (error %d)",
+                status);
+            return;
+        }
 
-        [_mach_server sendFrameWithSize:NSMakeSize(width, height)
+        CVPixelBufferLockBaseAddress(frame_ref, 0);
+
+        uint8_t *dst = (uint8_t *)CVPixelBufferGetBaseAddress(frame_ref);
+        int dst_size = CVPixelBufferGetDataSize(frame_ref);
+
+        if (dst_size == _out_frame_size) {
+			memcpy(dst, out_frame, _out_frame_size);
+        } else {
+            fprintf(stderr, "pixel buffer size mismatch");
+        }
+
+        CVPixelBufferUnlockBaseAddress(frame_ref, 0);
+
+        [_mach_server sendPixelBuffer:frame_ref
             timestamp:timestamp
             fpsNumerator:_fps_num
-            fpsDenominator:_fps_den
-            frameBytes:out_frame];
+            fpsDenominator:_fps_den];
+        
+        CVPixelBufferRelease(frame_ref);
     }
 
     std::string device()

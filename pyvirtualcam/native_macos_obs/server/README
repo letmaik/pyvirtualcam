@@ -1,5 +1,5 @@
 Copied from https://github.com/obsproject/obs-studio/tree/master/plugins/mac-virtualcam/src/obs-plugin.
 
-Current version: 4a50e6212043dc3dd03727020d787b9216a74411 (27.2.1)
+Current version: 967bce5e155e182ba6686a5781f3e88a85217c77 (28.0.2)
 
 Note: (void)run was changed to (BOOL)run to report success/failure
