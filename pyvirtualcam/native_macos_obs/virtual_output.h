@@ -54,6 +54,20 @@ class VirtualOutput {
                 "Use the Virtual Camera function in OBS to trigger installation."
                 );
         }
+        NSDictionary *dal_plugin_info_plist = [NSDictionary
+            dictionaryWithContentsOfURL:
+                [NSURL fileURLWithPath:
+                        @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin/Contents/Info.plist"]];
+        NSString *dal_plugin_version = [dal_plugin_info_plist
+            valueForKey:@"CFBundleShortVersionString"];
+        if ([dal_plugin_version hasPrefix:@"26."] || [dal_plugin_version hasPrefix:@"27."]) {
+            throw std::runtime_error(
+                "Your OBS Virtual Camera version is not supported. "
+                "Upgrade to OBS 28 or higher. "
+                "After upgrading, use the Virtual Camera function "
+                "once in OBS to trigger installation of the virtual camera."
+                );
+        }
 
         if (device_.has_value() && device_ != device()) {
             throw std::invalid_argument(
