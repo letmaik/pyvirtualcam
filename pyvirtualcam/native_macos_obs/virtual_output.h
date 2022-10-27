@@ -47,9 +47,9 @@ class VirtualOutput {
     uint64_t scale_mach_time(uint64_t i) {
         uint32_t numer = _timebase_info.numer;
         uint32_t denom = _timebase_info.denom;
-        U64 high = (i >> 32) * numer;
-        U64 low = (i & 0xffffffffull) * numer / denom;
-        U64 highRem = ((high % denom) << 32) / denom;
+        uint64_t high = (i >> 32) * numer;
+        uint64_t low = (i & 0xffffffffull) * numer / denom;
+        uint64_t highRem = ((high % denom) << 32) / denom;
         high /= denom;
         return (high << 32) + highRem + low;
     }
