@@ -31,6 +31,7 @@
 class VirtualOutput {
   private:
     OBSDALMachServer* _mach_server = nil;
+    mach_timebase_info_data_t _timebase_info;
     CVPixelBufferPoolRef _cv_pool;
     FourCharCode _cv_format;
     uint32_t _frame_width;
@@ -41,6 +42,17 @@ class VirtualOutput {
     uint32_t _fps_den;
     std::vector<uint8_t> _buffer_tmp;
     std::vector<uint8_t> _buffer_output;
+
+    // https://stackoverflow.com/a/23378064
+    uint64_t scale_mach_time(uint64_t i) {
+        uint32_t numer = _timebase_info.numer;
+        uint32_t denom = _timebase_info.denom;
+        uint64_t high = (i >> 32) * numer;
+        uint64_t low = (i & 0xffffffffull) * numer / denom;
+        uint64_t highRem = ((high % denom) << 32) / denom;
+        high /= denom;
+        return (high << 32) + highRem + low;
+    }
 
   public:
     VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc,
@@ -132,6 +144,9 @@ class VirtualOutput {
         if (!started) {
             throw std::runtime_error("virtual camera output could not be started");
         }
+
+        kern_return_t mti_status = mach_timebase_info(&_timebase_info);
+        assert(mti_status == KERN_SUCCESS);
     }
 
     void stop() {
@@ -163,7 +178,7 @@ class VirtualOutput {
         NSDate *now = [NSDate date];
         [run_loop runMode:NSDefaultRunLoopMode beforeDate:now];
         
-        uint64_t timestamp = mach_absolute_time();
+        uint64_t timestamp = scale_mach_time(mach_absolute_time());
 
         uint8_t* tmp = _buffer_tmp.data();
         uint8_t* out_frame;
