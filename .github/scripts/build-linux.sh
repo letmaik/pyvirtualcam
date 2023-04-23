@@ -19,6 +19,10 @@ else
     exit 1
 fi
 
+if [ ! -z "$GITHUB_ENV" ]; then 
+    echo "CODEQL_PYTHON=$PYBIN/python" >> $GITHUB_ENV
+fi
+
 # install compile-time dependencies
 ${PYBIN}/pip install numpy==${NUMPY_VERSION}
 
