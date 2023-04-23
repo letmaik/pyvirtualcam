@@ -123,6 +123,11 @@ jobs:
       with:
         submodules: true
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: python, cpp
+
     - name: Build wheel (Linux)
       if: matrix.config.os-name == 'linux'
       run: .github/scripts/build-linux.sh
@@ -158,6 +163,9 @@ jobs:
       with:
         name: wheels
         path: dist
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
 
   test:
     strategy:
@@ -245,6 +253,7 @@ jobs:
           numpy-version: '1.23.*'
 
     runs-on: ${{ matrix.config.os-image }}
+    container: ${{ matrix.config.docker-image }}
 
     needs: build
 
@@ -261,7 +270,7 @@ jobs:
 
     - name: Test wheel (Linux)
       if: matrix.config.os-name == 'linux'
-      run: docker run --rm -e PYTHON_VERSION -e NUMPY_VERSION -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/test-linux.sh
+      run: .github/scripts/test-linux.sh
       env:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
 
