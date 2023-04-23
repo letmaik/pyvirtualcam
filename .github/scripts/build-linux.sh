@@ -21,6 +21,7 @@ fi
 
 if [ ! -z "$GITHUB_ENV" ]; then 
     echo "CODEQL_PYTHON=$PYBIN/python" >> $GITHUB_ENV
+    echo "PATH=$PYBIN:$PATH" >> $GITHUB_ENV
 fi
 
 # install compile-time dependencies
