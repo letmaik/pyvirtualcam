@@ -115,6 +115,9 @@ jobs:
           python-arch: '64'
           numpy-version: '1.23.*'
 
+    permissions:
+      security-events: write
+
     runs-on: ${{ matrix.config.os-image }}
     container: ${{ matrix.config.docker-image }}
 
