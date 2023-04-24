@@ -173,6 +173,14 @@ jobs:
       if: matrix.config.python-version == '3.10'
       uses: github/codeql-action/analyze@v2
 
+    # For debugging only.
+    - name: Upload SARIF as a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sarif-results-${{ matrix.config.os-name }}
+        path: results
+        retention-days: 1
+
   test:
     strategy:
       fail-fast: false
