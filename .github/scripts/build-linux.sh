@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e -x
 
-cd /io
-
 # List python versions
 ls /opt/python
 
@@ -19,6 +17,11 @@ elif [ $PYTHON_VERSION == "3.11" ]; then
 else
     echo "Unsupported Python version $PYTHON_VERSION"
     exit 1
+fi
+
+if [ ! -z "$GITHUB_ENV" ]; then 
+    echo "CODEQL_PYTHON=$PYBIN/python" >> $GITHUB_ENV
+    echo "PATH=$PYBIN:$PATH" >> $GITHUB_ENV
 fi
 
 # install compile-time dependencies
