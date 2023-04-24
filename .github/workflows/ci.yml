@@ -173,6 +173,7 @@ jobs:
       if: matrix.config.python-version == '3.10'
       uses: github/codeql-action/analyze@v2
       with:
+        category: ${{ matrix.config.os-name }}
         upload: False
         output: codeql-results
 
@@ -358,7 +359,7 @@ jobs:
 
     - name: Install from wheel
       run: |
-        pip install dist/pyvirtualcam*cp39-manylinux*.whl
+        pip install dist/pyvirtualcam*cp310-manylinux*.whl
         pip install -r dev-requirements.txt
 
     - name: Build docs
