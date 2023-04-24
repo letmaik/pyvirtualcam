@@ -172,13 +172,23 @@ jobs:
     - name: Perform CodeQL Analysis
       if: matrix.config.python-version == '3.10'
       uses: github/codeql-action/analyze@v2
+      with:
+        upload: False
+        output: sarif-results
+
+    - name: Upload SARIF
+      if: matrix.config.python-version == '3.10'
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: sarif-results
 
     # For debugging only.
-    - name: Upload SARIF as a Build Artifact
+    - name: Upload SARIF as artifact
+      if: matrix.config.python-version == '3.10'
       uses: actions/upload-artifact@v2
       with:
         name: sarif-results-${{ matrix.config.os-name }}
-        path: results
+        path: sarif-results
         retention-days: 1
 
   test:
