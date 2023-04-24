@@ -122,7 +122,7 @@ jobs:
     container: ${{ matrix.config.docker-image }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
 
@@ -142,7 +142,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -164,7 +164,7 @@ jobs:
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
     - name: Store wheel as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: wheels
         path: dist
@@ -174,21 +174,21 @@ jobs:
       uses: github/codeql-action/analyze@v2
       with:
         upload: False
-        output: sarif-results
+        output: codeql-results
 
-    - name: Upload SARIF
+    - name: Upload CodeQL results
       if: matrix.config.python-version == '3.10'
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: sarif-results
+        sarif_file: codeql-results
 
     # For debugging only.
-    - name: Upload SARIF as artifact
+    - name: Upload CodeQL results as artifact
       if: matrix.config.python-version == '3.10'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: sarif-results-${{ matrix.config.os-name }}
-        path: sarif-results
+        name: codeql-results-${{ matrix.config.os-name }}
+        path: codeql-results
         retention-days: 1
 
   test:
@@ -282,12 +282,12 @@ jobs:
     needs: build
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: true
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist
@@ -300,7 +300,7 @@ jobs:
 
     - name: Setup Python (Windows)
       if: matrix.config.os-name == 'windows'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -317,7 +317,7 @@ jobs:
 
     - name: Setup Python (macOS)
       if: matrix.config.os-name == 'mac'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.config.python-version }}
 
@@ -330,7 +330,7 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
 
     - name: Store test captures as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       if: always()
       with:
         name: test_captures
@@ -343,15 +343,15 @@ jobs:
     needs: build
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
    
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: '3.10'
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist
@@ -365,7 +365,7 @@ jobs:
       run: sphinx-build -b html docs dist-docs
 
     - name: Store docs HTML as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: docs
         path: dist-docs
@@ -379,13 +379,15 @@ jobs:
 
     steps:
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: wheels
         path: dist
 
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
     
     - name: Upload wheels to PyPI
       run: |
@@ -402,7 +404,7 @@ jobs:
 
     steps:
     - name: Download docs HTML from artifact storage
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: docs
         path: dist-docs
