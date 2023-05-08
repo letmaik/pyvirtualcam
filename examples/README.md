@@ -5,7 +5,7 @@
 Source: [simple.py](simple.py)
 
 ```sh
-python ./examples/simply.py
+python ./examples/simple.py
 ```
 
 ![screencast of simple.py](screencasts/simple.gif)
