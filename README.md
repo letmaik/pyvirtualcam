@@ -21,7 +21,7 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
 ```
 
 <p align="center">
-<img width="500" src="https://raw.githubusercontent.com/letmaik/pyvirtualcam/letmaik/screencast/examples/screencasts/simple.gif">
+<img width="500" src="https://raw.githubusercontent.com/letmaik/pyvirtualcam/main/examples/screencasts/simple.gif">
 </p>
     
 pyvirtualcam uses the first available virtual camera it finds (see later section).
