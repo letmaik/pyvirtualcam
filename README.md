@@ -5,18 +5,25 @@ pyvirtualcam sends frames to a virtual camera from Python.
 ## Usage
 
 ```py
-import pyvirtualcam
+import colorsys
 import numpy as np
+import pyvirtualcam
 
 with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
     print(f'Using virtual camera: {cam.device}')
     frame = np.zeros((cam.height, cam.width, 3), np.uint8)  # RGB
     while True:
-        frame[:] = cam.frames_sent % 255  # grayscale animation
+        h, s, v = (cam.frames_sent % 100) / 100, 1.0, 1.0
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        frame[:] = (r * 255, g * 255, b * 255)
         cam.send(frame)
         cam.sleep_until_next_frame()
 ```
 
+<p align="center">
+<img width="500" src="https://raw.githubusercontent.com/letmaik/pyvirtualcam/letmaik/screencast/examples/screencasts/simple.gif">
+</p>
+    
 pyvirtualcam uses the first available virtual camera it finds (see later section).
 
 For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`examples/`](https://github.com/letmaik/pyvirtualcam/tree/main/examples) folder.
