@@ -20,8 +20,10 @@ with pyvirtualcam.Camera(width=1280, height=720, fps=20) as cam:
         cam.sleep_until_next_frame()
 ```
 
-![screencast of usage example](examples/screencasts/simple.gif)
-
+<p align="center">
+<img width="500" src="https://raw.githubusercontent.com/letmaik/pyvirtualcam/letmaik/screencast/examples/screencasts/simple.gif">
+</p>
+    
 pyvirtualcam uses the first available virtual camera it finds (see later section).
 
 For more examples, including using different pixel formats like BGR, or selecting a specific camera device, check out the [`examples/`](https://github.com/letmaik/pyvirtualcam/tree/main/examples) folder.
