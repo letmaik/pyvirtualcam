@@ -25,7 +25,7 @@ See also the [API Documentation](https://letmaik.github.io/pyvirtualcam).
 
 ## Installation
 
-This package works on Windows, macOS, and Linux. Install it from PyPI with:
+This package works on Windows, macOS, and Linux. Install it from [PyPI](https://pypi.org/project/pyvirtualcam/) with:
 
 ```sh
 pip install pyvirtualcam
