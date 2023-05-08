@@ -8,7 +8,7 @@ Source: [simple.py](simple.py)
 python ./examples/simple.py
 ```
 
-![screencast of simple.py](screencasts/simple.gif)
+<img width="500" src="screencasts/simple.gif">
 
 ## Video
 
@@ -20,7 +20,7 @@ Source: [video.py](video.py)
 python ./examples/video.py file_example_MP4_1280_10MG.mp4
 ```
 
-![screencast of video.py](screencasts/video.gif)
+<img width="500" src="screencasts/video.gif">
 
 ## Latency
 
@@ -30,7 +30,7 @@ Source: [latency.py](latency.py)
 python ./examples/latency.py
 ```
 
-![screencast of latency.py](screencasts/latency.gif)
+<img width="800" src="screencasts/latency.gif">
 
 ## Webcam Filter
 
