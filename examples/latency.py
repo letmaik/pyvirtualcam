@@ -1,5 +1,5 @@
 # This script allows to visually evaluate latency by comparing
-# periodic color changes with correponding output on the terminal.
+# periodic color changes with corresponding output on the terminal.
 
 import time
 import numpy as np
