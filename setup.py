@@ -135,7 +135,6 @@ setup(
     name='pyvirtualcam',
     version=__version__,
     author='Maik Riechert',
-    author_email='maik.riechert@arcor.de',
     url='https://github.com/letmaik/pyvirtualcam',
     description='Send frames to a virtual camera',
     long_description = open('README.md').read(),
