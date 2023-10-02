@@ -65,27 +65,38 @@ jobs:
 
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.7'
           numpy-version: '1.14.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '1.19.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '1.21.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
+        - os-image: macos-13-xlarge # M1
+          os-name: mac
+          arch: arm64
+          macos-min-version: '11.0'
           python-version: '3.11'
           numpy-version: '1.23.*'
 
@@ -159,6 +170,7 @@ jobs:
       if: matrix.config.os-name == 'mac'
       run: .github/scripts/build-macos.sh
       env:
+        ARCH: ${{ matrix.config.arch }}
         MACOS_MIN_VERSION: ${{ matrix.config.macos-min-version }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
