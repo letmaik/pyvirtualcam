@@ -133,6 +133,11 @@ jobs:
         languages: python, cpp
         setup-python-dependencies: false
 
+    - name: DEBUG
+      if: matrix.config.os-name == 'mac'
+      run: |
+        .github/scripts/install-macos-obs-virtual-cam.sh
+
     - name: Build wheel (Linux)
       if: matrix.config.os-name == 'linux'
       run: .github/scripts/build-linux.sh
