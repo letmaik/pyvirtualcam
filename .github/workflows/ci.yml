@@ -40,11 +40,6 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
-          python-version: '3.7'
-          numpy-version: '1.14.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: ubuntu-latest
@@ -62,15 +57,15 @@ jobs:
           docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.11'
           numpy-version: '1.23.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-version: '3.12'
+          numpy-version: '1.26.*'
 
         - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
-          python-version: '3.7'
-          numpy-version: '1.14.*'
-        - os-image: macos-11
-          os-name: mac
-          macos-min-version: '10.9'
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: macos-11
@@ -88,14 +83,14 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '1.23.*'
+        - os-image: macos-11
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.12'
+          numpy-version: '1.26.*'
 
         - os-image: windows-latest
           os-name: windows
-          python-version: '3.7'
-          python-arch: '64'
-          numpy-version: '1.14.*'
-        - os-image: windows-latest
-          os-name: windows
           python-version: '3.8'
           python-arch: '64'
           numpy-version: '1.17.*'
@@ -114,6 +109,11 @@ jobs:
           python-version: '3.11'
           python-arch: '64'
           numpy-version: '1.23.*'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.12'
+          python-arch: '64'
+          numpy-version: '1.26.*'
 
     permissions:
       security-events: write
@@ -185,11 +185,6 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
-          python-version: '3.7'
-          numpy-version: '1.14.*'
-        - os-image: ubuntu-latest
-          os-name: linux
-          docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: ubuntu-latest
@@ -207,15 +202,15 @@ jobs:
           docker-image: quay.io/pypa/manylinux2014_x86_64
           python-version: '3.11'
           numpy-version: '1.23.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-version: '3.12'
+          numpy-version: '1.26.*'
 
         - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
-          python-version: '3.7'
-          numpy-version: '1.14.*'
-        - os-image: macos-11
-          os-name: mac
-          macos-min-version: '10.9'
           python-version: '3.8'
           numpy-version: '1.17.*'
         - os-image: macos-11
@@ -233,14 +228,14 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '1.23.*'
+        - os-image: macos-11
+          os-name: mac
+          macos-min-version: '10.9'
+          python-version: '3.12'
+          numpy-version: '1.26.*'
 
         - os-image: windows-latest
           os-name: windows
-          python-version: '3.7'
-          python-arch: '64'
-          numpy-version: '1.14.*'
-        - os-image: windows-latest
-          os-name: windows
           python-version: '3.8'
           python-arch: '64'
           numpy-version: '1.17.*'
@@ -259,6 +254,11 @@ jobs:
           python-version: '3.11'
           python-arch: '64'
           numpy-version: '1.23.*'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.12'
+          python-arch: '64'
+          numpy-version: '1.26.*'
 
     runs-on: ${{ matrix.config.os-image }}
     container: ${{ matrix.config.docker-image }}
