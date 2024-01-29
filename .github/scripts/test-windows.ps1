@@ -97,7 +97,7 @@ exec { python -m pip install -r dev-requirements.txt }
 
 # Install test helper package
 Push-Location test/win-dshow-capture
-exec { python -m pip install wheel }
+exec { python -m pip install wheel setuptools }
 exec { python -u setup.py bdist_wheel }
 python -m pip uninstall -y pyvirtualcam_win_dshow_capture
 ls dist\*cp${PYVER}*win*.whl | % { exec { python -m pip install $_ } }
