@@ -1,4 +1,4 @@
-# https://github.com/pybind/python_example/blob/master/setup.py
+    # https://github.com/pybind/python_example/blob/master/setup.py
 
 import platform
 import sys
@@ -53,10 +53,9 @@ elif platform.system() == 'Darwin':
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
                 'pyvirtualcam/native_macos_obs/main.mm',
-                'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
             ] + common_src),
             include_dirs=['pyvirtualcam/native_macos_obs'] + common_inc,
-            extra_link_args=["-framework", "Foundation", "-framework", "CoreVideo"],
+            extra_link_args=["-framework", "Foundation", "-framework", "CoreVideo", "-framework", "CoreMediaIO", "-framework", "SystemExtensions"],
             language='objc'
         )
     )

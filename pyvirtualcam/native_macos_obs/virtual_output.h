@@ -20,19 +20,36 @@
 
 #pragma once
 
+#import <CoreMediaIO/CoreMediaIO.h>
+#import <SystemExtensions/SystemExtensions.h>
+
 #include <stdexcept>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <mach/mach_time.h>
-#include "server/OBSDALMachServer.h"
 #include "../native_shared/image_formats.h"
+
+
+@interface SystemExtensionActivationDelegate : NSObject <OSSystemExtensionRequestDelegate> {
+      @private
+    struct virtualcam_data *_vcam;
+}
+@end
+
 
 class VirtualOutput {
   private:
-    OBSDALMachServer* _mach_server = nil;
     mach_timebase_info_data_t _timebase_info;
     CVPixelBufferPoolRef _cv_pool;
+
+    // CMIO Extension (available with macOS 13)
+    CMSimpleQueueRef queue;
+    CMIODeviceID deviceID;
+    CMIOStreamID streamID;
+    CMFormatDescriptionRef formatDescription;
+    id extensionDelegate;
+
     FourCharCode _cv_format;
     uint32_t _frame_width;
     uint32_t _frame_height;
@@ -139,24 +156,71 @@ class VirtualOutput {
             throw std::runtime_error("unable to allocate pixel buffer pool");
         }
 
-        _mach_server = [[OBSDALMachServer alloc] init];
-        BOOL started = [_mach_server run];
-        if (!started) {
-            throw std::runtime_error("virtual camera output could not be started");
+        extensionDelegate = [[SystemExtensionActivationDelegate alloc] init];
+        OSSystemExtensionRequest *request = [OSSystemExtensionRequest
+            activationRequestForExtension:@"com.obsproject.obs-studio.mac-camera-extension"
+                                queue:dispatch_get_main_queue()];
+        request.delegate = extensionDelegate;
+        [[OSSystemExtensionManager sharedManager] submitRequest:request];
+
+        UInt32 size;
+        UInt32 used;
+
+        CMIOObjectPropertyAddress address {.mSelector = kCMIOHardwarePropertyDevices,
+                                           .mScope = kCMIOObjectPropertyScopeGlobal,
+                                           .mElement = kCMIOObjectPropertyElementMain};
+        CMIOObjectGetPropertyDataSize(kCMIOObjectSystemObject, &address, 0, NULL, &size);
+        NSMutableData *cmioDevices = [NSMutableData dataWithLength:size];
+        void *device_data = [cmioDevices mutableBytes];
+        CMIOObjectGetPropertyData(kCMIOObjectSystemObject, &address, 0, NULL, size, &used, device_data);
+
+        deviceID = 0;
+        NSString *OBSVirtualCamUUID = [[NSBundle bundleWithIdentifier:@"com.obsproject.mac-virtualcam"]
+            objectForInfoDictionaryKey:@"OBSCameraDeviceUUID"];
+
+        size_t num_elements = size / sizeof(CMIOObjectID);
+        for (size_t i = 0; i < num_elements; i++) {
+            CMIOObjectID cmioDevice;
+            [cmioDevices getBytes:&cmioDevice range:NSMakeRange(i * sizeof(CMIOObjectID), sizeof(CMIOObjectID))];
+
+            address.mSelector = kCMIODevicePropertyDeviceUID;
+            UInt32 device_name_size;
+            CMIOObjectGetPropertyDataSize(cmioDevice, &address, 0, NULL, &device_name_size);
+            CFStringRef uid;
+            CMIOObjectGetPropertyData(cmioDevice, &address, 0, NULL, device_name_size, &used, &uid);
+            const char *uid_string = CFStringGetCStringPtr(uid, kCFStringEncodingUTF8);
+            if (uid_string && strcmp(uid_string, OBSVirtualCamUUID.UTF8String) == 0) {
+                deviceID = cmioDevice;
+                CFRelease(uid);
+                break;
+            } else {
+                CFRelease(uid);
+            }
         }
+
+        address.mSelector = kCMIODevicePropertyStreams;
+        CMIOObjectGetPropertyDataSize(deviceID, &address, 0, NULL, &size);
+        NSMutableData *streamIds = [NSMutableData dataWithLength:size];
+        void *stream_data = [streamIds mutableBytes];
+        CMIOObjectGetPropertyData(deviceID, &address, 0, NULL, size, &used, stream_data);
+
+        [streamIds getBytes:&streamID range:NSMakeRange(sizeof(CMIOStreamID), sizeof(CMIOStreamID))];
+
+        CMIOStreamCopyBufferQueue(
+            streamID, [](CMIOStreamID, void *, void *) {
+            }, NULL, &queue);
+        CMVideoFormatDescriptionCreate(kCFAllocatorDefault, _cv_format, _frame_width,
+                                       _frame_height, NULL, &formatDescription);
+
+        OSStatus result = CMIODeviceStartStream(deviceID, streamID);
 
         kern_return_t mti_status = mach_timebase_info(&_timebase_info);
         assert(mti_status == KERN_SUCCESS);
     }
 
     void stop() {
-        if (_mach_server == nil) {
-            return;
-        }
-
-        [_mach_server stop];
-        [_mach_server dealloc];
-        _mach_server = nil;
+        CMIODeviceStopStream(deviceID, streamID);
+        CFRelease(formatDescription);
 
         CVPixelBufferPoolRelease(_cv_pool);
         
@@ -168,9 +232,6 @@ class VirtualOutput {
     }
 
     void send(const uint8_t* frame) {
-        if (_mach_server == nil) {
-            return;
-        }
 
         // We must handle port messages, and somehow our RunLoop isn't normally active.
         // Handle exactly one message. If no message is queued, return without blocking.
@@ -244,10 +305,12 @@ class VirtualOutput {
 
         CVPixelBufferUnlockBaseAddress(frame_ref, 0);
 
-        [_mach_server sendPixelBuffer:frame_ref
-            timestamp:timestamp
-            fpsNumerator:_fps_num
-            fpsDenominator:_fps_den];
+        CMSampleBufferRef sampleBuffer;
+        CMSampleTimingInfo timingInfo {.presentationTimeStamp = CMTimeMake(timestamp, NSEC_PER_SEC)};
+
+        CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault, frame_ref, true, NULL, NULL, formatDescription,
+                                           &timingInfo, &sampleBuffer);
+        CMSimpleQueueEnqueue(queue, sampleBuffer);
         
         CVPixelBufferRelease(frame_ref);
     }
