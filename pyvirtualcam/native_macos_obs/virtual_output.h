@@ -23,20 +23,13 @@
 #import <CoreMediaIO/CoreMediaIO.h>
 #import <SystemExtensions/SystemExtensions.h>
 
+//#include <iostream>
 #include <stdexcept>
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <mach/mach_time.h>
 #include "../native_shared/image_formats.h"
-
-
-@interface SystemExtensionActivationDelegate : NSObject <OSSystemExtensionRequestDelegate> {
-      @private
-    struct virtualcam_data *_vcam;
-}
-@end
-
 
 class VirtualOutput {
   private:
@@ -74,35 +67,6 @@ class VirtualOutput {
   public:
     VirtualOutput(uint32_t width, uint32_t height, double fps, uint32_t fourcc,
                   std::optional<std::string> device_) {
-        NSString *dal_plugin_path = @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin";
-        NSFileManager *file_manager = [NSFileManager defaultManager];
-        BOOL dal_plugin_installed = [file_manager fileExistsAtPath:dal_plugin_path];
-        if (!dal_plugin_installed) {
-            throw std::runtime_error(
-                "OBS Virtual Camera is not installed in your system. "
-                "Use the Virtual Camera function in OBS to trigger installation."
-                );
-        }
-        NSDictionary *dal_plugin_info_plist = [NSDictionary
-            dictionaryWithContentsOfURL:
-                [NSURL fileURLWithPath:
-                        @"/Library/CoreMediaIO/Plug-Ins/DAL/obs-mac-virtualcam.plugin/Contents/Info.plist"]];
-        NSString *dal_plugin_version = [dal_plugin_info_plist
-            valueForKey:@"CFBundleShortVersionString"];
-        if ([dal_plugin_version hasPrefix:@"26."] || [dal_plugin_version hasPrefix:@"27."]) {
-            throw std::runtime_error(
-                "Your OBS Virtual Camera version is not supported. "
-                "Upgrade to OBS 28 or higher. "
-                "After upgrading, use the Virtual Camera function "
-                "once in OBS to trigger installation of the virtual camera."
-                );
-        }
-
-        if (device_.has_value() && device_ != device()) {
-            throw std::invalid_argument(
-                "This backend supports only the '" + device() + "' device."
-            );
-        }
 
         _frame_fourcc = libyuv::CanonicalFourCC(fourcc);
         _frame_width = width;
@@ -156,11 +120,9 @@ class VirtualOutput {
             throw std::runtime_error("unable to allocate pixel buffer pool");
         }
 
-        extensionDelegate = [[SystemExtensionActivationDelegate alloc] init];
         OSSystemExtensionRequest *request = [OSSystemExtensionRequest
             activationRequestForExtension:@"com.obsproject.obs-studio.mac-camera-extension"
                                 queue:dispatch_get_main_queue()];
-        request.delegate = extensionDelegate;
         [[OSSystemExtensionManager sharedManager] submitRequest:request];
 
         UInt32 size;
@@ -175,8 +137,8 @@ class VirtualOutput {
         CMIOObjectGetPropertyData(kCMIOObjectSystemObject, &address, 0, NULL, size, &used, device_data);
 
         deviceID = 0;
-        NSString *OBSVirtualCamUUID = [[NSBundle bundleWithIdentifier:@"com.obsproject.mac-virtualcam"]
-            objectForInfoDictionaryKey:@"OBSCameraDeviceUUID"];
+//        NSString *OBSVirtualCamUUID = [[NSBundle bundleWithIdentifier:@"com.obsproject.mac-virtualcam"]
+//            objectForInfoDictionaryKey:@"OBSCameraDeviceUUID"];
 
         size_t num_elements = size / sizeof(CMIOObjectID);
         for (size_t i = 0; i < num_elements; i++) {
@@ -189,7 +151,10 @@ class VirtualOutput {
             CFStringRef uid;
             CMIOObjectGetPropertyData(cmioDevice, &address, 0, NULL, device_name_size, &used, &uid);
             const char *uid_string = CFStringGetCStringPtr(uid, kCFStringEncodingUTF8);
-            if (uid_string && strcmp(uid_string, OBSVirtualCamUUID.UTF8String) == 0) {
+
+//            if (uid_string && strcmp(uid_string, OBSVirtualCamUUID.UTF8String) == 0) {
+//            TODO: OBSVirtualCamUUID is 0x0, don't know how to fix, on my mac14, i=1 is obs-camera, i=0 means FaceTimeCamera
+            if (i == 1) {
                 deviceID = cmioDevice;
                 CFRelease(uid);
                 break;
