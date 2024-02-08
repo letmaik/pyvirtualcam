@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.1] - 2023-02-08
 ### Added
-- macOS arm64 support.
+- macOS arm64 support (Python 3.10 and higher).
 
 ## [0.11.0] - 2023-12-10
 ### Added
