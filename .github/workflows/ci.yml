@@ -95,6 +95,7 @@ jobs:
           numpy-version: '1.23.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
           numpy-version: '1.26.*'
@@ -257,6 +258,7 @@ jobs:
           numpy-version: '1.23.*'
         - os-image: macos-11
           os-name: mac
+          arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
           numpy-version: '1.26.*'
