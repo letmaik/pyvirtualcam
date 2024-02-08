@@ -93,7 +93,7 @@ jobs:
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '1.23.*'
-        - os-image: macos-13-xlarge # M1
+        - os-image: macos-14 # M1
           os-name: mac
           arch: arm64
           macos-min-version: '11.0'
@@ -243,6 +243,12 @@ jobs:
         - os-image: macos-11
           os-name: mac
           macos-min-version: '10.9'
+          python-version: '3.11'
+          numpy-version: '1.23.*'
+        - os-image: macos-14 # M1
+          os-name: mac
+          arch: arm64
+          macos-min-version: '11.0'
           python-version: '3.11'
           numpy-version: '1.23.*'
 
