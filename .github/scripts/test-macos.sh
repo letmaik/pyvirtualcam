@@ -9,7 +9,7 @@ python -m venv env/$VENV
 source env/$VENV/bin/activate
 
 # Install pyvirtualcam
-pip install dist/pyvirtualcam*cp${PYVER}*macosx*.whl
+pip install dist/pyvirtualcam*cp${PYVER}*macosx*${ARCH}*.whl
 
 # Test installed pyvirtualcam
 pip install -r dev-requirements.txt
