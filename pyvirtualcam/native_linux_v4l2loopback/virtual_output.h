@@ -130,7 +130,7 @@ class VirtualOutput {
             } catch (std::exception &ex) {
                 close(_camera_fd);
                 _camera_fd = -1;
-                throw ex;
+                throw;
             }
         };
 

@@ -3,10 +3,11 @@
 import platform
 import sys
 import glob
-from distutils.unixccompiler import UnixCCompiler
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 import setuptools
+
+from distutils.unixccompiler import UnixCCompiler
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -85,7 +86,7 @@ def has_flag(compiler, flagname):
         fname = f.name
     try:
         compiler.compile([fname], extra_postargs=[flagname])
-    except setuptools.distutils.errors.CompileError:
+    except setuptools.errors.CompileError:
         return False
     finally:
         try:
