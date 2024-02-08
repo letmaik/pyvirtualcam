@@ -6,7 +6,7 @@ if [[ "$ARCH" == "arm64" ]]; then
     exit 0
 fi
 
-VERSION="29.1.3"
+VERSION="28.0.2"
 
 DMG_FILENAME="obs-studio-${VERSION}-macos-x86_64.dmg"
 DMG_URL="https://cdn-fastly.obsproject.com/downloads/${DMG_FILENAME}"
