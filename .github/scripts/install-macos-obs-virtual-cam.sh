@@ -3,9 +3,15 @@ set -e -x
 
 VERSION="28.0.2"
 
-DMG_FILENAME="obs-studio-${VERSION}-macos-x86_64.dmg"
+if [[ "$ARCH" == "arm64" ]]; then
+    ARCH_MOUNT="Apple"
+else
+    ARCH_MOUNT="Intel"
+fi
+
+DMG_FILENAME="obs-studio-${VERSION}-macos-${ARCH}.dmg"
 DMG_URL="https://cdn-fastly.obsproject.com/downloads/${DMG_FILENAME}"
-MOUNT_PATH="/Volumes/OBS-${VERSION}-macOS-Intel"
+MOUNT_PATH="/Volumes/OBS-${VERSION}-macOS-${ARCH_MOUNT}"
 INSTALL_PATH="/Library/CoreMediaIO/Plug-Ins/DAL"
 
 sudo mkdir -p "${INSTALL_PATH}"
