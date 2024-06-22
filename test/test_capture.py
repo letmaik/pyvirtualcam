@@ -21,7 +21,6 @@ try:
 except ImportError:
     if os.environ.get('CI'):
         assert platform.system() == 'Darwin'
-        assert sys.version_info[:2] >= (3, 10)
         print('Skipping due to https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850')
     pytest.skip('OpenCV is not installed', allow_module_level=True)
 
