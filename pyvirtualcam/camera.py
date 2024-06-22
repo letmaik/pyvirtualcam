@@ -345,7 +345,7 @@ class Camera:
             
             print(s)
         
-        frame = np.array(frame.reshape(-1), copy=False, order='C')
+        frame = np.asarray(frame.reshape(-1), order='C')
         self._backend.send(frame)
         
     @property
