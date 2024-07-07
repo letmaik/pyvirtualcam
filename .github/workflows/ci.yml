@@ -63,31 +63,31 @@ jobs:
           python-version: '3.12'
           numpy-version: '1.26.*'
 
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.8'
           numpy-version: '1.17.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '1.19.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '1.21.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '1.23.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
@@ -233,31 +233,31 @@ jobs:
           python-version: '3.12'
           numpy-version: '1.26.*'
 
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.8'
           numpy-version: '1.17.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '1.19.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '1.21.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '1.23.*'
-        - os-image: macos-11
+        - os-image: macos-12
           os-name: mac
           arch: x86_64
           macos-min-version: '10.9'
