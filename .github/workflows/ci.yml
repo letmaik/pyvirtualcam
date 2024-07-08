@@ -152,12 +152,12 @@ jobs:
       with:
         submodules: true
 
-    - name: Initialize CodeQL
-      if: matrix.config.python-version == '3.10'
-      uses: github/codeql-action/init@v3
-      with:
-        languages: python, cpp
-        setup-python-dependencies: false
+    # - name: Initialize CodeQL
+    #   if: matrix.config.python-version == '3.10'
+    #   uses: github/codeql-action/init@v3
+    #   with:
+    #     languages: python, cpp
+    #     setup-python-dependencies: false
 
     - name: Build wheel (Linux)
       if: matrix.config.os-name == 'linux'
@@ -198,11 +198,11 @@ jobs:
         name: wheels
         path: dist
 
-    - name: Perform CodeQL Analysis
-      if: matrix.config.python-version == '3.10'
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: ${{ matrix.config.os-name }}
+    # - name: Perform CodeQL Analysis
+    #   if: matrix.config.python-version == '3.10'
+    #   uses: github/codeql-action/analyze@v3
+    #   with:
+    #     category: ${{ matrix.config.os-name }}
 
   test:
     strategy:

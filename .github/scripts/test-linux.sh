@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e -x
 
+cd /io
+
 # List python versions
 ls /opt/python
 
