@@ -292,7 +292,7 @@ jobs:
         submodules: true
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: wheels
         path: dist
@@ -358,7 +358,7 @@ jobs:
         python-version: '3.10'
 
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: wheels
         path: dist
@@ -386,7 +386,7 @@ jobs:
 
     steps:
     - name: Download wheels from artifact storage
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: wheels
         path: dist
@@ -411,7 +411,7 @@ jobs:
 
     steps:
     - name: Download docs HTML from artifact storage
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: docs
         path: dist-docs
