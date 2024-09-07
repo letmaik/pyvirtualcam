@@ -3,13 +3,13 @@ set -e -x
 
 VERSION="28.0.2"
 
-if [[ "$ARCH" == "arm64" ]]; then
+if [[ "$PYTHON_ARCH" == "arm64" ]]; then
     ARCH_MOUNT="Apple"
 else
     ARCH_MOUNT="Intel"
 fi
 
-DMG_FILENAME="obs-studio-${VERSION}-macos-${ARCH}.dmg"
+DMG_FILENAME="obs-studio-${VERSION}-macos-${PYTHON_ARCH}.dmg"
 DMG_URL="https://cdn-fastly.obsproject.com/downloads/${DMG_FILENAME}"
 MOUNT_PATH="/Volumes/OBS-${VERSION}-macOS-${ARCH_MOUNT}"
 INSTALL_PATH="/Library/CoreMediaIO/Plug-Ins/DAL"
