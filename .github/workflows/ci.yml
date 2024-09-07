@@ -40,64 +40,68 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.9'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '2.0.*'
 
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
           numpy-version: '2.0.*'
 
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.12'
           numpy-version: '2.0.*'
@@ -105,22 +109,22 @@ jobs:
         - os-image: windows-latest
           os-name: windows
           python-version: '3.9'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.10'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.11'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.12'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
 
     permissions:
@@ -171,7 +175,7 @@ jobs:
       if: matrix.config.os-name == 'mac'
       run: .github/scripts/build-macos.sh
       env:
-        ARCH: ${{ matrix.config.arch }}
+        PYTHON_ARCH: ${{ matrix.config.python-arch }}
         MACOS_MIN_VERSION: ${{ matrix.config.macos-min-version }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
@@ -179,7 +183,7 @@ jobs:
     - name: Store wheel as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: wheels
+        name: wheel-${{ matrix.config.os-name }}-${{ matrix.config.python-arch }}-${{ matrix.config.python-version }}
         path: dist
 
     # - name: Perform CodeQL Analysis
@@ -198,64 +202,68 @@ jobs:
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.9'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '2.0.*'
 
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: macos-12
           os-name: mac
-          arch: x86_64
+          python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
           numpy-version: '2.0.*'
 
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.10'
           numpy-version: '2.0.*'
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.11'
           numpy-version: '2.0.*'
         - os-image: macos-14 # M1
           os-name: mac
-          arch: arm64
+          python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.12'
           numpy-version: '2.0.*'
@@ -263,22 +271,22 @@ jobs:
         - os-image: windows-latest
           os-name: windows
           python-version: '3.9'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.10'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.11'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
         - os-image: windows-latest
           os-name: windows
           python-version: '3.12'
-          python-arch: '64'
+          python-arch: 'x86_64'
           numpy-version: '2.0.*'
 
     runs-on: ${{ matrix.config.os-image }}
@@ -291,10 +299,10 @@ jobs:
       with:
         submodules: true
 
-    - name: Download wheels from artifact storage
+    - name: Download wheel from artifact storage
       uses: actions/download-artifact@v4
       with:
-        name: wheels
+        name: wheel-${{ matrix.config.os-name }}-${{ matrix.config.python-arch }}-${{ matrix.config.python-version }}
         path: dist
 
     - name: Test wheel (Linux)
@@ -333,14 +341,14 @@ jobs:
         .github/scripts/install-macos-obs-virtual-cam.sh
         .github/scripts/test-macos.sh
       env:
-        ARCH: ${{ matrix.config.arch }}
+        PYTHON_ARCH: ${{ matrix.config.python-arch }}
         PYTHON_VERSION: ${{ matrix.config.python-version }}
 
     - name: Store test captures as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test_captures
+        name: test_captures-${{ matrix.config.os-name }}-${{ matrix.config.python-arch }}-${{ matrix.config.python-version }}
         path: 'tmp_for_test/*.png'
         if-no-files-found: ignore
 
@@ -360,7 +368,8 @@ jobs:
     - name: Download wheels from artifact storage
       uses: actions/download-artifact@v4
       with:
-        name: wheels
+        pattern: wheel-*
+        merge-multiple: true
         path: dist
 
     - name: Install from wheel
@@ -372,9 +381,8 @@ jobs:
       run: sphinx-build -b html docs dist-docs
 
     - name: Store docs HTML as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-pages-artifact@v3
       with:
-        name: docs
         path: dist-docs
 
   publish-wheels:
@@ -388,7 +396,8 @@ jobs:
     - name: Download wheels from artifact storage
       uses: actions/download-artifact@v4
       with:
-        name: wheels
+        pattern: wheel-*
+        merge-multiple: true
         path: dist
 
     - name: Setup Python
@@ -407,19 +416,14 @@ jobs:
     needs: [publish-wheels]
 
     permissions:
-      contents: write
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-    - name: Download docs HTML from artifact storage
-      uses: actions/download-artifact@v4
-      with:
-        name: docs
-        path: dist-docs
-
-    # TODO replace with https://github.com/actions/deploy-pages once out of beta
-    - name: Upload docs to GitHub Pages
-      uses: peaceiris/actions-gh-pages@47a6d63ea8b47b19328e258563aa1fbe224c0a23
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PUBLISH_BRANCH: gh-pages
-        PUBLISH_DIR: ./dist-docs
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

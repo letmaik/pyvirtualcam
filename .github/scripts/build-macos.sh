@@ -37,11 +37,11 @@ pip freeze
 # By default, wheels are tagged with the architecture of the Python
 # installation, which would produce universal2 even if only building
 # for x86_64. The following line overrides that behavior.
-export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-$ARCH"
+export _PYTHON_HOST_PLATFORM="macosx-${MACOS_MIN_VERSION}-${PYTHON_ARCH}"
 
 export CC=clang
 export CXX=clang++
-export CFLAGS="-arch $ARCH"
+export CFLAGS="-arch ${PYTHON_ARCH}"
 export CXXFLAGS=$CFLAGS
 export LDFLAGS=$CFLAGS
 export ARCHFLAGS=$CFLAGS
@@ -54,7 +54,7 @@ python setup.py bdist_wheel
 # no shared library dependencies that have to be bundled.
 
 delocate-listdeps --all --depending dist/*.whl # lists library dependencies
-delocate-wheel --verbose --require-archs=$ARCH dist/*.whl # copies library dependencies into wheel
+delocate-wheel --verbose --require-archs=${PYTHON_ARCH} dist/*.whl # copies library dependencies into wheel
 delocate-listdeps --all --depending dist/*.whl # verify
 
 # Dump target versions of dependend libraries.

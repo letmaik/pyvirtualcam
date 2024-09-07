@@ -22,7 +22,6 @@ function Initialize-Python {
     }
     # Check Python version/arch
     exec { python -c "import platform; assert platform.python_version().startswith('$env:PYTHON_VERSION')" }
-    exec { python -c "import struct; assert struct.calcsize('P') * 8 == $env:PYTHON_ARCH" }
 }
 
 function Create-VEnv {
@@ -63,8 +62,8 @@ function Exit-VEnv {
 if (!$env:PYTHON_VERSION) {
     throw "PYTHON_VERSION env var missing, must be x.y"
 }
-if ($env:PYTHON_ARCH -ne '32' -and $env:PYTHON_ARCH -ne '64') {
-    throw "PYTHON_ARCH env var must be 32 or 64"
+if ($env:PYTHON_ARCH -ne 'x86' -and $env:PYTHON_ARCH -ne 'x86_64') {
+    throw "PYTHON_ARCH env var must be x86 or x86_64"
 }
 if (!$env:NUMPY_VERSION) {
     throw "NUMPY_VERSION env var missing"
