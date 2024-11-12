@@ -181,11 +181,12 @@ jobs:
         PYTHON_VERSION: ${{ matrix.config.python-version }}
         NUMPY_VERSION: ${{ matrix.config.numpy-version }}
 
+    - name: Set up QEMU (Linux ARM64)
+      if: matrix.config.os-name == 'linux' && matrix.config.python-arch == 'aarch64'
+      uses: docker/setup-qemu-action@v2
+
     - name: Build wheel (Linux ARM64)
       if: matrix.config.os-name == 'linux' && matrix.config.python-arch == 'aarch64'
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-    - name: Run Docker
       # See comment above.
       # run: .github/scripts/build-linux.sh
       run: docker run --rm --platform linux/arm64 -e PYTHON_VERSION -e NUMPY_VERSION -w /io -v `pwd`:/io ${{ matrix.config.docker-image }} /io/.github/scripts/build-linux.sh
