@@ -61,7 +61,7 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '2.0.*'
-
+          #ARM 64
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_aarch64
