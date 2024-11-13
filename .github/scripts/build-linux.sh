@@ -26,6 +26,7 @@ fi
 
 # install compile-time dependencies
 ${PYBIN}/pip install numpy==${NUMPY_VERSION}
+${PYBIN}/pip install setuptools
 
 # List installed packages
 ${PYBIN}/pip freeze
