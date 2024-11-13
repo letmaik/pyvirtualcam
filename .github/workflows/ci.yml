@@ -435,7 +435,6 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up QEMU (Linux ARM64)
-      if: matrix.config.os-name == 'linux' && matrix.config.python-arch == 'aarch64'
       uses: docker/setup-qemu-action@v2
    
     - name: Setup Python
