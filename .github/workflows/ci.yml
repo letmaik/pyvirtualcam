@@ -433,9 +433,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up QEMU (Linux ARM64)
-      uses: docker/setup-qemu-action@v2
    
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -451,7 +448,7 @@ jobs:
 
     - name: Install from wheel
       run: |
-        pip install dist/pyvirtualcam*cp310-manylinux*.whl
+        pip install dist/pyvirtualcam*cp310-manylinux*_x86_64.whl
         pip install -r dev-requirements.txt
 
     - name: Build docs
