@@ -21,12 +21,7 @@ on: [push, pull_request]
 # including the one that publishes the wheels to PyPI uses third-party actions.
 
 # Lastly, the GITHUB_TOKEN permissions are set to read-only by default except
-# for the job that deploys to GitHub Pages. In that job, a third-party action
-# is used that writes to the 'gh-pages' branch of the repository.
-# This will change in the near future once pages can be deployed directly
-# without writing to a branch by using the new in-beta actions/deploy-pages action.
-# After that, no third-party actions will be used and the token permissions are fully
-# read-only.
+# for the job that deploys to GitHub Pages.
 
 permissions: read-all
 
@@ -61,7 +56,13 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '2.0.*'
-          #ARM 64
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.13'
+          numpy-version: '2.0.*'
+
         - os-image: ubuntu-latest
           os-name: linux
           docker-image: quay.io/pypa/manylinux_2_28_aarch64
@@ -86,30 +87,42 @@ jobs:
           python-arch: 'aarch64'
           python-version: '3.12'
           numpy-version: '2.0.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.13'
+          numpy-version: '2.0.*'
 
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
+          numpy-version: '2.0.*'
+        - os-image: macos-13
+          os-name: mac
+          python-arch: x86_64
+          macos-min-version: '10.9'
+          python-version: '3.13'
           numpy-version: '2.0.*'
 
         - os-image: macos-14 # M1
@@ -129,6 +142,12 @@ jobs:
           python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.12'
+          numpy-version: '2.0.*'
+        - os-image: macos-14 # M1
+          os-name: mac
+          python-arch: arm64
+          macos-min-version: '11.0'
+          python-version: '3.13'
           numpy-version: '2.0.*'
 
         - os-image: windows-latest
@@ -149,6 +168,11 @@ jobs:
         - os-image: windows-latest
           os-name: windows
           python-version: '3.12'
+          python-arch: 'x86_64'
+          numpy-version: '2.0.*'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.13'
           python-arch: 'x86_64'
           numpy-version: '2.0.*'
 
@@ -252,6 +276,12 @@ jobs:
           python-arch: 'x86_64'
           python-version: '3.12'
           numpy-version: '2.0.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux2014_x86_64
+          python-arch: 'x86_64'
+          python-version: '3.13'
+          numpy-version: '2.0.*'
 
         - os-image: ubuntu-latest
           os-name: linux
@@ -277,30 +307,42 @@ jobs:
           python-arch: 'aarch64'
           python-version: '3.12'
           numpy-version: '2.0.*'
+        - os-image: ubuntu-latest
+          os-name: linux
+          docker-image: quay.io/pypa/manylinux_2_28_aarch64
+          python-arch: 'aarch64'
+          python-version: '3.13'
+          numpy-version: '2.0.*'
 
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.9'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.10'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.11'
           numpy-version: '2.0.*'
-        - os-image: macos-12
+        - os-image: macos-13
           os-name: mac
           python-arch: x86_64
           macos-min-version: '10.9'
           python-version: '3.12'
+          numpy-version: '2.0.*'
+        - os-image: macos-13
+          os-name: mac
+          python-arch: x86_64
+          macos-min-version: '10.9'
+          python-version: '3.13'
           numpy-version: '2.0.*'
 
         - os-image: macos-14 # M1
@@ -320,6 +362,12 @@ jobs:
           python-arch: arm64
           macos-min-version: '11.0'
           python-version: '3.12'
+          numpy-version: '2.0.*'
+        - os-image: macos-14 # M1
+          os-name: mac
+          python-arch: arm64
+          macos-min-version: '11.0'
+          python-version: '3.13'
           numpy-version: '2.0.*'
 
         - os-image: windows-latest
@@ -340,6 +388,11 @@ jobs:
         - os-image: windows-latest
           os-name: windows
           python-version: '3.12'
+          python-arch: 'x86_64'
+          numpy-version: '2.0.*'
+        - os-image: windows-latest
+          os-name: windows
+          python-version: '3.13'
           python-arch: 'x86_64'
           numpy-version: '2.0.*'
 
@@ -421,7 +474,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.13'
 
     - name: Download wheels from artifact storage
       uses: actions/download-artifact@v4
@@ -432,7 +485,7 @@ jobs:
 
     - name: Install from wheel
       run: |
-        pip install dist/pyvirtualcam*cp310-manylinux*_x86_64.whl
+        pip install dist/pyvirtualcam*cp313-manylinux*_x86_64.whl
         pip install -r dev-requirements.txt
 
     - name: Build docs
@@ -461,7 +514,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.13'
     
     - name: Upload wheels to PyPI
       run: |
