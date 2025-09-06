@@ -109,8 +109,13 @@ if platform.system() == 'Windows':
     register_backend('obs', _native_windows_obs.Camera)
     register_backend('unitycapture', _native_windows_unity_capture.Camera)
 elif platform.system() == 'Darwin':
-    from pyvirtualcam import _native_macos_obs_dal
-    register_backend('obs', _native_macos_obs_dal.Camera)
+    # Darwin 22 is used on macOS 13
+    if int(platform.release().split(".")[0]) >= 22:
+        from pyvirtualcam import _native_macos_obs_cmioextension
+        register_backend('obs', _native_macos_obs_cmioextension.Camera)
+    else:
+        from pyvirtualcam import _native_macos_obs_dal
+        register_backend('obs', _native_macos_obs_dal.Camera)
 elif platform.system() == 'Linux':
     from pyvirtualcam import _native_linux_v4l2loopback
     register_backend('v4l2loopback', _native_linux_v4l2loopback.Camera)

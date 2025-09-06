@@ -60,6 +60,18 @@ elif platform.system() == 'Darwin':
             language='objc'
         )
     )
+    ext_modules.append(
+        Extension('pyvirtualcam._native_macos_obs_cmioextension',
+            # Sort input source files to ensure bit-for-bit reproducible builds
+            # (https://github.com/pybind/python_example/pull/53)
+            sorted([
+                'pyvirtualcam/native_macos_obs_cmioextension/main.mm'
+            ] + common_src),
+            include_dirs=['pyvirtualcam/native_macos_obs_cmioextension'] + common_inc,
+            extra_link_args=["-framework", "CoreMedia", "-framework", "CoreMediaIO"],
+            language='objc'
+        )
+    )
 elif platform.system() == 'Linux':
     ext_modules.append(
         Extension('pyvirtualcam._native_linux_v4l2loopback',
