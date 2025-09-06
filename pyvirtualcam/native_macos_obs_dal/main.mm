@@ -37,7 +37,7 @@ class Camera {
     }
 };
 
-PYBIND11_MODULE(_native_macos_obs, m) {
+PYBIND11_MODULE(_native_macos_obs_dal, m) {
     py::class_<Camera>(m, "Camera")
         .def(py::init<uint32_t, uint32_t, double, uint32_t, std::optional<std::string>>(),
              py::kw_only(),
