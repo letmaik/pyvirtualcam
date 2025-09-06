@@ -48,14 +48,14 @@ if platform.system() == 'Windows':
     )
 elif platform.system() == 'Darwin':
     ext_modules.append(
-        Extension('pyvirtualcam._native_macos_obs',
+        Extension('pyvirtualcam._native_macos_obs_dal',
             # Sort input source files to ensure bit-for-bit reproducible builds
             # (https://github.com/pybind/python_example/pull/53)
             sorted([
-                'pyvirtualcam/native_macos_obs/main.mm',
-                'pyvirtualcam/native_macos_obs/server/OBSDALMachServer.mm',
+                'pyvirtualcam/native_macos_obs_dal/main.mm',
+                'pyvirtualcam/native_macos_obs_dal/server/OBSDALMachServer.mm',
             ] + common_src),
-            include_dirs=['pyvirtualcam/native_macos_obs'] + common_inc,
+            include_dirs=['pyvirtualcam/native_macos_obs_dal'] + common_inc,
             extra_link_args=["-framework", "Foundation", "-framework", "CoreVideo"],
             language='objc'
         )
