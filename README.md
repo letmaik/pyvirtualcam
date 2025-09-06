@@ -62,7 +62,7 @@ To use the Unity Capture virtual camera, follow the [installation instructions](
 
 **NOTE**: Starting with pyvirtualcam 0.10, only OBS 28 or higher is supported. Install an older version if you need OBS 26 / 27 support.
 
-**HELP WANTED**: pyvirtualcam requires code updates to run on macOS 14 and higher. If you own a Mac, consider contributing: https://github.com/letmaik/pyvirtualcam/issues/111#issuecomment-1763398540.
+**NOTE**: Starting with pyvirtualcam 0.14, when running on macOS 13 or later, only OBS 30 or later is supported.
 
 To use the OBS virtual camera, follow these one-time setup steps:
 - [Install OBS](https://obsproject.com/).
