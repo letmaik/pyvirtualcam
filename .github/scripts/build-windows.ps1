@@ -71,6 +71,9 @@ if (!$env:NUMPY_VERSION) {
 
 Initialize-Python
 
+# Prefer binary packages over building from source
+$env:PIP_PREFER_BINARY = 1
+
 Get-ChildItem env:
 
 # Build the wheel.

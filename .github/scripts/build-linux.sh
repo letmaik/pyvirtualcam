@@ -4,20 +4,12 @@ set -e -x
 # List python versions
 ls /opt/python
 
-if [ $PYTHON_VERSION == "3.8" ]; then
-    PYBIN="/opt/python/cp38-cp38/bin"
-elif [ $PYTHON_VERSION == "3.9" ]; then
-    PYBIN="/opt/python/cp39-cp39/bin"
-elif [ $PYTHON_VERSION == "3.10" ]; then
-    PYBIN="/opt/python/cp310-cp310/bin"
-elif [ $PYTHON_VERSION == "3.11" ]; then
-    PYBIN="/opt/python/cp311-cp311/bin"
-elif [ $PYTHON_VERSION == "3.12" ]; then
-    PYBIN="/opt/python/cp312-cp312/bin"
-elif [ $PYTHON_VERSION == "3.13" ]; then
-    PYBIN="/opt/python/cp313-cp313/bin"
-else
-    echo "Unsupported Python version $PYTHON_VERSION"
+# Compute PYBIN from PYTHON_VERSION (e.g., "3.14" -> "cp314-cp314")
+PYVER_NO_DOT=${PYTHON_VERSION//./}
+PYBIN="/opt/python/cp${PYVER_NO_DOT}-cp${PYVER_NO_DOT}/bin"
+
+if [ ! -d "$PYBIN" ]; then
+    echo "Python version $PYTHON_VERSION not found at $PYBIN"
     exit 1
 fi
 
@@ -25,6 +17,10 @@ if [ ! -z "$GITHUB_ENV" ]; then
     echo "CODEQL_PYTHON=$PYBIN/python" >> $GITHUB_ENV
     echo "PATH=$PYBIN:$PATH" >> $GITHUB_ENV
 fi
+
+# Upgrade pip and prefer binary packages
+${PYBIN}/python -m pip install --upgrade pip
+export PIP_PREFER_BINARY=1
 
 # install compile-time dependencies
 ${PYBIN}/pip install numpy==${NUMPY_VERSION}
