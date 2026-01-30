@@ -1,5 +1,6 @@
 # test dependencies
 pytest
+mypy
 # https://github.com/opencv/opencv-python/issues/291#issuecomment-841816850
 opencv-python; sys_platform != 'darwin'
 imageio

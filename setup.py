@@ -166,6 +166,7 @@ setup(
     ],
     ext_modules=ext_modules,
     packages = find_packages(),
+    package_data={'pyvirtualcam': ['py.typed']},
     setup_requires=['pybind11>=2.6.0'],
     install_requires=['numpy'],
     cmdclass={'build_ext': BuildExt},
