@@ -248,8 +248,8 @@ class Camera:
         self._fps_counter = FPSCounter(fps)
         self._fps_last_printed = time.perf_counter()
         self._frames_sent = 0
-        self._last_frame_t = 0.0
-        self._extra_time_per_frame = 0
+        self._last_frame_t = time.perf_counter()
+        self._extra_time_per_frame = 0.0
 
     def __enter__(self):
         return self
