@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Type
+from typing import Optional, Dict, Type, TYPE_CHECKING
 from abc import ABC, abstractmethod
 import platform
 import time
@@ -105,20 +105,24 @@ def register_backend(name: str, clazz):
     BACKENDS[name] = clazz
 
 if platform.system() == 'Windows':
-    from pyvirtualcam import _native_windows_obs, _native_windows_unity_capture
-    register_backend('obs', _native_windows_obs.Camera)
-    register_backend('unitycapture', _native_windows_unity_capture.Camera)
+    if not TYPE_CHECKING:
+        from pyvirtualcam import _native_windows_obs, _native_windows_unity_capture
+        register_backend('obs', _native_windows_obs.Camera)
+        register_backend('unitycapture', _native_windows_unity_capture.Camera)
 elif platform.system() == 'Darwin':
     # Darwin 22 is used on macOS 13
     if int(platform.release().split(".")[0]) >= 22:
-        from pyvirtualcam import _native_macos_obs_cmioextension
-        register_backend('obs', _native_macos_obs_cmioextension.Camera)
+        if not TYPE_CHECKING:
+            from pyvirtualcam import _native_macos_obs_cmioextension
+            register_backend('obs', _native_macos_obs_cmioextension.Camera)
     else:
-        from pyvirtualcam import _native_macos_obs_dal
-        register_backend('obs', _native_macos_obs_dal.Camera)
+        if not TYPE_CHECKING:
+            from pyvirtualcam import _native_macos_obs_dal
+            register_backend('obs', _native_macos_obs_dal.Camera)
 elif platform.system() == 'Linux':
-    from pyvirtualcam import _native_linux_v4l2loopback
-    register_backend('v4l2loopback', _native_linux_v4l2loopback.Camera)
+    if not TYPE_CHECKING:
+        from pyvirtualcam import _native_linux_v4l2loopback
+        register_backend('v4l2loopback', _native_linux_v4l2loopback.Camera)
 
 class PixelFormat(Enum):
     """ Pixel formats.
@@ -244,15 +248,14 @@ class Camera:
         self._fps_counter = FPSCounter(fps)
         self._fps_last_printed = time.perf_counter()
         self._frames_sent = 0
-        self._last_frame_t = None
+        self._last_frame_t = 0.0
         self._extra_time_per_frame = 0
 
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback) -> bool:
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.close()
-        return False
     
     def __del__(self):
         self.close()
@@ -267,6 +270,7 @@ class Camera:
     def device(self) -> str:
         """ The virtual camera device in use.
         """
+        assert self._backend is not None
         return self._backend.device()
 
     @property
@@ -304,6 +308,7 @@ class Camera:
         For example, on Windows, a camera device typically
         supports multiple formats.
         """
+        assert self._backend is not None
         fourcc = self._backend.native_fourcc()
         return PixelFormat(decode_fourcc(fourcc)) if fourcc else None
 
@@ -351,6 +356,7 @@ class Camera:
             print(s)
         
         frame = np.asarray(frame.reshape(-1), order='C')
+        assert self._backend is not None
         self._backend.send(frame)
         
     @property

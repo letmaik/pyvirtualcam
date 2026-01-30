@@ -1,6 +1,6 @@
 import os
 import signal
-from typing import Union
+from typing import Union, Tuple, overload
 import sys
 import signal
 import subprocess
@@ -30,12 +30,13 @@ from pyvirtualcam import PixelFormat
 if platform.system() == 'Windows':
     import pyvirtualcam_win_dshow_capture as dshow
 
-    def capture_rgb(device: str, width: int, height: int):
+    def capture_rgb(device: Union[str, int], width: int, height: int) -> Tuple[np.ndarray, float]:
+        assert isinstance(device, str), "Windows requires device to be a string"
         rgb, timestamp_ms = dshow.capture(device, width, height)
         return rgb, timestamp_ms
 
 elif platform.system() in ['Linux', 'Darwin']:
-    def capture_rgb(device: Union[str, int], width: int, height: int):
+    def capture_rgb(device: Union[str, int], width: int, height: int) -> Tuple[np.ndarray, float]:
         print(f'Opening device {device} for capture')
         vc = cv2.VideoCapture(device)
         assert vc.isOpened()
@@ -272,7 +273,7 @@ def send_frames(backend: str, fmt: PixelFormat, info_path: Path, mode: str):
 
 def capture_frame(backend: str, fmt: PixelFormat, info_path: Path, mode: str):
     if platform.system() == 'Darwin':
-        device = 0
+        device: Union[str, int] = 0
     else:
         with open(info_path) as f:
             device = json.load(f)

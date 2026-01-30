@@ -1,5 +1,6 @@
 # https://github.com/pybind/python_example/blob/master/setup.py
 
+from typing import Dict, List
 import glob
 from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
@@ -71,7 +72,7 @@ class BuildExt(build_ext):
         'msvc': ['/EHsc'],
         'unix': [],
     }
-    l_opts = {
+    l_opts: Dict[str, List[str]] = {
         'msvc': [],
         'unix': [],
     }

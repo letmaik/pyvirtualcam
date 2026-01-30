@@ -5,7 +5,7 @@ import pytest
 import pyvirtualcam.util
 
 @pytest.mark.skipif(
-    os.environ.get('CI') and platform.system() == 'Darwin',
+    bool(os.environ.get('CI')) and platform.system() == 'Darwin',
     reason='disabled due to high fluctuations in CI, manually verified on MacBook Pro')
 def test_fps_counter():
     target_fps = 20

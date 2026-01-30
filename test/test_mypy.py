@@ -6,7 +6,7 @@ import sys
 def test_mypy_source():
     """Run mypy on the source folder."""
     result = subprocess.run(
-        [sys.executable, '-m', 'mypy', 'pyvirtualcam'],
+        [sys.executable, '-m', 'mypy', '--install-types', '--non-interactive', 'pyvirtualcam'],
         capture_output=True,
         text=True
     )
@@ -16,7 +16,7 @@ def test_mypy_source():
 def test_mypy_tests():
     """Run mypy on the test folder."""
     result = subprocess.run(
-        [sys.executable, '-m', 'mypy', 'test'],
+        [sys.executable, '-m', 'mypy', '--install-types', '--non-interactive', 'test'],
         capture_output=True,
         text=True
     )
