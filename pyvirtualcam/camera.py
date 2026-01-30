@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Type, TYPE_CHECKING
+from typing import Optional, Dict, Type, TYPE_CHECKING, Callable
 from abc import ABC, abstractmethod
 import platform
 import time
@@ -210,11 +210,11 @@ class Camera:
             backends = [(backend, BACKENDS[backend])]
         else:
             backends = list(BACKENDS.items())
-        self._backend = None
+        backend_instance: Optional[Backend] = None
         errors = []
         for name, clazz in backends:
             try:
-                self._backend = clazz(
+                backend_instance = clazz(
                     width=width, height=height, fps=fps,
                     fourcc=encode_fourcc(fmt.value),
                     device=device,
@@ -222,16 +222,17 @@ class Camera:
             except Exception as e:
                 errors.append(f"'{name}' backend: {e}")
             else:
-                self._backend_name = name
+                self._backend_name: str = name
                 break
-        if self._backend is None:
+        if backend_instance is None:
             raise RuntimeError('\n'.join(errors))
-
-        self._width = width
-        self._height = height
-        self._fps = fps
-        self._fmt = fmt
-        self._print_fps = print_fps
+        
+        self._backend: Backend = backend_instance
+        self._width: int = width
+        self._height: int = height
+        self._fps: float = fps
+        self._fmt: PixelFormat = fmt
+        self._print_fps: bool = print_fps
 
         frame_shape = FrameShapes[fmt](width, height)
         if isinstance(frame_shape, int):
@@ -243,13 +244,14 @@ class Camera:
                 if frame.shape != frame_shape:
                     raise ValueError(f"unexpected frame shape: {frame.shape} != {frame_shape}")
 
-        self._check_frame_shape = check_frame_shape
+        self._check_frame_shape: Callable[[np.ndarray], None] = check_frame_shape
 
-        self._fps_counter = FPSCounter(fps)
-        self._fps_last_printed = time.perf_counter()
-        self._frames_sent = 0
-        self._last_frame_t = time.perf_counter()
-        self._extra_time_per_frame = 0.0
+        self._fps_counter: FPSCounter = FPSCounter(fps)
+        self._fps_last_printed: float = time.perf_counter()
+        self._frames_sent: int = 0
+        self._last_frame_t: float = time.perf_counter()
+        self._extra_time_per_frame: float = 0.0
+        self._closed: bool = False
 
     def __enter__(self):
         return self
@@ -270,7 +272,6 @@ class Camera:
     def device(self) -> str:
         """ The virtual camera device in use.
         """
-        assert self._backend is not None
         return self._backend.device()
 
     @property
@@ -308,7 +309,6 @@ class Camera:
         For example, on Windows, a camera device typically
         supports multiple formats.
         """
-        assert self._backend is not None
         fourcc = self._backend.native_fourcc()
         return PixelFormat(decode_fourcc(fourcc)) if fourcc else None
 
@@ -324,9 +324,9 @@ class Camera:
         This method is automatically called when using ``with`` or
         when this instance goes out of scope.
         """
-        if self._backend is not None:
+        if not self._closed:
             self._backend.close()
-            self._backend = None
+            self._closed = True
 
     def send(self, frame: np.ndarray) -> None:
         """Send a frame to the virtual camera device.
@@ -356,7 +356,6 @@ class Camera:
             print(s)
         
         frame = np.asarray(frame.reshape(-1), order='C')
-        assert self._backend is not None
         self._backend.send(frame)
         
     @property

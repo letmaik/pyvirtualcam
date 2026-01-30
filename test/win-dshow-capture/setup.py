@@ -12,7 +12,7 @@ class get_pybind_include(object):
     until it is actually installed, so that the ``get_include()``
     method can be invoked. """
 
-    def __str__(self):
+    def __str__(self) -> str:
         import pybind11
         return pybind11.get_include()
 
